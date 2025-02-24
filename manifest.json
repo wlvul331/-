@@ -1,0 +1,20 @@
+{
+  "name": "Carter's BABYDOGE盈虧",
+  "short_name": "BABYDOGE盈虧",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#1e1e2f",
+  "theme_color": "#1e1e2f",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

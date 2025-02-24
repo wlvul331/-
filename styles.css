@@ -1,0 +1,48 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #121212;
+    color: white;
+    text-align: center;
+    margin: 20px;
+}
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: #1e1e2f;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.1);
+}
+.stat {
+    font-size: 20px;
+    margin: 10px 0;
+}
+.profit {
+    font-weight: bold;
+}
+.positive {
+    color: #4caf50;
+}
+.negative {
+    color: #f44336;
+}
+.loading-container {
+    text-align: center;
+    margin-top: 20px;
+}
+.loading-bar {
+    width: 100%;
+    height: 10px;
+    background: #333;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.loading-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: #4caf50;
+    transition: width 0.3s ease-in-out;
+}
+.stats-container {
+    display: none;
+}
