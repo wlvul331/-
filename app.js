@@ -163,11 +163,14 @@ function updateTickerDisplay(tickerContainer) {
     const coin = sym.slice(0, sym.length - 4); // 取得幣種名稱
     const coinIcon = `images/${coin.toLowerCase()}.png`; // 本地圖片路徑
 
-    html += `<div class="ticker-item">
-               <img src="${coinIcon}" alt="${coin}" class="coin-icon">
-               <span class="ticker-coin">${coin}<span class="ticker-suffix">/USDT</span></span>
-               <span class="ticker-price">${price}</span>
-             </div>`;
+html += `<div class="ticker-item">
+           <div class="ticker-left">
+             <img src="${coinIcon}" alt="${coin}" class="coin-icon">
+             <span class="ticker-coin">${coin}<span class="ticker-suffix">/USDT</span></span>
+           </div>
+           <span class="ticker-price">${price}</span>
+         </div>`;
+
   });
 
   tickerContainer.innerHTML = html;
