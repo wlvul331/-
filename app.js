@@ -150,20 +150,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function updateTickerDisplay(tickerContainer) {
   let html = '';
+  const coinIcons = {
+    BTC: "https://cryptoicons.org/api/icon/btc/32",
+    ETH: "https://cryptoicons.org/api/icon/eth/32",
+    SOL: "https://cryptoicons.org/api/icon/sol/32",
+    ADA: "https://cryptoicons.org/api/icon/ada/32",
+    BNB: "https://cryptoicons.org/api/icon/bnb/32",
+    DOGE: "https://cryptoicons.org/api/icon/doge/32"
+  };
+
   const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
-  
   symbols.forEach(sym => {
-    let price = tickersData[sym] !== undefined ? tickersData[sym].toFixed(2) : "Loading...";
-    const coin = sym.slice(0, sym.length - 4); // 取出幣名（不包含 USDT）
-    
+    let price;
+    if (tickersData[sym] === undefined) {
+      price = "Loading...";
+    } else {
+      price = `${tickersData[sym].toFixed(2)}`;
+    }
+
+    const coin = sym.slice(0, sym.length - 4); // 取得幣種名稱
+    const coinIcon = coinIcons[coin] || "https://cryptoicons.org/api/icon/generic/32"; // 預設圖示
+
     html += `<div class="ticker-item">
-               <span class="ticker-coin">${coin}<span class="ticker-suffix">/USDT</span></span>
+               <img src="${coinIcon}" alt="${coin}" class="coin-icon">
+               <span class="ticker-coin">${coin}</span><span class="ticker-suffix">/USDT</span>
                <span class="ticker-price">${price}</span>
              </div>`;
   });
 
   tickerContainer.innerHTML = html;
 }
+
 
 
 
