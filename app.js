@@ -1,6 +1,7 @@
-// 定義全域變數，保存上一次的美元價格
+// 定義全域變數，保存上一次的美元價格，以及 ticker 更新計時器
 let lastUsdPrice = null;
 let ws = null;
+let tickerInterval = null;  // 用來存放行情更新的 interval
 const reconnectInterval = 5000; // 重連間隔 (毫秒)
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -139,17 +140,9 @@ document.addEventListener("DOMContentLoaded", function () {
     return `$${num.toFixed(7)}`;
   }
 
-  // 新增：顯示幣安上部分幣種行情價格（BTC, ETH, SOL, ADA, BNB）
-  // 這裡建立一個新的 ticker 區塊，並隱藏原本的盈虧資訊
-  function showTickers() {
-    // 若已存在 ticker 區塊，則先移除
-    let existingTicker = document.getElementById("ticker-container");
-    if (existingTicker) {
-      existingTicker.parentNode.removeChild(existingTicker);
-    }
-    const tickerContainer = document.createElement('div');
-    tickerContainer.id = "ticker-container";
-    tickerContainer.className = "ticker-container";
+  // 新增：更新並顯示幣安上部分幣種行情價格（BTC, ETH, SOL, ADA, BNB）
+  // 利用 REST API 輪詢更新
+  function updateTickers(tickerContainer) {
     const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT"];
     const requests = symbols.map(sym =>
       fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}`)
@@ -162,27 +155,52 @@ document.addEventListener("DOMContentLoaded", function () {
           html += `<div class="ticker-item"><span>${result.symbol.replace('USDT','')}:</span> <span>$${parseFloat(result.price).toFixed(2)}</span></div>`;
         });
         tickerContainer.innerHTML = html;
-        // 隱藏原本的盈虧資訊
-        statsContainer.style.display = "none";
-        // 將 ticker 區塊加入到 statsBox 中（在原 statsContainer 之後）
-        statsBox.appendChild(tickerContainer);
       })
       .catch(error => console.error("Error fetching tickers:", error));
   }
 
-  // 當買入按鈕被按下時，顯示行情價格資訊
+  // 新增：顯示行情資訊
+  function showTickers() {
+    // 若已存在 ticker 區塊，則先移除
+    let existingTicker = document.getElementById("ticker-container");
+    if (existingTicker) {
+      existingTicker.parentNode.removeChild(existingTicker);
+    }
+    const tickerContainer = document.createElement("div");
+    tickerContainer.id = "ticker-container";
+    tickerContainer.className = "ticker-container";
+    // 隱藏原本的盈虧資訊
+    statsContainer.style.display = "none";
+    // 將 ticker 區塊加入到 statsBox 中（原本灰色方框）
+    statsBox.appendChild(tickerContainer);
+    // 初始更新
+    updateTickers(tickerContainer);
+    // 設置輪詢，每 5 秒更新一次行情價格
+    tickerInterval = setInterval(() => {
+      updateTickers(tickerContainer);
+    }, 5000);
+  }
+
+  // 當買入按鈕被按下時，顯示行情價格資訊並開始更新
   buyButton.addEventListener("click", function(e) {
     e.preventDefault();
     showTickers();
   });
 
-  // 當賣出按鈕被按下時，移除 ticker 區塊（如果有）並恢復原本的盈虧頁面
+  // 當賣出按鈕被按下時，清除行情更新並恢復原本的盈虧資訊頁面
   sellButton.addEventListener("click", function(e) {
     e.preventDefault();
+    // 清除行情更新計時器
+    if (tickerInterval) {
+      clearInterval(tickerInterval);
+      tickerInterval = null;
+    }
+    // 移除行情 ticker 區塊（如果存在）
     let tickerContainer = document.getElementById("ticker-container");
     if (tickerContainer) {
       tickerContainer.parentNode.removeChild(tickerContainer);
     }
+    // 恢復顯示原本的盈虧資訊
     statsContainer.style.display = "block";
   });
 
