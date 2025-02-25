@@ -1,10 +1,14 @@
+/* 全局樣式 */
 body {
     background-color: #121212;
     color: white;
     font-family: Arial, sans-serif;
     text-align: center;
+    margin: 0;
+    padding: 0;
 }
 
+/* 標題區塊 */
 .title-container {
     display: flex;
     align-items: center;
@@ -23,6 +27,7 @@ body {
     font-weight: bold;
 }
 
+/* 當前價格灰色方框 */
 .price-box {
     background-color: #333;
     display: inline-block;
@@ -33,15 +38,10 @@ body {
     margin-top: 10px;
 }
 
-.price-container {
-    font-size: 20px;
-    margin-top: 20px;
-}
-
-.price {
-    font-size: 22px;
-    font-weight: bold;
-    color: #FFD700;
+/* 讀取條 */
+#loading-container {
+    margin: 20px auto;
+    text-align: center;
 }
 
 .loading-bar {
@@ -60,6 +60,12 @@ body {
     border-radius: 5px;
 }
 
+#loading-percentage {
+    font-size: 14px;
+    color: #aaa;
+}
+
+/* 盈虧數據顯示 */
 .container {
     background-color: #222;
     padding: 20px;
@@ -67,6 +73,7 @@ body {
     width: 90%;
     max-width: 400px;
     border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
 }
 
 .stat {
@@ -76,6 +83,7 @@ body {
     font-size: 16px;
 }
 
+/* 盈虧數字變色 */
 .profit {
     font-weight: bold;
 }
