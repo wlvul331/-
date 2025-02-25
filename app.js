@@ -10,11 +10,11 @@ function startLoadingBar() {
     document.getElementById('loading-percentage').textContent = '0%';
 
     progressInterval = setInterval(() => {
-        if (progress < 90) { // **最多到 90%，避免 API 太慢時卡住**
+        if (progress < 80) { // 讀取時緩慢增加到 80%
             progress += 2;
             updateLoadingBar(progress);
         }
-    }, 80);
+    }, 100);
 }
 
 function updateLoadingBar(value) {
@@ -29,35 +29,38 @@ async function fetchPrice() {
         if (!response.ok) throw new Error("API 回應錯誤");
 
         const data = await response.json();
+        console.log("API 回傳數據：", data); // 🔍 確認數據是否正常回傳
+        
+        if (!data['baby-doge-coin']) throw new Error("數據加載失敗");
+
         const usdPrice = data['baby-doge-coin']['usd'];
         const twdPrice = data['baby-doge-coin']['twd'];
 
-        // 更新 UI
+        // 更新價格資訊
         document.getElementById('price-usd').textContent = formatSmallNumber(usdPrice);
-        const totalValue = totalQuantity * twdPrice;
-        document.getElementById('total-value').textContent = totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 });
+        document.getElementById('total-quantity').textContent = totalQuantity.toLocaleString();
+        document.getElementById('total-value').textContent = `NT$${(totalQuantity * twdPrice).toFixed(2)}`;
 
-        const unrealizedProfit = totalValue - totalPurchasePriceTWD;
-        document.getElementById('profit').textContent = unrealizedProfit.toLocaleString(undefined, { minimumFractionDigits: 2 });
-        document.getElementById('profit-percentage').textContent = ((unrealizedProfit / totalPurchasePriceTWD) * 100).toFixed(2) + '%';
+        // 計算盈虧
+        const unrealizedProfit = totalQuantity * twdPrice - totalPurchasePriceTWD;
+        document.getElementById('profit').textContent = `NT$${unrealizedProfit.toFixed(2)}`;
+        document.getElementById('profit-percentage').textContent = `${((unrealizedProfit / totalPurchasePriceTWD) * 100).toFixed(2)}%`;
 
-        // 設置盈虧顏色
+        // 變色
         const profitClass = unrealizedProfit >= 0 ? 'positive' : 'negative';
         document.getElementById('profit').className = `profit ${profitClass}`;
         document.getElementById('profit-percentage').className = `profit ${profitClass}`;
 
-        // **API 回應後，快速完成進度條**
+        // **進度條快速填滿 100%**
         isDataLoaded = true;
         completeLoadingBar();
 
     } catch (error) {
         console.error("Error fetching price: ", error);
-        document.getElementById('price-usd').textContent = "載入失敗";
-        document.getElementById('total-value').textContent = "載入失敗";
-        document.getElementById('profit').textContent = "載入失敗";
-        document.getElementById('profit-percentage').textContent = "載入失敗";
-
-        completeLoadingBar();
+        document.getElementById('price-usd').textContent = "數據加載失敗";
+        document.getElementById('total-value').textContent = "數據加載失敗";
+        document.getElementById('profit').textContent = "數據加載失敗";
+        document.getElementById('profit-percentage').textContent = "數據加載失敗";
     }
 }
 
@@ -72,7 +75,7 @@ function completeLoadingBar() {
     }, 500);
 }
 
-// ✅ **修正格式化小數方式**
+// ✅ 修正 `{N}` 顯示方式
 function formatSmallNumber(num) {
     if (num >= 0.01) return `$${num.toFixed(8)}`;
 
@@ -80,15 +83,13 @@ function formatSmallNumber(num) {
     const match = numStr.match(/^0\.0+(.*)/);
     
     if (match) {
-        const zeroCount = numStr.match(/0/g).length - 2; // 計算 0 的數量
-        return `0.0{${zeroCount}}${match[1]}`;
+        const zeroCount = match[0].length - 3; // 計算 0 的數量
+        return `0.${'0'.repeat(zeroCount)}${match[1]}`;
     }
     
     return `$${numStr}`;
 }
 
-// **初次載入**
+// **執行價格獲取**
 fetchPrice();
-
-// **每 10 秒更新一次**
-setInterval(fetchPrice, 10000);
+setInterval(fetchPrice, 30000); // **30 秒更新一次**
