@@ -1,97 +1,33 @@
-/* 全局樣式 */
-body {
-    background-color: #121212;
+/* 讓價格和盈虧數據在同一個灰色區塊內 */
+.stats-box {
+    background-color: #333;  /* 灰色背景 */
     color: white;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-}
-
-/* 標題區塊 */
-.title-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.coin-logo {
-    width: 40px;
-    height: 40px;
-    margin-right: 10px;
-}
-
-.title {
-    font-size: 24px;
-    font-weight: bold;
-}
-
-/* 當前價格灰色方框 */
-.price-box {
-    background-color: #333;
-    display: inline-block;
-    padding: 10px 20px;
+    padding: 15px;
     border-radius: 10px;
-    font-size: 20px;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-/* 讀取條 */
-#loading-container {
-    margin: 20px auto;
     text-align: center;
-}
-
-.loading-bar {
-    width: 80%;
-    height: 10px;
-    background-color: #444;
-    border-radius: 5px;
-    margin: 10px auto;
-    position: relative;
-}
-
-#loading-bar-fill {
-    height: 100%;
-    width: 0;
-    background-color: #4caf50;
-    border-radius: 5px;
-}
-
-#loading-percentage {
-    font-size: 14px;
-    color: #aaa;
-}
-
-/* 盈虧數據顯示 */
-.container {
-    background-color: #222;
-    padding: 20px;
-    margin: 20px auto;
-    width: 90%;
     max-width: 400px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+    margin: 20px auto;
 }
 
+/* 調整價格顯示 */
+.price-container {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* 盈虧數據樣式 */
 .stat {
     display: flex;
     justify-content: space-between;
     padding: 5px 0;
-    font-size: 16px;
 }
 
-/* 盈虧數字變色 */
+/* 負數時顯示紅色 */
 .profit {
     font-weight: bold;
 }
 
-.positive {
-    color: #00FF00;
-}
-
-.negative {
-    color: #FF4444;
+.profit.negative {
+    color: red;
 }
