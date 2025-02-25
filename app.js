@@ -16,14 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // 固定參數（以台幣計算）
   const totalCost = 1690000;             // 總成本 (TWD)
   const totalQuantity = 21235769401342.17; // 總持有量
-
-  // 使用 CORS 代理避免跨域問題（若需要可移除或換用自己的代理服務）
-  const proxyUrl = "https://corsproxy.io/?";
-  // 派網 API 取得訂單薄行情（以 BABYDOGE_USDT 為例）
-  const pionexUrl = "https://api.pionex.com/api/v1/market/bookTickers?symbol=BABYDOGE_USDT";
-  
-  // 預設美元轉台幣匯率（若需要可自行調整或動態取得）
-  const conversionRate = 30;
+  const conversionRate = 32.8;             // 預設美元轉台幣匯率
 
   // 進度條初始化
   let progress = 0;
@@ -37,6 +30,8 @@ document.addEventListener("DOMContentLoaded", function () {
       if (progress < 80) {
         progress += 10;
         updateLoadingBar(progress);
+      } else {
+        clearInterval(interval);
       }
     }, 200);
   }
@@ -46,27 +41,25 @@ document.addEventListener("DOMContentLoaded", function () {
     loadingPercentage.textContent = value + "%";
   }
 
-  async function fetchPrice() {
+  // 建立 Binance WebSocket 連線，訂閱 babydogeusdt 的 24 小時 ticker 流（所有 symbol 皆為小寫）
+  const ws = new WebSocket('wss://stream.binance.com:9443/ws/babydogeusdt@ticker');
+
+  ws.onopen = function() {
+    console.log("已連線到 Binance WebSocket (babydogeusdt@ticker)");
+  };
+
+  ws.onmessage = function(event) {
     try {
-      const response = await fetch(proxyUrl + pionexUrl);
-      if (!response.ok) throw new Error("API 回應錯誤");
-      const data = await response.json();
-
-      // 從回應資料中取得 tickers 陣列，並找出 BABYDOGE_USDT 的行情資料
-      const tickers = data.data.tickers;
-      const ticker = tickers.find(t => t.symbol === "BABYDOGE_USDT");
-      if (!ticker) throw new Error("找不到 BABYDOGE_USDT 的行情資料");
-
-      // 解析最佳買入價與最佳賣出價，取平均作為即時美元價格
-      const bidPrice = parseFloat(ticker.bidPrice);
-      const askPrice = parseFloat(ticker.askPrice);
-      const usdPrice = (bidPrice + askPrice) / 2;
+      const data = JSON.parse(event.data);
+      // 從 ticker 流中，"c" 欄位代表最新成交價格
+      const usdPrice = parseFloat(data.c);
 
       // 格式化並顯示當前價格
       priceElement.textContent = formatPrice(usdPrice);
+
       // 若上次價格存在且新價格下跌，顯示紅色；否則一律綠色
       if (lastUsdPrice !== null && usdPrice < lastUsdPrice) {
-        priceElement.style.color = "orangered";
+        priceElement.style.color = "red";
       } else {
         priceElement.style.color = "#00A67D";
       }
@@ -97,13 +90,22 @@ document.addEventListener("DOMContentLoaded", function () {
         profitPercentageElement.classList.remove("positive");
       }
 
-      completeLoadingBar();
+      // 第一次收到數據時完成進度條
+      if (progress < 100) {
+        completeLoadingBar();
+      }
     } catch (error) {
-      console.error("Error fetching price:", error);
-      // 若數據加載失敗，保留上次成功讀取的價格，不做更新
-      completeLoadingBar();
+      console.error("處理 WebSocket 訊息錯誤:", error);
     }
-  }
+  };
+
+  ws.onerror = function(error) {
+    console.error("WebSocket 錯誤:", error);
+  };
+
+  ws.onclose = function() {
+    console.log("WebSocket 連線已關閉");
+  };
 
   function completeLoadingBar() {
     progress = 100;
@@ -115,16 +117,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 500);
   }
 
-  // 格式化價格函數，若價格大於 0.01 則顯示 8 位小數，否則依情況格式化
+  // 格式化價格函數：若價格大於 0.01 則顯示 8 位小數，否則依情況格式化
   function formatPrice(num) {
     if (num >= 0.01) return `$${num.toFixed(8)}`;
     const numStr = num.toFixed(12);
     const match = numStr.match(/^0\.(0+)([1-9]\d*)$/);
     return match ? `0.0{${match[1].length}}${match[2]}` : `$${numStr}`;
   }
-
-  // 初次抓取價格
-  fetchPrice();
-  // 每 90 秒更新一次
-  setInterval(fetchPrice, 90000);
 });
