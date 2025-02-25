@@ -159,7 +159,6 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch(error => console.error("Error fetching tickers:", error));
   }
 
-// 新增：顯示幣安上部分幣種行情價格（BTC, ETH, SOL, ADA, BNB, DOGE）
 function showTickers() {
   // 若已存在 ticker 區塊，則先移除
   let existingTicker = document.getElementById("ticker-container");
@@ -183,13 +182,13 @@ function showTickers() {
     .then(results => {
       let html = '';
       results.forEach(result => {
-        // 顯示時將 symbol 中的 "USDT" 移除，只顯示幣名
-        html += `<div class="ticker-item"><span>${result.symbol.replace('USDT','')}</span>: <span>$${parseFloat(result.price).toFixed(2)}</span></div>`;
+        html += `<div class="ticker-item"><span>${result.symbol}</span>: <span>$${parseFloat(result.price).toFixed(2)}</span></div>`;
       });
       tickerContainer.innerHTML = html;
     })
     .catch(error => console.error("Error fetching tickers:", error));
 }
+
 
 
   // 當買入按鈕被按下時，顯示行情價格資訊並開始更新
