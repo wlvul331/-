@@ -97,50 +97,24 @@ body {
   transition: width 0.5s;
 }
 
-/* 進度百分比 */
 #loading-percentage {
   font-size: 14px;
   color: #ccc;
 }
 
 #price-usd {
-  font-size: 36px; /* 將字體大小增大 */
+  font-size: 36px;
   font-weight: bold;
-  margin-top: 10px; /* 調整此值以達到你想要的下移效果 */
+  margin-top: 10px;
 }
 
-#profit, #profit-percentage {
-  font-size: 24px; /* 調整此數值以符合需求 */
-  font-weight: bold;
-}
-
-.action-buttons {
-  position: fixed;
-  bottom: 20px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  /* 如有需要，可設定背景色或 padding */
-}
-
-.action-buttons button {
-  width: 150px;
-  height: 150px;
-  font-size: 18px;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-  border-radius: 8px; /* 可根據需求調整圓角 */
-}
-
+/* 按鈕容器 */
 .action-buttons {
   position: fixed;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  max-width: 400px;  /* 與灰色區塊寬度相同 */
+  max-width: 400px;
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -148,7 +122,7 @@ body {
 }
 
 .action-buttons button {
-  width: 48%;  /* 兩個按鈕各占約一半空間，間隔留空 */
+  width: 48%;
   height: 60px;
   font-size: 18px;
   font-weight: bold;
@@ -157,24 +131,12 @@ body {
   border-radius: 8px;
 }
 
-/* 買入按鈕使用 #00A67D 顏色 */
 #buy-button {
   background-color: #00A67D;
   color: white;
 }
 
-/* 賣出按鈕使用 orangered 顏色 */
 #sell-button {
   background-color: orangered;
   color: white;
 }
-
-#chart-container {
-  width: 100%;
-  max-width: 400px;
-  height: 300px;
-  margin: 20px auto;
-  background-color: #333;
-  border-radius: 10px;
-}
-
