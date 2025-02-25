@@ -104,8 +104,9 @@ body {
 }
 
 #price-usd {
-  font-size: 30px; /* 將字體大小增大 */
+  font-size: 36px; /* 將字體大小增大 */
   font-weight: bold;
+  margin-top: 10px; /* 調整此值以達到你想要的下移效果 */
 }
 
 #profit, #profit-percentage {
