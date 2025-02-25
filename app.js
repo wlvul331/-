@@ -14,6 +14,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const statsContainer = document.getElementById("stats-container");
   const loadingBarFill = document.getElementById("loading-bar-fill");
   const loadingPercentage = document.getElementById("loading-percentage");
+  const actionButtons = document.querySelector('.action-buttons');
+
+  // 初始隱藏即時價格區塊與按鈕
+  statsContainer.style.display = "none";
+  priceElement.style.display = "none";
+  actionButtons.style.display = "none";
 
   // 固定參數（以台幣計算）
   const totalCost = 1690000;             // 總成本 (TWD)
@@ -119,6 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
       loadingContainer.style.display = "none";
       statsContainer.style.display = "block";
       priceElement.style.display = "inline";
+      actionButtons.style.display = "flex";
     }, 500);
   }
 
