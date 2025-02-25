@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Carter's BABYDOGE盈虧</title>
+    <title>Carter's BabyDoge 盈虧</title>
     
     <!-- PWA 設定 -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e1e2f">
     <link rel="icon" sizes="192x192" href="icons/icon-192x192.png">
     <link rel="apple-touch-icon" href="icons/icon-512x512.png">
-
+    
+    <!-- PWA Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js')
@@ -19,140 +20,57 @@
         }
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 外部 CSS -->
     <link rel="stylesheet" href="styles.css">
-    <style>
-        /* 背景漸變 */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1e1e2f, #181825);
-            color: white;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        /* 容器樣式 */
-        .container {
-            width: 90%;
-            max-width: 420px;
-            background: rgba(30, 30, 47, 0.95);
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: 0px 8px 25px rgba(255, 255, 255, 0.1);
-            display: none; /* 預設隱藏 */
-        }
-
-        .title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .stat {
-            display: flex;
-            justify-content: space-between;
-            font-size: 18px;
-            margin: 12px 0;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
-        .profit {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .positive {
-            color: #4caf50;
-        }
-
-        .negative {
-            color: #f44336;
-        }
-
-        /* 進度條 */
-        #loading-container {
-            width: 80%;
-            max-width: 320px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: block;
-        }
-
-        .loading-bar {
-            width: 100%;
-            height: 12px;
-            background: #444;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .loading-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #ff7eb3, #ff758c);
-            transition: width 0.3s ease-in-out;
-        }
-
-        #loading-percentage {
-            margin-top: 10px;
-            font-size: 18px;
-        }
-    </style>
 </head>
 <body>
 
-    <!-- 進度條 -->
+    <!-- 🔄 讀取進度條 -->
     <div id="loading-container">
+        <p>數據加載中...</p>
         <div class="loading-bar">
-            <div id="loading-bar-fill" class="loading-fill"></div>
+            <div id="loading-bar-fill"></div>
         </div>
-        <div id="loading-percentage">0%</div>
+        <p id="loading-percentage">0%</p>
     </div>
 
-    <!-- 主要內容 -->
-    <div class="container" id="stats-container">
-        <div class="title">Carter's BabyDoge 盈虧</div>
+    <!-- 📊 盈虧數據 -->
+    <div id="stats-container" style="display: none;">
+        <div class="container">
+            <div class="title">Carter's BabyDoge 盈虧</div>
 
-        <div class="stat">
-            <span>當前價格 (USD)</span>
-            <span id="price-usd" class="price">Loading...</span>
-        </div>
-        <div class="stat">
-            <span>總持有量</span>
-            <span id="total-quantity">Loading...</span>
-        </div>
-        <div class="stat">
-            <span>總成本 (TWD)</span>
-            <span>NT$<span id="total-cost">1,690,000</span></span>
-        </div>
-        <div class="stat">
-            <span>購入均價 (USD)</span>
-            <span>$<span id="avg-price">Loading...</span></span>
-        </div>
-        <div class="stat">
-            <span>當前持幣總價值 (TWD)</span>
-            <span>NT$<span id="total-value" class="value">Loading...</span></span>
-        </div>
-        <div class="stat">
-            <span>未實現盈虧</span>
-            <span id="profit" class="profit">Loading...</span>
-        </div>
-        <div class="stat">
-            <span>盈虧率</span>
-            <span id="profit-percentage" class="profit">Loading...</span>
+            <div class="stat">
+                <span>當前價格 (USD)</span>
+                <span id="price-usd" class="price">Loading...</span>
+            </div>
+            <div class="stat">
+                <span>總持有量</span>
+                <span id="total-quantity">Loading...</span>
+            </div>
+            <div class="stat">
+                <span>總成本 (TWD)</span>
+                <span>NT$<span id="total-cost">1690000</span></span>
+            </div>
+            <div class="stat">
+                <span>購入均價 (USD)</span>
+                <span id="avg-price">Loading...</span>
+            </div>
+            <div class="stat">
+                <span>當前持幣總價值 (TWD)</span>
+                <span>NT$<span id="total-value" class="value">Loading...</span></span>
+            </div>
+            <div class="stat">
+                <span>未實現盈虧</span>
+                <span id="profit" class="profit">Loading...</span>
+            </div>
+            <div class="stat">
+                <span>盈虧率</span>
+                <span id="profit-percentage" class="profit">Loading...</span>
+            </div>
         </div>
     </div>
 
+    <!-- JavaScript -->
     <script src="app.js"></script>
 </body>
 </html>
