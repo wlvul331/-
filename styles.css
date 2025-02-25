@@ -181,3 +181,29 @@ body {
   font-family: monospace;/* 使用等寬字型，確保數字對齊 */
 }
 
+/* 新增：針對盈虧資訊（淺色）與行情資訊（深色）的過渡效果 */
+.stats-container,
+.ticker-container {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.hidden {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 若原有的 .ticker-container 需較深背景 */
+.ticker-container {
+  background-color: #222;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+  text-align: left;
+}
+
+
