@@ -1,33 +1,96 @@
-/* 讓價格和盈虧數據在同一個灰色區塊內 */
+/* 全局設定 */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #111;
+    color: white;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+/* 標題區塊 */
+.title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.coin-logo {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* 主要數據區塊（包含價格與盈虧數據） */
 .stats-box {
     background-color: #333;  /* 灰色背景 */
-    color: white;
     padding: 15px;
     border-radius: 10px;
-    text-align: center;
     max-width: 400px;
     margin: 20px auto;
 }
 
-/* 調整價格顯示 */
+/* 當前價格顯示 */
 .price-container {
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 10px;
 }
 
-/* 盈虧數據樣式 */
+/* 盈虧數據區塊 */
 .stat {
     display: flex;
     justify-content: space-between;
-    padding: 5px 0;
+    padding: 8px 0;
+    font-size: 16px;
 }
 
-/* 負數時顯示紅色 */
+/* 盈虧數字樣式 */
 .profit {
     font-weight: bold;
 }
 
+/* 盈利為綠色，虧損為紅色 */
 .profit.negative {
     color: red;
+}
+
+.profit.positive {
+    color: #0f0;
+}
+
+/* 讀取中進度條 */
+#loading-container {
+    text-align: center;
+    margin: 20px auto;
+}
+
+.loading-bar {
+    width: 80%;
+    max-width: 400px;
+    height: 10px;
+    background-color: #444;
+    border-radius: 5px;
+    margin: 10px auto;
+    position: relative;
+    overflow: hidden;
+}
+
+#loading-bar-fill {
+    height: 100%;
+    width: 0%;
+    background-color: #0f0;
+    transition: width 0.5s;
+}
+
+/* 進度百分比 */
+#loading-percentage {
+    font-size: 14px;
+    color: #ccc;
 }
