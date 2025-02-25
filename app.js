@@ -125,6 +125,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
       loadingContainer.style.display = "none";
       statsBox.style.display = "block";  // 顯示整個灰色方框
+      statsContainer.style.display = "block";
       priceElement.style.display = "inline";  // 顯示即時價格
       actionButtons.style.display = "flex";  // 顯示按鈕
     }, 500);
