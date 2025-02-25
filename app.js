@@ -137,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("WebSocket 錯誤:", error);
     };
     ws.onclose = function() {
-      console.log("WebSocket 連線已關閉，將在 " + reconnectInterval / 1000 + " 秒後嘗試重新連線");
+      console.log("主 WebSocket 連線已關閉，將在 " + reconnectInterval / 1000 + " 秒後嘗試重新連線");
       setTimeout(connectWebSocket, reconnectInterval);
     };
   }
@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return `$${num.toFixed(7)}`;
   }
 
-  // 使用組合 WebSocket 流更新行情（實時更新多個幣種行情）
+  // 使用組合 WebSocket 流實時更新行情（多幣種）
   function connectTickersWebSocket(tickerContainer) {
     const streams = "btcusdt@ticker/ethusdt@ticker/solusdt@ticker/adausdt@ticker/bnbusdt@ticker/dogeusdt@ticker";
     const wsTickers = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
@@ -183,89 +183,73 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-function updateTickerDisplay(tickerContainer) {
-  let html = '';
-  const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
-  symbols.forEach(sym => {
-    let price;
-    if (tickersData[sym] === undefined) {
-      price = "Loading...";
-    } else {
-      // 移除 "$" 符號
-      price = `${tickersData[sym].toFixed(2)}`;
-    }
-    const coin = sym.slice(0, sym.length - 4);
-    html += `<div class="ticker-item">
-               <span class="ticker-coin">${coin}</span><span class="ticker-suffix">/USDT</span>: 
-               <span class="ticker-price">${price}</span>
-             </div>`;
-  });
-  tickerContainer.innerHTML = html;
-}
+  function updateTickerDisplay(tickerContainer) {
+    let html = '';
+    const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
+    symbols.forEach(sym => {
+      let price;
+      if (tickersData[sym] === undefined) {
+        price = "Loading...";
+      } else {
+        // 不需要 $ 符號，僅顯示數字
+        price = `${tickersData[sym].toFixed(2)}`;
+      }
+      const coin = sym.slice(0, sym.length - 4);
+      // 幣種與 /USDT 連在一起，中間無空白，再顯示冒號及價格
+      html += `<div class="ticker-item">
+                 <span class="ticker-coin">${coin}</span><span class="ticker-suffix">/USDT</span>: 
+                 <span class="ticker-price">${price}</span>
+               </div>`;
+    });
+    tickerContainer.innerHTML = html;
+  }
 
-
-  // 顯示行情資訊區：當買入按鈕被按下時，隱藏原本的盈虧資訊，並建立 ticker 區塊
-// 新增：顯示行情資訊區（ticker）並隱藏盈虧資訊區（statsContainer）
-// 以平滑轉換（縮放+淡入淡出）的方式進行
-function showTickers() {
-  // 先隱藏原本的盈虧資訊區，並以過渡效果淡出
-  statsContainer.classList.remove("visible");
-  statsContainer.classList.add("hidden");
-  // 等待過渡完成（0.5秒），再切換內容
-  setTimeout(() => {
-    statsContainer.style.display = "none";
-    // 建立 ticker 區塊，如果已存在先移除
+  // 顯示行情資訊區：當買入按鈕被按下時，隱藏原本的盈虧資訊，並平滑切換到行情區
+  function showTickers() {
     let existingTicker = document.getElementById("ticker-container");
     if (existingTicker) {
       existingTicker.parentNode.removeChild(existingTicker);
     }
-    const tickerContainer = document.createElement("div");
-    tickerContainer.id = "ticker-container";
-    tickerContainer.className = "ticker-container hidden"; // 初始為隱藏狀態（hidden）
-    statsBox.appendChild(tickerContainer);
-    // 強制 reflow 讓 transition 有效
-    void tickerContainer.offsetWidth;
-    tickerContainer.classList.remove("hidden");
-    tickerContainer.classList.add("visible");
-    // 開始行情 WebSocket 更新
-    connectTickersWebSocket(tickerContainer);
-  }, 500);
-}
-
-// 當賣出按鈕被按下時，將行情區塊淡出，恢復原本盈虧資訊區
-sellButton.addEventListener("click", function(e) {
-  e.preventDefault();
-  let tickerContainer = document.getElementById("ticker-container");
-  if (tickerContainer) {
-    tickerContainer.classList.remove("visible");
-    tickerContainer.classList.add("hidden");
+    // 使用 CSS 過渡效果切換：先淡出盈虧資訊區
+    statsContainer.classList.remove("visible");
+    statsContainer.classList.add("hidden");
     setTimeout(() => {
-      tickerContainer.parentNode.removeChild(tickerContainer);
-      statsContainer.style.display = "block";
-      // 恢復盈虧資訊區的過渡效果
-      statsContainer.classList.remove("hidden");
-      statsContainer.classList.add("visible");
+      statsContainer.style.display = "none";
+      const tickerContainer = document.createElement("div");
+      tickerContainer.id = "ticker-container";
+      tickerContainer.className = "ticker-container hidden";
+      statsBox.appendChild(tickerContainer);
+      // 強制 reflow
+      void tickerContainer.offsetWidth;
+      tickerContainer.classList.remove("hidden");
+      tickerContainer.classList.add("visible");
+      connectTickersWebSocket(tickerContainer);
     }, 500);
   }
 
-  // 當買入按鈕被按下時，顯示行情資訊區
+  // 當賣出按鈕被按下時，平滑隱藏行情區並恢復原本的盈虧資訊
+  sellButton.addEventListener("click", function(e) {
+    e.preventDefault();
+    let tickerContainer = document.getElementById("ticker-container");
+    if (tickerContainer) {
+      tickerContainer.classList.remove("visible");
+      tickerContainer.classList.add("hidden");
+      setTimeout(() => {
+        tickerContainer.parentNode.removeChild(tickerContainer);
+        statsContainer.style.display = "block";
+        statsContainer.classList.remove("hidden");
+        statsContainer.classList.add("visible");
+      }, 500);
+    }
+  });
+
+  // 當買入按鈕被按下時，顯示行情資訊
   buyButton.addEventListener("click", function(e) {
     e.preventDefault();
     showTickers();
   });
 
-  // 當賣出按鈕被按下時，清除行情區域並恢復原本盈虧資訊
-  sellButton.addEventListener("click", function(e) {
-    e.preventDefault();
-    // 若存在 ticker 區塊，將其移除
-    let tickerContainer = document.getElementById("ticker-container");
-    if (tickerContainer) {
-      tickerContainer.parentNode.removeChild(tickerContainer);
-    }
-    statsContainer.style.display = "block";
-  });
-
-  // 開始兩個數據載入流程
+  // 開始兩個數據載入流程：主 WebSocket 與 REST 載入行情初始數據
   connectWebSocket();
   loadTickers();
 });
