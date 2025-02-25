@@ -248,6 +248,5 @@ document.addEventListener("DOMContentLoaded", function () {
     showTickers();
   });
 
-
   connectWebSocket();
 });
