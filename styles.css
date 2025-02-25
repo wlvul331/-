@@ -191,5 +191,20 @@ body {
   font-size: 18px;
 }
 
+.ticker-coin {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.ticker-suffix {
+  font-size: 14px; /* /USDT 字體較小 */
+  opacity: 0.8; /* 讓 /USDT 稍微變淡 */
+}
+
+.ticker-price {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: right;
+}
 
 
