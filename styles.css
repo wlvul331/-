@@ -173,3 +173,11 @@ body {
   font-size: 14px; /* 較小的字體 */
   margin-left: 4px;
 }
+
+.ticker-price {
+  display: inline-block;
+  width: 70px;           /* 固定寬度，可依需要調整 */
+  text-align: right;     /* 右對齊 */
+  font-family: monospace;/* 使用等寬字型，確保數字對齊 */
+}
+
