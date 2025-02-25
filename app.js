@@ -1,3 +1,6 @@
+// 定義一個全域變數保存上一次的美元價格
+let lastUsdPrice = null;
+
 document.addEventListener("DOMContentLoaded", function () {
   // DOM 元素
   const priceElement = document.getElementById("price-usd");
@@ -54,7 +57,19 @@ document.addEventListener("DOMContentLoaded", function () {
       // 更新當前價格：使用 formatPrice 格式化
       priceElement.textContent = formatPrice(usdPrice);
       
-      // 更新總持有量（使用 toLocaleString() 來加入千分位，或按需求直接顯示數字）
+      // 根據與上次的價格比對，動態調整顏色：上漲為綠色，下跌為紅色
+      if (lastUsdPrice !== null) {
+        if (usdPrice > lastUsdPrice) {
+          priceElement.style.color = "#0f0"; // 上漲顯示綠色
+        } else if (usdPrice < lastUsdPrice) {
+          priceElement.style.color = "red"; // 下跌顯示紅色
+        } else {
+          priceElement.style.color = "white"; // 無變化顯示預設顏色
+        }
+      }
+      lastUsdPrice = usdPrice;
+      
+      // 更新總持有量（使用 toLocaleString() 加入千分位）
       totalQuantityElement.textContent = totalQuantity.toLocaleString();
 
       // 更新當前持幣總價值 (TWD)
