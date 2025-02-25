@@ -25,9 +25,6 @@ function updateLoadingBar(value) {
 async function fetchPrice() {
     startLoadingBar();
     try {
-        // 設置讀取狀態
-        document.getElementById('avg-price').textContent = "讀取中...";
-
         const response = await fetch(proxyUrl + apiUrl);
         if (!response.ok) throw new Error("API 回應錯誤");
 
@@ -35,17 +32,8 @@ async function fetchPrice() {
         const usdPrice = data['baby-doge-coin']['usd'];
         const twdPrice = data['baby-doge-coin']['twd'];
 
-        // ✅ 獲取 USD/TWD 匯率
-        const exchangeRateResponse = await fetch("https://api.exchangerate-api.com/v4/latest/TWD");
-        const exchangeRateData = await exchangeRateResponse.json();
-        const usdToTwdRate = exchangeRateData.rates.USD;
-
-        // ✅ 計算「購入均價 (USD)」
-        const avgPrice = (totalPurchasePriceTWD / usdToTwdRate) / totalQuantity;
-
         // 📌 更新數據顯示
         document.getElementById('price-usd').textContent = formatSmallNumber(usdPrice);
-        document.getElementById('avg-price').textContent = formatSmallNumber(avgPrice);
         document.getElementById('total-quantity').textContent = totalQuantity.toLocaleString();
         document.getElementById('total-value').textContent = (totalQuantity * twdPrice).toFixed(2);
 
@@ -65,7 +53,6 @@ async function fetchPrice() {
 
     } catch (error) {
         console.error("Error fetching price:", error);
-        document.getElementById('avg-price').textContent = "數據加載失敗";
     }
 }
 
