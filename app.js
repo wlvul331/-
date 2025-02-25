@@ -15,7 +15,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 進度條模擬載入
     let progress = 0;
-    priceElement.style.display = "none"; // 加載時隱藏價格
+    // 隱藏當前價格直到數據載入完成
+    priceElement.style.display = "none";
     let interval = setInterval(() => {
         progress += 20;
         loadingBarFill.style.width = progress + "%";
@@ -27,21 +28,21 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 500);
 
     function showData() {
-        let totalValue = totalQuantity * currentPrice * 31.5; // 轉換為 TWD
+        let totalValue = totalQuantity * currentPrice * 31.5; // 轉換為 TWD（假設匯率 31.5）
         let profit = totalValue - totalCost;
         let profitPercentage = ((profit / totalCost) * 100).toFixed(2);
 
-        // ✅ 更新 **總持有量** 顯示
-        totalQuantityElement.innerText = totalQuantity.toLocaleString();
-        priceElement.innerText = formatPrice(currentPrice);
-        priceElement.style.display = "inline"; // 數據加載完成後顯示價格
+        // 更新當前價格，使用自定義格式化函數
+        priceElement.innerHTML = formatPrice(currentPrice);
+        // 顯示時恢復當前價格區塊
+        priceElement.style.display = "inline";
 
-        // ✅ 更新其餘數據
+        totalQuantityElement.innerText = totalQuantity.toLocaleString();
         totalValueElement.innerText = totalValue.toFixed(2);
         profitElement.innerText = `NT$${profit.toLocaleString()}`;
         profitPercentageElement.innerText = `${profitPercentage}%`;
 
-        // ✅ 盈虧變色
+        // 盈虧顏色設定
         if (profit >= 0) {
             profitElement.classList.add("positive");
             profitElement.classList.remove("negative");
@@ -54,20 +55,24 @@ document.addEventListener("DOMContentLoaded", function () {
             profitPercentageElement.classList.remove("positive");
         }
 
-        // ✅ 顯示數據，隱藏讀取條
         loadingContainer.style.display = "none";
         statsContainer.style.display = "block";
     }
 
+    // 格式化當前價格，正則表達式只匹配小數點後的連續零
     function formatPrice(price) {
-        let numStr = price.toFixed(12);
-        let match = numStr.match(/^0\.0+(.*)/);
-        
-        if (match) {
-            let zeroCount = match[0].length - 3;
-            return `0.0{${zeroCount}}${match[1]}`;
-        }
-        
-        return price.toFixed(8);
+        if (price >= 0.01) return `$${price.toFixed(8)}`;
+        const numStr = price.toFixed(12);
+        const match = numStr.match(/^0\.(0+)([1-9]\d*)$/);
+        return match ? `0.0{${match[1].length}}${match[2]}` : `$${numStr}`;
     }
+    
+    // 執行數據獲取（此處模擬固定數據，實際應從 API 獲取更新） 
+    // 如果你有 API 請求邏輯，請在此替換模擬數據
+    // 模擬數據已在上面直接使用固定變數 currentPrice, totalQuantity, totalCost
+
+    setInterval(() => {
+        // 在模擬載入完成後，可重新呼叫 showData() 來更新數據
+        showData();
+    }, 90000);
 });
