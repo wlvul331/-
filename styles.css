@@ -108,3 +108,8 @@ body {
   font-weight: bold;
 }
 
+#profit, #profit-percentage {
+  font-size: 24px; /* 調整此數值以符合需求 */
+  font-weight: bold;
+}
+
