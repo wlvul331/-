@@ -168,8 +168,14 @@ html += `<div class="ticker-item">
              <img src="${coinIcon}" alt="${coin}" class="coin-icon">
              <span class="ticker-coin">${coin}<span class="ticker-suffix">/USDT</span></span>
            </div>
-           <span class="ticker-price">${price}</span>
+           <div class="ticker-right">
+             <span class="ticker-price">${price}</span>
+             <span class="today-box ${priceChange >= 0 ? 'positive' : 'negative'}">
+                ${priceChange.toFixed(2)}%
+             </span>
+           </div>
          </div>`;
+
 
   });
 
