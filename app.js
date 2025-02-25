@@ -169,19 +169,20 @@ document.addEventListener("DOMContentLoaded", function () {
     tickerContainer.innerHTML = html;
   }
 
-  // 顯示行情資訊區：當買入按鈕被按下時，隱藏原本的盈虧資訊區，並建立 ticker 區塊
-  function showTickers() {
-    let existingTicker = document.getElementById("ticker-container");
-    if (existingTicker) {
-      existingTicker.parentNode.removeChild(existingTicker);
-    }
-    const tickerContainer = document.createElement("div");
-    tickerContainer.id = "ticker-container";
-    tickerContainer.className = "ticker-container";
-    statsContainer.style.display = "none";
-    statsBox.appendChild(tickerContainer);
-    connectTickersWebSocket(tickerContainer);
+function showTickers() {
+  // 如果行情區塊已經存在，則不做任何動作，防止重複建立
+  if (document.getElementById("ticker-container")) {
+    return;
   }
+
+  const tickerContainer = document.createElement("div");
+  tickerContainer.id = "ticker-container";
+  tickerContainer.className = "ticker-container";
+  statsContainer.style.display = "none";
+  statsBox.appendChild(tickerContainer);
+  connectTickersWebSocket(tickerContainer);
+}
+
 
   // 當買入按鈕被按下時，顯示行情資訊
   buyButton.addEventListener("click", function(e) {
