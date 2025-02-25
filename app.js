@@ -243,14 +243,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // 當買入按鈕被按下時，顯示行情資訊
-buyButton.addEventListener("click", function(e) {
-  e.preventDefault();
-  // 如果已經存在 ticker-container（行情頁面），則不再做任何動作
-  if (document.getElementById("ticker-container")) {
-    return;
-  }
-  showTickers();
-}
+  buyButton.addEventListener("click", function(e) {
+    e.preventDefault();
+    showTickers();
+  });
 
 
   connectWebSocket();
