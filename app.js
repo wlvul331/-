@@ -1,4 +1,4 @@
-// 定義一個全域變數保存上一次的美元價格
+// 定義全域變數，保存上一次的美元價格
 let lastUsdPrice = null;
 let ws = null;
 const reconnectInterval = 5000; // 重連間隔 (毫秒)
@@ -43,9 +43,8 @@ document.addEventListener("DOMContentLoaded", function () {
     loadingPercentage.textContent = value + "%";
   }
 
-  // 建立並連線 Binance WebSocket 的函式
+  // 建立並連線 Binance WebSocket (訂閱 1MBABYDOGEUSDT 的 ticker)
   function connectWebSocket() {
-    // 注意：WebSocket 訂閱時的 symbol 全部使用小寫，並採用新 symbol 1mbabydogeusdt
     ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
 
     ws.onopen = function() {
@@ -55,12 +54,12 @@ document.addEventListener("DOMContentLoaded", function () {
     ws.onmessage = function(event) {
       try {
         const data = JSON.parse(event.data);
-        // 從 ticker 流中，"c" 欄位代表最新成交價格
+        // "c" 欄位代表最新成交價格
         const usdPrice = parseFloat(data.c);
 
-        // 使用更新後的格式化函數，僅顯示最多 7 位小數
+        // 格式化當前價格（最多顯示到小數點後 7 位）
         priceElement.textContent = formatPrice(usdPrice);
-        // 若上次價格存在且新價格下跌，顯示橙紅色；否則一律綠色
+        // 若上次價格存在且新價格下跌，顯示橙紅色；否則顯示綠色
         if (lastUsdPrice !== null && usdPrice < lastUsdPrice) {
           priceElement.style.color = "orangered";
         } else {
@@ -68,9 +67,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         lastUsdPrice = usdPrice;
 
-        // 計算台幣價格：因為價格為 1M 份的價格，故需除以 1,000,000
+        // 計算台幣價格：由於價格為 1M 份的價格，故需除以 1,000,000
         const twdPrice = usdPrice * conversionRate;
-        // 更新持幣總價值時除以 1,000,000，並使用 toLocaleString() 加入逗號分隔，保留 2 位小數
+        // 更新持幣總價值時除以 1,000,000，並使用 toLocaleString() 加入逗號，保留 2 位小數
         totalQuantityElement.textContent = totalQuantity.toLocaleString();
         totalValueElement.textContent = (totalQuantity * twdPrice / 1e6)
           .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -113,9 +112,6 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-  // 呼叫函式以建立 WebSocket 連線
-  connectWebSocket();
-
   function completeLoadingBar() {
     progress = 100;
     updateLoadingBar(progress);
@@ -126,43 +122,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 500);
   }
 
-  // 更新後的格式化價格函數：僅顯示最多 7 位小數
+  // 格式化價格：以 toFixed(7) 顯示（小數點後 7 位）
   function formatPrice(num) {
     return `$${num.toFixed(7)}`;
   }
 
-  // 在 DOMContentLoaded 事件內部（或合適的位置）新增 K 線圖的初始化程式碼
-document.addEventListener("DOMContentLoaded", function () {
-  // 其他原有程式碼……
-  // ... (此處保留原有價格、盈虧等相關程式碼)
-
-  // 新增：初始化 K 線圖
-  const chartContainer = document.getElementById('chart-container');
-  const chart = LightweightCharts.createChart(chartContainer, {
-      width: chartContainer.clientWidth,
-      height: chartContainer.clientHeight,
-      layout: {
-          backgroundColor: '#333',
-          textColor: 'white',
-      },
-      grid: {
-          vertLines: {
-              color: '#444',
-          },
-          horzLines: {
-              color: '#444',
-          },
-      },
-      timeScale: {
-          borderColor: '#555',
-      },
-  });
-  const candleSeries = chart.addCandlestickSeries({
-      upColor: '#00A67D',         // 上漲的顏色（買入色）
-      downColor: 'orangered',      // 下跌的顏色（賣出色）
-      borderUpColor: '#00A67D',
-      borderDownColor: 'orangered',
-      wickUpColor: '#00A67D',
-      wickDownColor: 'orangered',
-  });
+  connectWebSocket();
 });
