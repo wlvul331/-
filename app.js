@@ -2,58 +2,109 @@
 let lastUsdPrice = null;
 let ws = null;
 const reconnectInterval = 5000; // 重連間隔 (毫秒)
-let tickersData = {}; // 用來存放多個幣種的行情數據
-let mainLoaded = false;
-let tickersLoaded = false;
-let loadingComplete = false;
-let showingTickers = false; // 當前是否在顯示行情頁面
+let tickersData = {}; // 用來儲存多個幣種的即時行情數據
 
 document.addEventListener("DOMContentLoaded", function () {
   // DOM 元素
   const priceElement = document.getElementById("price-usd");
-  const statsContainer = document.getElementById("stats-container");
+  const totalQuantityElement = document.getElementById("total-quantity");
+  const totalValueElement = document.getElementById("total-value");
+  const profitElement = document.getElementById("profit");
+  const profitPercentageElement = document.getElementById("profit-percentage");
   const loadingContainer = document.getElementById("loading-container");
+  const statsContainer = document.getElementById("stats-container");
   const loadingBarFill = document.getElementById("loading-bar-fill");
   const loadingPercentage = document.getElementById("loading-percentage");
-  const actionButtons = document.querySelector(".action-buttons");
-  const statsBox = document.querySelector(".stats-box");
+  const actionButtons = document.querySelector('.action-buttons');
+  const statsBox = document.querySelector('.stats-box');
   const buyButton = document.getElementById("buy-button");
   const sellButton = document.getElementById("sell-button");
 
+  // 初始隱藏整個灰色方框、盈虧資訊區、即時價格與按鈕
   statsBox.style.display = "none";
   statsContainer.style.display = "none";
   actionButtons.style.display = "none";
   priceElement.style.display = "none";
 
+  // 固定參數（以台幣計算）
+  const totalCost = 1690000;             // 總成本 (TWD)
+  const totalQuantity = 21235769401342.17; // 總持有量
+  const conversionRate = 32.8;           // 預設美元轉台幣匯率
+
+  // 進度條初始化
   let progress = 0;
   startLoadingBar();
-  loadTickers();
-  connectWebSocket();
 
   function startLoadingBar() {
     progress = 0;
     loadingBarFill.style.width = "0%";
     loadingPercentage.textContent = "0%";
     let interval = setInterval(() => {
-      if (progress < 90) {
-        progress += Math.random() * 10; // 模擬不規則加速
-        updateLoadingBar(Math.min(progress, 90));
+      if (progress < 80) {
+        progress += 10;
+        updateLoadingBar(progress);
       } else {
         clearInterval(interval);
       }
-    }, 300);
+    }, 200);
   }
 
   function updateLoadingBar(value) {
     loadingBarFill.style.width = value + "%";
-    loadingPercentage.textContent = Math.floor(value) + "%";
+    loadingPercentage.textContent = value + "%";
   }
 
-  function tryCompleteLoading() {
-    if (!loadingComplete && mainLoaded && tickersLoaded) {
-      completeLoadingBar();
-      loadingComplete = true;
-    }
+  // 建立並連線 Binance WebSocket (訂閱 1MBABYDOGEUSDT 的 ticker)
+  function connectWebSocket() {
+    ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
+    ws.onopen = function() {
+      console.log("已連線到 Binance WebSocket (1mbabydogeusdt@ticker)");
+    };
+    ws.onmessage = function(event) {
+      try {
+        const data = JSON.parse(event.data);
+        // "c" 欄位代表最新成交價格
+        const usdPrice = parseFloat(data.c);
+        priceElement.textContent = formatPrice(usdPrice);
+        if (lastUsdPrice !== null && usdPrice < lastUsdPrice) {
+          priceElement.style.color = "orangered";
+        } else {
+          priceElement.style.color = "#00A67D";
+        }
+        lastUsdPrice = usdPrice;
+        const twdPrice = usdPrice * conversionRate;
+        totalQuantityElement.textContent = totalQuantity.toLocaleString();
+        totalValueElement.textContent = (totalQuantity * twdPrice / 1e6)
+          .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const unrealizedProfit = totalQuantity * twdPrice / 1e6 - totalCost;
+        const profitPercentage = ((unrealizedProfit / totalCost) * 100).toFixed(2);
+        profitElement.textContent = NT$${Math.round(unrealizedProfit).toLocaleString()};
+        profitPercentageElement.textContent = ${profitPercentage}%;
+        if (unrealizedProfit >= 0) {
+          profitElement.classList.add("positive");
+          profitElement.classList.remove("negative");
+          profitPercentageElement.classList.add("positive");
+          profitPercentageElement.classList.remove("negative");
+        } else {
+          profitElement.classList.add("negative");
+          profitElement.classList.remove("positive");
+          profitPercentageElement.classList.add("negative");
+          profitPercentageElement.classList.remove("positive");
+        }
+        if (progress < 100) {
+          completeLoadingBar();
+        }
+      } catch (error) {
+        console.error("處理 WebSocket 訊息錯誤:", error);
+      }
+    };
+    ws.onerror = function(error) {
+      console.error("WebSocket 錯誤:", error);
+    };
+    ws.onclose = function() {
+      console.log("WebSocket 連線已關閉，將在 " + reconnectInterval / 1000 + " 秒後嘗試重新連線");
+      setTimeout(connectWebSocket, reconnectInterval);
+    };
   }
 
   function completeLoadingBar() {
@@ -68,72 +119,31 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 500);
   }
 
-  function loadTickers() {
-    const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
-    const requests = symbols.map(sym =>
-      fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}`)
-        .then(response => response.json())
-    );
-    Promise.all(requests)
-      .then(results => {
-        results.forEach(result => {
-          tickersData[result.symbol] = parseFloat(result.price);
-        });
-        tickersLoaded = true;
-        tryCompleteLoading();
-      })
-      .catch(error => {
-        console.error("Error fetching tickers:", error);
-        tickersLoaded = true;
-        tryCompleteLoading();
-      });
+  function formatPrice(num) {
+    return $${num.toFixed(7)};
   }
 
-  function connectWebSocket() {
-    ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
-    ws.onmessage = function(event) {
-      try {
-        const data = JSON.parse(event.data);
-        const usdPrice = parseFloat(data.c);
-        priceElement.textContent = `$${usdPrice.toFixed(7)}`;
-        lastUsdPrice = usdPrice;
-        mainLoaded = true;
-        tryCompleteLoading();
-      } catch (error) {
-        console.error("處理 WebSocket 訊息錯誤:", error);
-      }
-    };
-    ws.onclose = function() {
-      setTimeout(connectWebSocket, reconnectInterval);
-    };
-  }
-
-  function showTickers() {
-    if (showingTickers) return;
-    showingTickers = true;
-    statsContainer.style.display = "none";
-    let tickerContainer = document.createElement("div");
-    tickerContainer.id = "ticker-container";
-    tickerContainer.className = "ticker-container";
-    statsBox.appendChild(tickerContainer);
-    connectTickersWebSocket(tickerContainer);
-  }
-
+  // 使用組合 WebSocket 流更新行情，實時更新多個幣種行情
   function connectTickersWebSocket(tickerContainer) {
     const streams = "btcusdt@ticker/ethusdt@ticker/solusdt@ticker/adausdt@ticker/bnbusdt@ticker/dogeusdt@ticker";
-    const wsTickers = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
+    const wsTickers = new WebSocket(wss://stream.binance.com:9443/stream?streams=${streams});
     wsTickers.onmessage = function(event) {
       try {
         const message = JSON.parse(event.data);
         if (message.data && message.data.s && message.data.c) {
-          tickersData[message.data.s] = parseFloat(message.data.c);
+          const symbol = message.data.s;
+          tickersData[symbol] = parseFloat(message.data.c);
           updateTickerDisplay(tickerContainer);
         }
       } catch (error) {
         console.error("處理行情 WebSocket 訊息錯誤:", error);
       }
     };
+    wsTickers.onerror = function(error) {
+      console.error("行情 WebSocket 錯誤:", error);
+    };
     wsTickers.onclose = function() {
+      console.log("行情 WebSocket 連線已關閉，將在 " + reconnectInterval / 1000 + " 秒後嘗試重新連線");
       setTimeout(() => connectTickersWebSocket(tickerContainer), reconnectInterval);
     };
   }
@@ -142,26 +152,53 @@ document.addEventListener("DOMContentLoaded", function () {
     let html = '';
     const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
     symbols.forEach(sym => {
-      let price = tickersData[sym] ? tickersData[sym].toFixed(2) : "Loading...";
-      let coin = sym.slice(0, sym.length - 4);
-      html += `<div class="ticker-item">
-                 <span class="ticker-coin">${coin}</span><span class="ticker-suffix">/USDT</span>: 
+      let price;
+      if (tickersData[sym] === undefined) {
+        price = "Loading...";
+      } else {
+        price = $${tickersData[sym].toFixed(2)};
+      }
+      // 將 symbol 轉換為主幣與 /USDT，且 /USDT 以較小字體顯示
+      const coin = sym.slice(0, sym.length - 4);
+      html += <div class="ticker-item">
+                 <span class="ticker-coin">${coin}</span>
+                 <span class="ticker-suffix">/USDT</span>: 
                  <span class="ticker-price">${price}</span>
-               </div>`;
+               </div>;
     });
     tickerContainer.innerHTML = html;
   }
 
+  // 顯示行情資訊區：當買入按鈕被按下時，隱藏原本的盈虧資訊區，並建立 ticker 區塊
+function showTickers() {
+  // 如果行情區塊已經存在，則不做任何動作，防止重複建立
+  if (document.getElementById("ticker-container")) {
+    return;
+  }
+
+  const tickerContainer = document.createElement("div");
+  tickerContainer.id = "ticker-container";
+  tickerContainer.className = "ticker-container";
+  statsContainer.style.display = "none";
+  statsBox.appendChild(tickerContainer);
+  connectTickersWebSocket(tickerContainer);
+}
+
+  // 當買入按鈕被按下時，顯示行情資訊
   buyButton.addEventListener("click", function(e) {
     e.preventDefault();
     showTickers();
   });
 
+  // 當賣出按鈕被按下時，移除行情區域，恢復原本盈虧資訊
   sellButton.addEventListener("click", function(e) {
     e.preventDefault();
-    showingTickers = false;
     let tickerContainer = document.getElementById("ticker-container");
-    if (tickerContainer) tickerContainer.remove();
+    if (tickerContainer) {
+      tickerContainer.parentNode.removeChild(tickerContainer);
+    }
     statsContainer.style.display = "block";
   });
-});
+
+  connectWebSocket();
+});  
