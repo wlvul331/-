@@ -1,49 +1,223 @@
-/* 全域樣式調整 */
+/* 全局設定 */
 body {
   font-family: Arial, sans-serif;
-  background-color: #121212;
+  background-color: #111;
+  color: white;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* 標題區塊 */
+.title-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.coin-logo {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* 主要數據區塊（灰色背景） */
+.stats-box {
+  background-color: #333;
+  padding: 15px;
+  border-radius: 10px;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+/* 當前價格顯示 */
+.price-container {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* 盈虧數據區塊 */
+.container {
+  background-color: #222;
+  padding: 20px;
+  margin: 20px auto 0;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 10px;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 16px;
+}
+
+/* 盈虧數字樣式 */
+.profit {
+  font-weight: bold;
+}
+
+.profit.negative {
+  color: orangered;
+}
+
+.profit.positive {
+  color: #00A67D;
+}
+
+#profit, #profit-percentage {
+  font-size: 27px; /* 增加字體大小 */
+  font-weight: bold;
+}
+
+
+/* 讀取中進度條 */
+#loading-container {
+  text-align: center;
+  margin: 20px auto;
+}
+
+.loading-bar {
+  width: 80%;
+  max-width: 400px;
+  height: 10px;
+  background-color: #444;
+  border-radius: 5px;
+  margin: 10px auto;
+  position: relative;
+  overflow: hidden;
+}
+
+#loading-bar-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #0f0;
+  transition: width 0.5s;
+}
+
+#loading-percentage {
+  font-size: 14px;
+  color: #ccc;
+}
+
+#price-usd {
+  font-size: 36px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* 按鈕容器 */
+.action-buttons {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 400px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.action-buttons button {
+  width: 48%;
+  height: 60px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+#buy-button {
+  background-color: #00A67D;
   color: white;
 }
 
+#sell-button {
+  background-color: orangered;
+  color: white;
+}
+
+#profit, #profit-percentage {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.action-buttons button {
+  width: 48%;
+  height: 60px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+.action-buttons button:hover {
+  opacity: 0.9;
+}
+
+.action-buttons button:active {
+  transform: scale(0.95);
+}
+
 .ticker-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 10px;
+  background-color: #222; /* 深色背景 */
+  padding: 15px;
+  margin: 20px auto;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 10px;
+  text-align: center;
 }
 
 .ticker-item {
   display: flex;
-  align-items: center;
-  background-color: #2b2b2b;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: bold;
   justify-content: space-between;
-  position: relative;
-}
-
-.coin-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: 5px;
+  padding: 10px 15px;
+  background-color: #333; /* 更深的背景框 */
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 18px;
 }
 
 .ticker-coin {
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
+  font-weight: bold;
+  font-size: 16px;
 }
 
 .ticker-suffix {
-  color: #aaa;
-  font-size: 16px;
-  margin-left: 2px;
+  font-size: 12px; /* 縮小 /USDT */
+  font-weight: normal;
 }
 
 .ticker-price {
   font-size: 18px;
-  color: #00A67D;
+  font-weight: bold;
   text-align: right;
 }
+
+/* 幣名 + /USDT */
+.ticker-left {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  flex-grow: 20; /* 讓名稱區塊擴展到最左側 */
+}
+
+.coin-icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
