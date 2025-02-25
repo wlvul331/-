@@ -224,3 +224,29 @@ body {
   vertical-align: middle;
 }
 
+.ticker-right {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 控制價格與方塊的間距 */
+}
+
+.today-box {
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  min-width: 60px;
+}
+
+/* 上漲時顯示綠色 */
+.today-box.positive {
+  background-color: #00A67D;
+}
+
+/* 下跌時顯示紅色 */
+.today-box.negative {
+  background-color: orangered;
+}
+
