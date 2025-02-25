@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // 從 ticker 流中，"c" 欄位代表最新成交價格
         const usdPrice = parseFloat(data.c);
 
-        // 使用更新後的格式化函數
+        // 使用更新後的格式化函數，僅顯示最多 7 位小數
         priceElement.textContent = formatPrice(usdPrice);
         // 若上次價格存在且新價格下跌，顯示橙紅色；否則一律綠色
         if (lastUsdPrice !== null && usdPrice < lastUsdPrice) {
@@ -70,9 +70,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // 計算台幣價格：因為價格為 1M 份的價格，故需除以 1,000,000
         const twdPrice = usdPrice * conversionRate;
-        // 更新持幣總價值時除以 1,000,000
+        // 更新持幣總價值時除以 1,000,000，並使用 toLocaleString() 加入逗號分隔，保留 2 位小數
         totalQuantityElement.textContent = totalQuantity.toLocaleString();
-        totalValueElement.textContent = (totalQuantity * twdPrice / 1e6).toFixed(2);
+        totalValueElement.textContent = (totalQuantity * twdPrice / 1e6)
+          .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         // 未實現盈虧也除以 1,000,000
         const unrealizedProfit = totalQuantity * twdPrice / 1e6 - totalCost;
         const profitPercentage = ((unrealizedProfit / totalCost) * 100).toFixed(2);
@@ -125,14 +126,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 500);
   }
 
-  // 更新後的格式化價格函數：
-  // - 若數值 >= 0.01，顯示 8 位小數
-  // - 否則，直接用 toFixed(12) 顯示，不採用 {} 格式
+  // 更新後的格式化價格函數：僅顯示最多 7 位小數
   function formatPrice(num) {
-    if (num >= 0.01) {
-      return `$${num.toFixed(8)}`;
-    } else {
-      return `$${num.toFixed(12)}`;
-    }
+    return `$${num.toFixed(7)}`;
   }
 });
