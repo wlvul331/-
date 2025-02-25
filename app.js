@@ -16,8 +16,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const loadingPercentage = document.getElementById("loading-percentage");
   const actionButtons = document.querySelector('.action-buttons');
   const statsBox = document.querySelector('.stats-box');
+  const buyButton = document.getElementById("buy-button");
 
-  // 初始隱藏整個灰色方框與按鈕與即時價格
+  // 初始隱藏整個灰色方框、盈虧資訊區、即時價格與按鈕
   statsBox.style.display = "none";
   statsContainer.style.display = "none";
   actionButtons.style.display = "none";
@@ -136,6 +137,33 @@ document.addEventListener("DOMContentLoaded", function () {
   function formatPrice(num) {
     return `$${num.toFixed(7)}`;
   }
+
+  // 新增：顯示幣安上部分幣種行情價格（BTC, ETH, SOL, ADA, BNB）
+  function showTickers() {
+    const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT"];
+    const requests = symbols.map(sym =>
+      fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}`)
+        .then(response => response.json())
+    );
+    Promise.all(requests)
+      .then(results => {
+        let html = '<div class="ticker-container">';
+        results.forEach(result => {
+          // 顯示時將 symbol 中的 "USDT" 移除，只顯示幣名
+          html += `<div class="ticker-item"><span>${result.symbol.replace('USDT','')}:</span> <span>$${parseFloat(result.price).toFixed(2)}</span></div>`;
+        });
+        html += '</div>';
+        // 將盈虧資訊區域替換為行情價格資訊
+        statsContainer.innerHTML = html;
+      })
+      .catch(error => console.error("Error fetching tickers:", error));
+  }
+
+  // 當買入按鈕被按下時，顯示行情價格資訊，取消原有功能
+  buyButton.addEventListener("click", function(e) {
+    e.preventDefault();
+    showTickers();
+  });
 
   connectWebSocket();
 });
