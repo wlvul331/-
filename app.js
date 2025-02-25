@@ -247,8 +247,6 @@ sellButton.addEventListener("click", function(e) {
       statsContainer.classList.add("visible");
     }, 500);
   }
-});
-
 
   // 當買入按鈕被按下時，顯示行情資訊區
   buyButton.addEventListener("click", function(e) {
