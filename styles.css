@@ -29,16 +29,11 @@ body {
 
 /* 主要數據區塊（灰色背景） */
 .stats-box {
-  display: flex; /* 讓內部內容排列 */
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 600px;
-  background-color: #f2f2f2; /* 灰色框 */
-  padding: 20px;
+  background-color: #333;
+  padding: 15px;
   border-radius: 10px;
-  transition: opacity 0.5s ease-in-out; /* 透明度過渡，防止切換時閃爍 */
+  max-width: 400px;
+  margin: 20px auto;
 }
 
 /* 當前價格顯示 */
@@ -192,15 +187,17 @@ body {
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
+
 .hidden {
   opacity: 0;
-  pointer-events: none; /* 避免點擊 */
+  transform: scale(0.9);
 }
 
 .visible {
   opacity: 1;
-  pointer-events: all;
+  transform: scale(1);
 }
+
 
 
 /* 若原有的 .ticker-container 需較深背景 */
