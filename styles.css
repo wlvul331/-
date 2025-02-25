@@ -168,3 +168,8 @@ body {
 .ticker-item span:first-child {
   margin-right: 8px; /* 幣種名稱與冒號間增加空白 */
 }
+
+.ticker-suffix {
+  font-size: 14px; /* 較小的字體 */
+  margin-left: 4px;
+}
