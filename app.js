@@ -4,7 +4,7 @@ let ws = null;
 const reconnectInterval = 5000; // 重連間隔 (毫秒)
 let tickersData = {};           // 用來存放多個幣種的行情數據
 
-// 用來判斷初始數據是否已經載入完成
+// 用來判斷初始數據是否載入完成（讀條）
 let mainLoaded = false;
 let tickersLoaded = false;
 let loadingComplete = false;
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const buyButton = document.getElementById("buy-button");
   const sellButton = document.getElementById("sell-button");
 
-  // 初始隱藏整個灰色方框、盈虧資訊區、即時價格與按鈕
+  // 初始隱藏：整個灰色方框 (statsBox)、盈虧資訊區 (statsContainer)、即時價格、按鈕
   statsBox.style.display = "none";
   statsContainer.style.display = "none";
   actionButtons.style.display = "none";
@@ -59,7 +59,6 @@ document.addEventListener("DOMContentLoaded", function () {
     loadingPercentage.textContent = value + "%";
   }
 
-  // 當所有初始數據載入完成後，呼叫 completeLoadingBar()
   function tryCompleteLoading() {
     if (!loadingComplete && mainLoaded && tickersLoaded) {
       completeLoadingBar();
@@ -67,7 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // 載入多個幣種行情（透過 REST API）作為初始數據
+  // 載入多個幣種行情（REST API初始載入）
   function loadTickers() {
     const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
     const requests = symbols.map(sym =>
@@ -89,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  // 建立並連線 Binance 主 WebSocket (訂閱 1MBABYDOGEUSDT 的 ticker)
+  // 建立並連線 Binance WebSocket (訂閱 1MBABYDOGEUSDT 的 ticker)
   function connectWebSocket() {
     ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
     ws.onopen = function() {
@@ -137,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("WebSocket 錯誤:", error);
     };
     ws.onclose = function() {
-      console.log("主 WebSocket 連線已關閉，將在 " + reconnectInterval / 1000 + " 秒後嘗試重新連線");
+      console.log("WebSocket 連線已關閉，將在 " + reconnectInterval / 1000 + " 秒後嘗試重新連線");
       setTimeout(connectWebSocket, reconnectInterval);
     };
   }
@@ -151,6 +150,8 @@ document.addEventListener("DOMContentLoaded", function () {
       statsContainer.style.display = "block";
       priceElement.style.display = "inline";
       actionButtons.style.display = "flex";
+      // 當所有初始數據載入完成後，啟動 REST 輪詢載入行情（以便後續切換時有初始數據）
+      loadTickers();
     }, 500);
   }
 
@@ -158,7 +159,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return `$${num.toFixed(7)}`;
   }
 
-  // 使用組合 WebSocket 流實時更新行情（多幣種）
+  // 使用組合 WebSocket 流實時更新行情
   function connectTickersWebSocket(tickerContainer) {
     const streams = "btcusdt@ticker/ethusdt@ticker/solusdt@ticker/adausdt@ticker/bnbusdt@ticker/dogeusdt@ticker";
     const wsTickers = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
@@ -191,11 +192,9 @@ document.addEventListener("DOMContentLoaded", function () {
       if (tickersData[sym] === undefined) {
         price = "Loading...";
       } else {
-        // 不需要 $ 符號，僅顯示數字
         price = `${tickersData[sym].toFixed(2)}`;
       }
       const coin = sym.slice(0, sym.length - 4);
-      // 幣種與 /USDT 連在一起，中間無空白，再顯示冒號及價格
       html += `<div class="ticker-item">
                  <span class="ticker-coin">${coin}</span><span class="ticker-suffix">/USDT</span>: 
                  <span class="ticker-price">${price}</span>
@@ -204,13 +203,13 @@ document.addEventListener("DOMContentLoaded", function () {
     tickerContainer.innerHTML = html;
   }
 
-  // 顯示行情資訊區：當買入按鈕被按下時，隱藏原本的盈虧資訊，並平滑切換到行情區
+  // 顯示行情資訊區：當買入按鈕被按下時，淡出盈虧資訊並平滑顯示行情區（ticker）
   function showTickers() {
     let existingTicker = document.getElementById("ticker-container");
     if (existingTicker) {
       existingTicker.parentNode.removeChild(existingTicker);
     }
-    // 使用 CSS 過渡效果切換：先淡出盈虧資訊區
+    // 透過 transition 顯示/隱藏效果：先隱藏盈虧資訊區
     statsContainer.classList.remove("visible");
     statsContainer.classList.add("hidden");
     setTimeout(() => {
@@ -227,7 +226,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 500);
   }
 
-  // 當賣出按鈕被按下時，平滑隱藏行情區並恢復原本的盈虧資訊
+  // 當賣出按鈕被按下時，平滑隱藏行情區並恢復盈虧資訊
   sellButton.addEventListener("click", function(e) {
     e.preventDefault();
     let tickerContainer = document.getElementById("ticker-container");
@@ -249,7 +248,5 @@ document.addEventListener("DOMContentLoaded", function () {
     showTickers();
   });
 
-  // 開始兩個數據載入流程：主 WebSocket 與 REST 載入行情初始數據
   connectWebSocket();
-  loadTickers();
 });
