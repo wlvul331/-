@@ -10,12 +10,16 @@ function startLoadingBar() {
     document.getElementById('loading-percentage').textContent = '0%';
 
     progressInterval = setInterval(() => {
-        if (progress < 80) {
+        if (progress < 80) { // 讀取時緩慢增加到 80%
             progress += 2;
-            document.getElementById('loading-bar-fill').style.width = progress + '%';
-            document.getElementById('loading-percentage').textContent = progress + '%';
+            updateLoadingBar(progress);
         }
     }, 100);
+}
+
+function updateLoadingBar(value) {
+    document.getElementById('loading-bar-fill').style.width = value + '%';
+    document.getElementById('loading-percentage').textContent = value + '%';
 }
 
 async function fetchPrice() {
@@ -37,28 +41,27 @@ async function fetchPrice() {
         document.getElementById('profit').className = `profit ${unrealizedProfit >= 0 ? 'positive' : 'negative'}`;
         document.getElementById('profit-percentage').className = `profit ${unrealizedProfit >= 0 ? 'positive' : 'negative'}`;
 
-        // 確保所有數據載入完成
+        // **進度條快速填滿 100%**
         isDataLoaded = true;
-        hideLoadingBar();
+        completeLoadingBar();
+
     } catch (error) {
         console.error("Error fetching price: ", error);
     }
 }
 
-function hideLoadingBar() {
-    if (isDataLoaded) {
-        clearInterval(progressInterval);
-        document.getElementById('loading-bar-fill').style.width = '100%';
-        document.getElementById('loading-percentage').textContent = '100%';
+function completeLoadingBar() {
+    clearInterval(progressInterval);
+    progress = 100;
+    updateLoadingBar(progress);
 
-        setTimeout(() => {
-            document.getElementById('loading-container').style.display = 'none';
-            document.getElementById('stats-container').style.display = 'block';
-        }, 500);
-    }
+    setTimeout(() => {
+        document.getElementById('loading-container').style.display = 'none';
+        document.getElementById('stats-container').style.display = 'block';
+    }, 500);
 }
 
-// ✅ 修正格式化函數，確保 `{N}` 正確
+// ✅ 修正 `{N}` 顯示方式
 function formatSmallNumber(num) {
     if (num >= 0.01) {
         return `$${num.toFixed(12)}`;
@@ -68,7 +71,7 @@ function formatSmallNumber(num) {
     const match = numStr.match(/^0\.0+(.*)/);
 
     if (match) {
-        const zeroCount = numStr.split('0').length - 2; // 計算 0 的數量
+        const zeroCount = numStr.split('0').length - 2;
         return `0.0{${zeroCount}}${match[1]}`;
     }
 
