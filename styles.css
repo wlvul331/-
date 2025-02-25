@@ -187,7 +187,6 @@ body {
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-
 .hidden {
   opacity: 0;
   transform: scale(0.9);
@@ -197,8 +196,6 @@ body {
   opacity: 1;
   transform: scale(1);
 }
-
-
 
 /* 若原有的 .ticker-container 需較深背景 */
 .ticker-container {
