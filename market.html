@@ -42,6 +42,7 @@
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.1);
+            display: none; /* 預設隱藏，數據載入後顯示 */
         }
         .title {
             font-size: 22px;
@@ -64,10 +65,43 @@
         .negative {
             color: #f44336;
         }
+
+        /* 進度條樣式 */
+        #loading-container {
+            width: 80%;
+            max-width: 300px;
+            background: #333;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        .loading-bar {
+            width: 100%;
+            height: 10px;
+            background: #555;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .loading-fill {
+            height: 100%;
+            width: 0%;
+            background: #4caf50;
+            transition: width 0.2s;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- 進度條 -->
+    <div id="loading-container">
+        <div class="loading-bar">
+            <div id="loading-bar-fill" class="loading-fill"></div>
+        </div>
+        <div id="loading-percentage">0%</div>
+    </div>
+
+    <!-- 主要內容 -->
+    <div class="container" id="stats-container">
         <div class="title">Carter's BabyDoge 盈虧</div>
 
         <div class="stat">
@@ -76,7 +110,7 @@
         </div>
         <div class="stat">
             <span>總持有量</span>
-            <span id="total-quantity">21235769401342.17 BABYDOGE</span>
+            <span id="total-quantity">Loading...</span>
         </div>
         <div class="stat">
             <span>總成本 (TWD)</span>
@@ -84,7 +118,7 @@
         </div>
         <div class="stat">
             <span>購入均價 (USD)</span>
-            <span>NT$<span id="avg-price">Loading...</span></span>
+            <span>$<span id="avg-price">Loading...</span></span>
         </div>
         <div class="stat">
             <span>當前持幣總價值 (TWD)</span>
