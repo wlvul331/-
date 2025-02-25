@@ -150,16 +150,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function updateTickerDisplay(tickerContainer) {
   let html = '';
-  const coinIcons = {
-    BTC: "https://cryptoicons.org/api/icon/btc/32",
-    ETH: "https://cryptoicons.org/api/icon/eth/32",
-    SOL: "https://cryptoicons.org/api/icon/sol/32",
-    ADA: "https://cryptoicons.org/api/icon/ada/32",
-    BNB: "https://cryptoicons.org/api/icon/bnb/32",
-    DOGE: "https://cryptoicons.org/api/icon/doge/32"
-  };
-
   const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
+
   symbols.forEach(sym => {
     let price;
     if (tickersData[sym] === undefined) {
@@ -169,7 +161,7 @@ function updateTickerDisplay(tickerContainer) {
     }
 
     const coin = sym.slice(0, sym.length - 4); // 取得幣種名稱
-    const coinIcon = coinIcons[coin] || "https://cryptoicons.org/api/icon/generic/32"; // 預設圖示
+    const coinIcon = `images/${coin.toLowerCase()}.png`; // 本地圖片路徑
 
     html += `<div class="ticker-item">
                <img src="${coinIcon}" alt="${coin}" class="coin-icon">
@@ -180,6 +172,7 @@ function updateTickerDisplay(tickerContainer) {
 
   tickerContainer.innerHTML = html;
 }
+
 
 
 
