@@ -58,11 +58,11 @@ document.addEventListener("DOMContentLoaded", function () {
         // 從 ticker 流中，"c" 欄位代表最新成交價格
         const usdPrice = parseFloat(data.c);
 
-        // 格式化並顯示當前價格
+        // 使用更新後的格式化函數
         priceElement.textContent = formatPrice(usdPrice);
-        // 若上次價格存在且新價格下跌，顯示紅色；否則一律綠色
+        // 若上次價格存在且新價格下跌，顯示橙紅色；否則一律綠色
         if (lastUsdPrice !== null && usdPrice < lastUsdPrice) {
-          priceElement.style.color = "red";
+          priceElement.style.color = "orangered";
         } else {
           priceElement.style.color = "#00A67D";
         }
@@ -125,17 +125,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 500);
   }
 
-  // 格式化價格函數：
-  // 若價格大於 0.01 則顯示 8 位小數；
-  // 否則，若小數部分開頭的 0 個數 >= 6 則用 0.0{n} 格式，否則直接顯示正常數字
+  // 更新後的格式化價格函數：
+  // - 若數值 >= 0.01，顯示 8 位小數
+  // - 否則，直接用 toFixed(12) 顯示，不採用 {} 格式
   function formatPrice(num) {
-    if (num >= 0.01) return `$${num.toFixed(8)}`;
-    const numStr = num.toFixed(12);
-    const match = numStr.match(/^0\.(0+)([1-9]\d*)$/);
-    if (match && match[1].length >= 6) {
-      return `0.0{${match[1].length}}${match[2]}`;
+    if (num >= 0.01) {
+      return `$${num.toFixed(8)}`;
     } else {
-      return `$${numStr}`;
+      return `$${num.toFixed(12)}`;
     }
   }
 });
