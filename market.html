@@ -1,73 +1,109 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Carter's 1MBABYDOGE</title>
-  <link rel="stylesheet" href="styles.css?v=5">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BabyDoge K 線圖實時更新</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- 引入 Lightweight Charts -->
   <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
-
-  <!-- 標題區塊 -->
-  <div class="title-container">
-    <img src="icons/babydoge.png" class="coin-logo" alt="BabyDoge">
-    <h1 class="title">Carter's 1MBABYDOGE</h1>
-  </div>
-
-  <!-- 主要數據區塊（灰色背景）包含當前價格與盈虧數據 -->
+  <!-- 其他介面內容 -->
   <div class="stats-box">
-    <!-- 當前價格顯示，初始隱藏，待數據載入後顯示 -->
-    <div class="price-container">
-      <span>1MBABYDOGE/USDT : </span>
-      <span id="price-usd" class="price">Loading...</span>
-    </div>
-
-    <!-- 盈虧數據 -->
-    <div id="stats-container" style="display: none;">
-      <div class="container">
-        <div class="stat">
-          <span>總持有量</span>
-          <span id="total-quantity">Loading...</span>
-        </div>
-        <div class="stat">
-          <span>總成本 (TWD)</span>
-          <span>NT$<span id="total-cost">1,690,000</span></span>
-        </div>
-        <div class="stat">
-          <span>持倉總價值 (TWD)</span>
-          <span>NT$<span id="total-value">Loading...</span></span>
-        </div>
-        <div class="stat">
-          <span>未實現盈虧</span>
-          <span id="profit" class="profit">Loading...</span>
-        </div>
-        <div class="stat">
-          <span>盈虧率</span>
-          <span id="profit-percentage" class="profit">Loading...</span>
-        </div>
-      </div>
-    </div>
+    <!-- 此處放置現有的價格、盈虧資訊 -->
   </div>
 
-<div class="action-buttons">
-  <button id="buy-button" onclick="window.location.href='https://www.xvideos.com/'">買入</button>
-  <button id="sell-button" onclick="window.location.href='https://cn.pornhub.com/'">賣出</button>
-</div>
+  <!-- 新增 K 線圖容器 -->
+  <div id="chart-container"></div>
 
-<!-- 在現有內容下方新增 K 線圖容器 -->
-<div id="chart-container"></div>
+  <script>
+  // 定義全域變數及 WebSocket 重連等設定（價格部分代碼略）
+  let lastUsdPrice = null;
+  let ws = null;
+  const reconnectInterval = 5000; // 重連間隔 (毫秒)
 
-  
-  <!-- 讀取中進度條 -->
-  <div id="loading-container">
-    <p>數據加載中...</p>
-    <div class="loading-bar">
-      <div id="loading-bar-fill"></div>
-    </div>
-    <p id="loading-percentage">0%</p>
-  </div>
+  document.addEventListener("DOMContentLoaded", function () {
+    // 其他價格、盈虧相關程式碼略…
+    
+    // 初始化 K 線圖
+    const chartContainer = document.getElementById('chart-container');
+    const chart = LightweightCharts.createChart(chartContainer, {
+      width: chartContainer.clientWidth,
+      height: chartContainer.clientHeight,
+      layout: {
+          backgroundColor: '#333',
+          textColor: 'white',
+      },
+      grid: {
+          vertLines: { color: '#444' },
+          horzLines: { color: '#444' },
+      },
+      timeScale: { borderColor: '#555' },
+    });
+    const candleSeries = chart.addCandlestickSeries({
+      upColor: '#00A67D',
+      downColor: 'orangered',
+      borderUpColor: '#00A67D',
+      borderDownColor: 'orangered',
+      wickUpColor: '#00A67D',
+      wickDownColor: 'orangered',
+    });
 
-  <script src="app.js?v=5"></script>
+    // 取得歷史 K 線資料，初始化圖表（使用 REST API）
+    fetch('https://api.binance.com/api/v3/klines?symbol=1MBABYDOGEUSDT&interval=1m&limit=100')
+      .then(response => response.json())
+      .then(data => {
+          const candles = data.map(item => ({
+              time: Math.floor(item[0] / 1000),  // Unix 時間（秒）
+              open: parseFloat(item[1]),
+              high: parseFloat(item[2]),
+              low: parseFloat(item[3]),
+              close: parseFloat(item[4]),
+          }));
+          candleSeries.setData(candles);
+      })
+      .catch(error => console.error('Error fetching klines data:', error));
+
+    // 建立並連線 Binance WebSocket，訂閱 1 分鐘 K 線實時資料
+    function connectKlineWebSocket() {
+      const wsKline = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@kline_1m');
+      wsKline.onopen = function() {
+        console.log("已連線到 Binance K 線 WebSocket");
+      };
+      wsKline.onmessage = function(event) {
+        try {
+          const message = JSON.parse(event.data);
+          if (message.k) {
+            const kline = message.k;
+            // 建立一根新的 K 線資料
+            const candle = {
+              time: Math.floor(kline.t / 1000), // 開始時間 (秒)
+              open: parseFloat(kline.o),
+              high: parseFloat(kline.h),
+              low: parseFloat(kline.l),
+              close: parseFloat(kline.c),
+            };
+            // 使用 update() 更新最後一根 K 線，如果當前時間相同則覆蓋，否則追加新K線
+            candleSeries.update(candle);
+          }
+        } catch (error) {
+          console.error("處理 K 線 WebSocket 訊息錯誤:", error);
+        }
+      };
+      wsKline.onerror = function(error) {
+        console.error("K 線 WebSocket 錯誤:", error);
+      };
+      wsKline.onclose = function() {
+        console.log("K 線 WebSocket 連線已關閉，" +
+          "將在 " + reconnectInterval / 1000 + " 秒後嘗試重新連線");
+        setTimeout(connectKlineWebSocket, reconnectInterval);
+      };
+    }
+    connectKlineWebSocket();
+
+    // 其他原有程式碼（例如價格更新等）放置在此……
+  });
+  </script>
 </body>
 </html>
