@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (lastUsdPrice !== null && usdPrice < lastUsdPrice) {
         priceElement.style.color = "orangered";
       } else {
-        priceElement.style.color = "#0f0";
+        priceElement.style.color = "#00A67D";
       }
       lastUsdPrice = usdPrice;
 
