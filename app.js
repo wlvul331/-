@@ -32,21 +32,10 @@ async function fetchPrice() {
         const usdPrice = data['baby-doge-coin']['usd'];
         const twdPrice = data['baby-doge-coin']['twd'];
 
-        const avgPrice = (totalPurchasePriceTWD / totalQuantity) / twdPrice;
+        // ✅ 先獲取 USD/TWD 匯率
+        const exchangeRateResponse = await fetch("https://api.exchangerate-api.com/v4/latest/TWD");
+        const exchangeRateData = await exchangeRateResponse.json();
+        const usdToTwdRate = exchangeRateData.rates.USD;
 
-        document.getElementById('price-usd').textContent = formatSmallNumber(usdPrice);
-        document.getElementById('avg-price').textContent = formatSmallNumber(avgPrice);
-        document.getElementById('total-value').textContent = (totalQuantity * twdPrice).toFixed(2);
-
-        const unrealizedProfit = totalQuantity * twdPrice - totalPurchasePriceTWD;
-        document.getElementById('profit').textContent = `NT$${unrealizedProfit.toFixed(2)}`;
-        document.getElementById('profit-percentage').textContent = `${((unrealizedProfit / totalPurchasePriceTWD) * 100).toFixed(2)}%`;
-
-        completeLoadingBar();
-    } catch (error) {
-        console.error("Error fetching price:", error);
-    }
-}
-
-setInterval(fetchPrice, 60000);
-fetchPrice();
+        // ✅ 計算「購入均價 (USD)」
+        
