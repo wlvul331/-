@@ -24,28 +24,40 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }, 500);
 
+    function formatPrice(price) {
+        let numStr = price.toFixed(12);
+        let match = numStr.match(/^0\.0+(.*)/);
+        
+        if (match) {
+            let zeroCount = match[0].length - 3;
+            return `0.0{${zeroCount}}${match[1]}`;
+        }
+        
+        return price.toFixed(8);
+    }
+
     function showData() {
         let totalValue = totalQuantity * currentPrice * 31.5; // 轉換為 TWD
         let profit = totalValue - totalCost;
         let profitPercentage = ((profit / totalCost) * 100).toFixed(2);
 
-        // ✅ 設定當前價格格式 {數字}
-        priceElement.innerHTML = `0.0{${(currentPrice * 1e11).toFixed(0)}}${(currentPrice * 1e14).toFixed(0)}`;
-
+        priceElement.innerHTML = formatPrice(currentPrice);
         totalValueElement.innerText = totalValue.toFixed(2);
         profitElement.innerText = `NT$${profit.toLocaleString()}`;
         profitPercentageElement.innerText = `${profitPercentage}%`;
 
-        // ✅ 盈虧變色
         if (profit >= 0) {
             profitElement.classList.add("positive");
+            profitElement.classList.remove("negative");
             profitPercentageElement.classList.add("positive");
+            profitPercentageElement.classList.remove("negative");
         } else {
             profitElement.classList.add("negative");
+            profitElement.classList.remove("positive");
             profitPercentageElement.classList.add("negative");
+            profitPercentageElement.classList.remove("positive");
         }
 
-        // ✅ 顯示數據，隱藏讀取條
         loadingContainer.style.display = "none";
         statsContainer.style.display = "block";
     }
