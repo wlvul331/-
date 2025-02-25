@@ -42,10 +42,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // 建立 Binance WebSocket 連線，訂閱 babydogeusdt 的 24 小時 ticker 流（所有 symbol 皆為小寫）
-  const ws = new WebSocket('wss://stream.binance.com:9443/ws/babydogeusdt@ticker');
+  const ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
 
   ws.onopen = function() {
-    console.log("已連線到 Binance WebSocket (babydogeusdt@ticker)");
+    console.log("已連線到 Binance WebSocket (1mbabydogeusdt@ticker)");
   };
 
   ws.onmessage = function(event) {
