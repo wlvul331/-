@@ -2,7 +2,12 @@
 let lastUsdPrice = null;
 let ws = null;
 const reconnectInterval = 5000; // 重連間隔 (毫秒)
-let tickersData = {}; // 用來儲存多個幣種的即時行情數據
+let tickersData = {};           // 用來存放多個幣種的行情數據
+
+// 用來判斷初始數據是否已經載入完成
+let mainLoaded = false;
+let tickersLoaded = false;
+let loadingComplete = false;
 
 document.addEventListener("DOMContentLoaded", function () {
   // DOM 元素
@@ -54,7 +59,37 @@ document.addEventListener("DOMContentLoaded", function () {
     loadingPercentage.textContent = value + "%";
   }
 
-  // 建立並連線 Binance WebSocket (訂閱 1MBABYDOGEUSDT 的 ticker)
+  // 當所有初始數據載入完成後，呼叫 completeLoadingBar()
+  function tryCompleteLoading() {
+    if (!loadingComplete && mainLoaded && tickersLoaded) {
+      completeLoadingBar();
+      loadingComplete = true;
+    }
+  }
+
+  // 載入多個幣種行情（透過 REST API）作為初始數據
+  function loadTickers() {
+    const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
+    const requests = symbols.map(sym =>
+      fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}`)
+        .then(response => response.json())
+    );
+    Promise.all(requests)
+      .then(results => {
+        results.forEach(result => {
+          tickersData[result.symbol] = parseFloat(result.price);
+        });
+        tickersLoaded = true;
+        tryCompleteLoading();
+      })
+      .catch(error => {
+        console.error("Error fetching initial tickers:", error);
+        tickersLoaded = true;
+        tryCompleteLoading();
+      });
+  }
+
+  // 建立並連線 Binance 主 WebSocket (訂閱 1MBABYDOGEUSDT 的 ticker)
   function connectWebSocket() {
     ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
     ws.onopen = function() {
@@ -63,8 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ws.onmessage = function(event) {
       try {
         const data = JSON.parse(event.data);
-        // "c" 欄位代表最新成交價格
-        const usdPrice = parseFloat(data.c);
+        const usdPrice = parseFloat(data.c); // "c" 為最新成交價格
         priceElement.textContent = formatPrice(usdPrice);
         if (lastUsdPrice !== null && usdPrice < lastUsdPrice) {
           priceElement.style.color = "orangered";
@@ -91,8 +125,9 @@ document.addEventListener("DOMContentLoaded", function () {
           profitPercentageElement.classList.add("negative");
           profitPercentageElement.classList.remove("positive");
         }
-        if (progress < 100) {
-          completeLoadingBar();
+        if (!mainLoaded) {
+          mainLoaded = true;
+          tryCompleteLoading();
         }
       } catch (error) {
         console.error("處理 WebSocket 訊息錯誤:", error);
@@ -123,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return `$${num.toFixed(7)}`;
   }
 
-  // 使用組合 WebSocket 流更新行情，實時更新多個幣種行情
+  // 使用組合 WebSocket 流更新行情（實時更新多個幣種行情）
   function connectTickersWebSocket(tickerContainer) {
     const streams = "btcusdt@ticker/ethusdt@ticker/solusdt@ticker/adausdt@ticker/bnbusdt@ticker/dogeusdt@ticker";
     const wsTickers = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
@@ -148,29 +183,27 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-function updateTickerDisplay(tickerContainer) {
-  let html = '';
-  const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
-  symbols.forEach(sym => {
-    let price;
-    if (tickersData[sym] === undefined) {
-      price = "Loading...";
-    } else {
-      price = `$${tickersData[sym].toFixed(2)}`;
-    }
-    // 取前面部分作為主幣，例如 BTCUSDT -> BTC
-    const coin = sym.slice(0, sym.length - 4);
-    // 調整順序：先顯示幣種名稱，緊接著顯示 "/USDT"，再顯示冒號與價格
-    html += `<div class="ticker-item">
-               <span class="ticker-coin">${coin}</span><span class="ticker-suffix">/USDT</span>: 
-               <span class="ticker-price">${price}</span>
-             </div>`;
-  });
-  tickerContainer.innerHTML = html;
-}
+  function updateTickerDisplay(tickerContainer) {
+    let html = '';
+    const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
+    symbols.forEach(sym => {
+      let price;
+      if (tickersData[sym] === undefined) {
+        price = "Loading...";
+      } else {
+        price = `$${tickersData[sym].toFixed(2)}`;
+      }
+      // 將主幣與 "/USDT" 連在一起，然後顯示冒號及價格
+      const coin = sym.slice(0, sym.length - 4);
+      html += `<div class="ticker-item">
+                 <span class="ticker-coin">${coin}</span><span class="ticker-suffix">/USDT</span>: 
+                 <span class="ticker-price">${price}</span>
+               </div>`;
+    });
+    tickerContainer.innerHTML = html;
+  }
 
-
-  // 顯示行情資訊區：當買入按鈕被按下時，隱藏原本的盈虧資訊區，並建立 ticker 區塊
+  // 顯示行情資訊區：當買入按鈕被按下時，隱藏原本的盈虧資訊，並建立 ticker 區塊
   function showTickers() {
     let existingTicker = document.getElementById("ticker-container");
     if (existingTicker) {
@@ -181,18 +214,20 @@ function updateTickerDisplay(tickerContainer) {
     tickerContainer.className = "ticker-container";
     statsContainer.style.display = "none";
     statsBox.appendChild(tickerContainer);
+    // 啟動行情 WebSocket 更新（實時更新）
     connectTickersWebSocket(tickerContainer);
   }
 
-  // 當買入按鈕被按下時，顯示行情資訊
+  // 當買入按鈕被按下時，顯示行情資訊區
   buyButton.addEventListener("click", function(e) {
     e.preventDefault();
     showTickers();
   });
 
-  // 當賣出按鈕被按下時，移除行情區域，恢復原本盈虧資訊
+  // 當賣出按鈕被按下時，清除行情區域並恢復原本盈虧資訊
   sellButton.addEventListener("click", function(e) {
     e.preventDefault();
+    // 若存在 ticker 區塊，將其移除
     let tickerContainer = document.getElementById("ticker-container");
     if (tickerContainer) {
       tickerContainer.parentNode.removeChild(tickerContainer);
@@ -200,5 +235,7 @@ function updateTickerDisplay(tickerContainer) {
     statsContainer.style.display = "block";
   });
 
+  // 開始兩個數據載入流程
   connectWebSocket();
+  loadTickers();
 });
