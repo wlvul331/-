@@ -114,3 +114,36 @@ body {
   font-weight: bold;
 }
 
+.action-buttons {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  /* 如有需要，可設定背景色或 padding */
+}
+
+.action-buttons button {
+  width: 150px;
+  height: 150px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px; /* 可根據需求調整圓角 */
+}
+
+/* 買入按鈕 */
+#buy-button {
+  background-color: #00A67D;
+  color: white;
+}
+
+/* 賣出按鈕 */
+#sell-button {
+  background-color: orangered;
+  color: white;
+}
+
