@@ -140,3 +140,9 @@ body {
   background-color: orangered;
   color: white;
 }
+
+#profit, #profit-percentage {
+  font-size: 24px;
+  font-weight: bold;
+}
+
