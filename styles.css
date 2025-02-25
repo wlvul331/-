@@ -152,14 +152,19 @@ body {
 
 /* 新增：行情資訊樣式 */
 .ticker-container {
-  background-color: #222;  /* 較深的背景色 */
+  background-color: #222;  /* 較深背景 */
   padding: 10px;
   border-radius: 10px;
   margin-top: 10px;
-  text-align: left;  /* 如果需要左對齊內容 */
+  text-align: left;
 }
 
 .ticker-item {
   font-size: 18px;
   font-weight: bold;
+  margin-bottom: 10px;  /* 調整下方間距，讓項目不會太靠 */
+}
+
+.ticker-item span:first-child {
+  margin-right: 8px; /* 幣種名稱與冒號間增加空白 */
 }
