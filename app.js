@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    let priceElement = document.getElementById("price-usd");
+    let totalQuantityElement = document.getElementById("total-quantity");
     let totalValueElement = document.getElementById("total-value");
     let profitElement = document.getElementById("profit");
     let profitPercentageElement = document.getElementById("profit-percentage");
@@ -24,28 +24,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }, 500);
 
-    function formatPrice(price) {
-        let numStr = price.toFixed(12);
-        let match = numStr.match(/^0\.0+(.*)/);
-        
-        if (match) {
-            let zeroCount = match[0].length - 3;
-            return `0.0{${zeroCount}}${match[1]}`;
-        }
-        
-        return price.toFixed(8);
-    }
-
     function showData() {
         let totalValue = totalQuantity * currentPrice * 31.5; // 轉換為 TWD
         let profit = totalValue - totalCost;
         let profitPercentage = ((profit / totalCost) * 100).toFixed(2);
 
-        priceElement.innerHTML = formatPrice(currentPrice);
+        // ✅ 更新 **總持有量** 顯示（**這是關鍵修正**）
+        totalQuantityElement.innerText = totalQuantity.toLocaleString();
+
+        // ✅ 更新其餘數據
         totalValueElement.innerText = totalValue.toFixed(2);
         profitElement.innerText = `NT$${profit.toLocaleString()}`;
         profitPercentageElement.innerText = `${profitPercentage}%`;
 
+        // ✅ 盈虧變色
         if (profit >= 0) {
             profitElement.classList.add("positive");
             profitElement.classList.remove("negative");
@@ -58,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
             profitPercentageElement.classList.remove("positive");
         }
 
+        // ✅ 顯示數據，隱藏讀取條
         loadingContainer.style.display = "none";
         statsContainer.style.display = "block";
     }
