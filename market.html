@@ -18,92 +18,88 @@
   <div id="chart-container"></div>
 
   <script>
-  // 定義全域變數及 WebSocket 重連等設定（價格部分代碼略）
-  let lastUsdPrice = null;
-  let ws = null;
-  const reconnectInterval = 5000; // 重連間隔 (毫秒)
+    // 定義全域變數及 WebSocket 重連等設定
+    let lastUsdPrice = null;
+    const reconnectInterval = 5000; // 重連間隔 (毫秒)
 
-  document.addEventListener("DOMContentLoaded", function () {
-    // 其他價格、盈虧相關程式碼略…
-    
-    // 初始化 K 線圖
-    const chartContainer = document.getElementById('chart-container');
-    const chart = LightweightCharts.createChart(chartContainer, {
-      width: chartContainer.clientWidth,
-      height: chartContainer.clientHeight,
-      layout: {
-          backgroundColor: '#333',
-          textColor: 'white',
-      },
-      grid: {
-          vertLines: { color: '#444' },
-          horzLines: { color: '#444' },
-      },
-      timeScale: { borderColor: '#555' },
+    document.addEventListener("DOMContentLoaded", function () {
+      // 初始化 K 線圖
+      const chartContainer = document.getElementById('chart-container');
+      const chart = LightweightCharts.createChart(chartContainer, {
+          width: chartContainer.clientWidth,
+          height: chartContainer.clientHeight,
+          layout: {
+              backgroundColor: '#333',
+              textColor: 'white',
+          },
+          grid: {
+              vertLines: { color: '#444' },
+              horzLines: { color: '#444' },
+          },
+          timeScale: { borderColor: '#555' },
+      });
+      const candleSeries = chart.addCandlestickSeries({
+          upColor: '#00A67D',
+          downColor: 'orangered',
+          borderUpColor: '#00A67D',
+          borderDownColor: 'orangered',
+          wickUpColor: '#00A67D',
+          wickDownColor: 'orangered',
+      });
+
+      // 取得歷史 K 線資料，初始化圖表（使用 REST API）
+      fetch('https://api.binance.com/api/v3/klines?symbol=1MBABYDOGEUSDT&interval=1m&limit=100')
+          .then(response => response.json())
+          .then(data => {
+              const candles = data.map(item => ({
+                  time: Math.floor(item[0] / 1000),  // Unix 時間（秒）
+                  open: parseFloat(item[1]),
+                  high: parseFloat(item[2]),
+                  low: parseFloat(item[3]),
+                  close: parseFloat(item[4]),
+              }));
+              candleSeries.setData(candles);
+          })
+          .catch(error => console.error('Error fetching klines data:', error));
+
+      // 建立並連線 Binance WebSocket，訂閱 1 分鐘 K 線實時資料
+      function connectKlineWebSocket() {
+          const wsKline = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@kline_1m');
+          wsKline.onopen = function() {
+              console.log("已連線到 Binance K 線 WebSocket");
+          };
+          wsKline.onmessage = function(event) {
+              try {
+                  const message = JSON.parse(event.data);
+                  // 當 k.x 為 true 表示該 K 線已關閉
+                  if (message && message.k && message.k.x === true) {
+                      const kline = message.k;
+                      const newCandle = {
+                          time: Math.floor(kline.t / 1000),
+                          open: parseFloat(kline.o),
+                          high: parseFloat(kline.h),
+                          low: parseFloat(kline.l),
+                          close: parseFloat(kline.c),
+                      };
+                      // 更新圖表：使用 update() 更新最後一根 K 線
+                      candleSeries.update(newCandle);
+                  }
+              } catch (error) {
+                  console.error("處理 K 線 WebSocket 訊息錯誤:", error);
+              }
+          };
+          wsKline.onerror = function(error) {
+              console.error("K 線 WebSocket 錯誤:", error);
+          };
+          wsKline.onclose = function() {
+              console.log("K 線 WebSocket 連線已關閉，將在 " + reconnectInterval/1000 + " 秒後嘗試重新連線");
+              setTimeout(connectKlineWebSocket, reconnectInterval);
+          };
+      }
+      connectKlineWebSocket();
+
+      // 此處可加入其他原有的程式碼，例如價格更新、盈虧計算等…
     });
-    const candleSeries = chart.addCandlestickSeries({
-      upColor: '#00A67D',
-      downColor: 'orangered',
-      borderUpColor: '#00A67D',
-      borderDownColor: 'orangered',
-      wickUpColor: '#00A67D',
-      wickDownColor: 'orangered',
-    });
-
-    // 取得歷史 K 線資料，初始化圖表（使用 REST API）
-    fetch('https://api.binance.com/api/v3/klines?symbol=1MBABYDOGEUSDT&interval=1m&limit=100')
-      .then(response => response.json())
-      .then(data => {
-          const candles = data.map(item => ({
-              time: Math.floor(item[0] / 1000),  // Unix 時間（秒）
-              open: parseFloat(item[1]),
-              high: parseFloat(item[2]),
-              low: parseFloat(item[3]),
-              close: parseFloat(item[4]),
-          }));
-          candleSeries.setData(candles);
-      })
-      .catch(error => console.error('Error fetching klines data:', error));
-
-    // 建立並連線 Binance WebSocket，訂閱 1 分鐘 K 線實時資料
-    function connectKlineWebSocket() {
-      const wsKline = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@kline_1m');
-      wsKline.onopen = function() {
-        console.log("已連線到 Binance K 線 WebSocket");
-      };
-      wsKline.onmessage = function(event) {
-        try {
-          const message = JSON.parse(event.data);
-          if (message.k) {
-            const kline = message.k;
-            // 建立一根新的 K 線資料
-            const candle = {
-              time: Math.floor(kline.t / 1000), // 開始時間 (秒)
-              open: parseFloat(kline.o),
-              high: parseFloat(kline.h),
-              low: parseFloat(kline.l),
-              close: parseFloat(kline.c),
-            };
-            // 使用 update() 更新最後一根 K 線，如果當前時間相同則覆蓋，否則追加新K線
-            candleSeries.update(candle);
-          }
-        } catch (error) {
-          console.error("處理 K 線 WebSocket 訊息錯誤:", error);
-        }
-      };
-      wsKline.onerror = function(error) {
-        console.error("K 線 WebSocket 錯誤:", error);
-      };
-      wsKline.onclose = function() {
-        console.log("K 線 WebSocket 連線已關閉，" +
-          "將在 " + reconnectInterval / 1000 + " 秒後嘗試重新連線");
-        setTimeout(connectKlineWebSocket, reconnectInterval);
-      };
-    }
-    connectKlineWebSocket();
-
-    // 其他原有程式碼（例如價格更新等）放置在此……
-  });
   </script>
 </body>
 </html>
