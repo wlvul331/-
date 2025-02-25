@@ -5,17 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Carter's BabyDoge 盈虧</title>
     
-    <!-- PWA 設定 -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e1e2f">
-    <link rel="icon" sizes="192x192" href="icons/icon-192x192.png">
-    <link rel="apple-touch-icon" href="icons/icon-512x512.png">
-    
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
 
-    <!-- 🔄 讀取進度條 -->
+    <!-- 標題區塊 -->
+    <div class="title-container">
+        <img src="https://assets.coingecko.com/coins/images/16125/large/babydoge.png" class="coin-logo" alt="BabyDoge">
+        <h1 class="title">Carter's BabyDoge 盈虧</h1>
+    </div>
+
+    <!-- 當前價格顯示 -->
+    <div class="price-container">
+        <span>當前價格 (USD): </span>
+        <span id="price-usd" class="price">Loading...</span>
+    </div>
+
+    <!-- 讀取中進度條 -->
     <div id="loading-container">
         <p>數據加載中...</p>
         <div class="loading-bar">
@@ -24,20 +30,17 @@
         <p id="loading-percentage">0%</p>
     </div>
 
-    <!-- 📊 盈虧數據 -->
+    <!-- 盈虧數據 -->
     <div id="stats-container" style="display: none;">
         <div class="container">
-            <div class="title">Carter's BabyDoge 盈虧</div>
-
-            <div class="stat"><span>當前價格 (USD)</span><span id="price-usd" class="price">Loading...</span></div>
             <div class="stat"><span>總持有量</span><span id="total-quantity">Loading...</span></div>
-            <div class="stat"><span>總成本 </span><span>NT$<span id="total-cost">1690000</span></span></div>
-            <div class="stat"><span>當前持幣總價值 </span><span>NT$<span id="total-value">Loading...</span></span></div>
+            <div class="stat"><span>總成本 (TWD)</span><span>NT$<span id="total-cost">1690000</span></span></div>
+            <div class="stat"><span>當前持幣總價值 (TWD)</span><span>NT$<span id="total-value">Loading...</span></span></div>
             <div class="stat"><span>未實現盈虧</span><span id="profit" class="profit">Loading...</span></div>
             <div class="stat"><span>盈虧率</span><span id="profit-percentage" class="profit">Loading...</span></div>
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
 </body>
 </html>
