@@ -130,4 +130,39 @@ document.addEventListener("DOMContentLoaded", function () {
   function formatPrice(num) {
     return `$${num.toFixed(7)}`;
   }
+
+  // 在 DOMContentLoaded 事件內部（或合適的位置）新增 K 線圖的初始化程式碼
+document.addEventListener("DOMContentLoaded", function () {
+  // 其他原有程式碼……
+  // ... (此處保留原有價格、盈虧等相關程式碼)
+
+  // 新增：初始化 K 線圖
+  const chartContainer = document.getElementById('chart-container');
+  const chart = LightweightCharts.createChart(chartContainer, {
+      width: chartContainer.clientWidth,
+      height: chartContainer.clientHeight,
+      layout: {
+          backgroundColor: '#333',
+          textColor: 'white',
+      },
+      grid: {
+          vertLines: {
+              color: '#444',
+          },
+          horzLines: {
+              color: '#444',
+          },
+      },
+      timeScale: {
+          borderColor: '#555',
+      },
+  });
+  const candleSeries = chart.addCandlestickSeries({
+      upColor: '#00A67D',         // 上漲的顏色（買入色）
+      downColor: 'orangered',      // 下跌的顏色（賣出色）
+      borderUpColor: '#00A67D',
+      borderDownColor: 'orangered',
+      wickUpColor: '#00A67D',
+      wickDownColor: 'orangered',
+  });
 });
