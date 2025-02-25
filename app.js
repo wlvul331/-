@@ -250,7 +250,7 @@ buyButton.addEventListener("click", function(e) {
     return;
   }
   showTickers();
-});
+}
 
 
   connectWebSocket();
