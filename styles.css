@@ -206,6 +206,14 @@ body {
   text-align: right;
 }
 
+/* 幣名 + /USDT */
+.ticker-left {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  flex-grow: 1; /* 讓名稱區塊擴展到最左側 */
+}
+
 .coin-icon {
   width: 20px;
   height: 20px;
