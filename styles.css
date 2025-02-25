@@ -193,6 +193,7 @@ body {
 
 .ticker-coin {
   font-weight: bold;
+  font-size: 16px;
 }
 
 .ticker-suffix {
