@@ -194,13 +194,14 @@ body {
 
 .hidden {
   opacity: 0;
-  transform: scale(0.9);
+  pointer-events: none; /* 避免點擊 */
 }
 
 .visible {
   opacity: 1;
-  transform: scale(1);
+  pointer-events: all;
 }
+
 
 /* 若原有的 .ticker-container 需較深背景 */
 .ticker-container {
