@@ -135,15 +135,36 @@ body {
   border-radius: 8px; /* 可根據需求調整圓角 */
 }
 
-/* 買入按鈕 */
+.action-buttons {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 400px;  /* 與灰色區塊寬度相同 */
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+
+.action-buttons button {
+  width: 48%;  /* 兩個按鈕各占約一半空間，間隔留空 */
+  height: 60px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+/* 買入按鈕使用 #00A67D 顏色 */
 #buy-button {
   background-color: #00A67D;
   color: white;
 }
 
-/* 賣出按鈕 */
+/* 賣出按鈕使用 orangered 顏色 */
 #sell-button {
   background-color: orangered;
   color: white;
 }
-
