@@ -34,7 +34,7 @@ async function fetchPrice() {
 
         // 📌 更新數據顯示
         document.getElementById('price-usd').textContent = formatSmallNumber(usdPrice);
-        document.getElementById('total-quantity').textContent = totalQuantity.toLocaleString();
+        document.getElementById('total-quantity').textContent = totalQuantity.toString();
         document.getElementById('total-value').textContent = (totalQuantity * twdPrice).toFixed(2);
 
         // 📌 計算盈虧
