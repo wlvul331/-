@@ -2,6 +2,7 @@ const totalQuantity = 21235769401342.17;
 const totalPurchasePriceTWD = 1690000;
 let progress = 0;
 let progressInterval;
+let isAvgPriceLoaded = false;
 
 function startLoadingBar() {
     progressInterval = setInterval(() => {
@@ -32,7 +33,7 @@ async function fetchExchangeRate() {
         return data.conversion_rates.TWD;
     } catch (error) {
         console.error("獲取匯率失敗:", error);
-        return 31.5; // API 失敗時使用預設值
+        return null; // API 失敗時回傳 null
     }
 }
 
@@ -57,24 +58,34 @@ async function fetchPrice() {
 
         // 計算購入均價 (USD)
         const exchangeRate = await fetchExchangeRate();
-        const totalCostUSD = totalPurchasePriceTWD / exchangeRate;
-        const avgPriceUSD = totalCostUSD / totalQuantity;
-        document.getElementById("avg-price").textContent = formatSmallNumber(avgPriceUSD);
+        if (exchangeRate) {
+            const totalCostUSD = totalPurchasePriceTWD / exchangeRate;
+            const avgPriceUSD = totalCostUSD / totalQuantity;
+            document.getElementById("avg-price").textContent = formatSmallNumber(avgPriceUSD);
+        } else {
+            document.getElementById("avg-price").textContent = "N/A";
+        }
 
-        // 快速跑滿 100%
+        // 標記購入均價已完成讀取
+        isAvgPriceLoaded = true;
+
+        // 進度條完成
         clearInterval(progressInterval);
         document.getElementById('loading-bar-fill').style.width = '100%';
         document.getElementById('loading-percentage').textContent = '100%';
 
-        // 顯示數據
+        // 確保所有數據加載完成後才隱藏進度條
         setTimeout(() => {
-            document.getElementById('loading-container').style.display = 'none';
-            document.getElementById('stats-container').style.display = 'block';
+            if (isAvgPriceLoaded) {
+                document.getElementById('loading-container').style.display = 'none';
+                document.getElementById('stats-container').style.display = 'block';
+            }
         }, 500);
     } catch (error) {
         console.error("Error fetching price: ", error);
     }
 }
 
+// 設定輪詢機制，每 5 秒更新一次數據
 setInterval(fetchPrice, 5000);
 fetchPrice();
