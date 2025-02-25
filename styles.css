@@ -43,12 +43,6 @@ body {
   margin-bottom: 10px;
 }
 
-#price-usd {
-  font-size: 36px;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
 /* 盈虧數據區塊 */
 .container {
   background-color: #222;
@@ -108,6 +102,12 @@ body {
   color: #ccc;
 }
 
+#price-usd {
+  font-size: 36px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
 /* 按鈕容器 */
 .action-buttons {
   position: fixed;
@@ -129,15 +129,6 @@ body {
   border: none;
   cursor: pointer;
   border-radius: 8px;
-  transition: transform 0.1s ease, opacity 0.1s ease;
-}
-
-.action-buttons button:hover {
-  opacity: 0.9;
-}
-
-.action-buttons button:active {
-  transform: scale(0.95);
 }
 
 #buy-button {
@@ -150,60 +141,28 @@ body {
   color: white;
 }
 
-/* 新增：行情資訊樣式 */
-.ticker-container {
-  background-color: #222;  /* 較深背景 */
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 10px;
-  text-align: left;
+#profit, #profit-percentage {
+  font-size: 30px;
+  font-weight: bold;
 }
 
-.ticker-item {
+.action-buttons button {
+  width: 48%;
+  height: 60px;
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 10px;  /* 調整下方間距，讓項目不會太靠 */
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.1s ease, opacity 0.1s ease;
 }
 
-.ticker-item span:first-child {
-  margin-right: 8px; /* 幣種名稱與冒號間增加空白 */
+.action-buttons button:hover {
+  opacity: 0.9;
 }
 
-.ticker-suffix {
-  font-size: 14px; /* 較小的字體 */
-  margin-left: 4px;
-}
-
-.ticker-price {
-  display: inline-block;
-  width: 70px;           /* 固定寬度，可依需要調整 */
-  text-align: right;     /* 右對齊 */
-  font-family: monospace;/* 使用等寬字型，確保數字對齊 */
-}
-
-/* 新增：針對盈虧資訊（淺色）與行情資訊（深色）的過渡效果 */
-.stats-container,
-.ticker-container {
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.hidden {
-  opacity: 0;
-  transform: scale(0.9);
-}
-
-.visible {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* 若原有的 .ticker-container 需較深背景 */
-.ticker-container {
-  background-color: #222;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 10px;
-  text-align: left;
+.action-buttons button:active {
+  transform: scale(0.95);
 }
 
 
