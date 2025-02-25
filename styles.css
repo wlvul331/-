@@ -43,6 +43,12 @@ body {
   margin-bottom: 10px;
 }
 
+#price-usd {
+  font-size: 36px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
 /* 盈虧數據區塊 */
 .container {
   background-color: #222;
@@ -102,12 +108,6 @@ body {
   color: #ccc;
 }
 
-#price-usd {
-  font-size: 36px;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
 /* 按鈕容器 */
 .action-buttons {
   position: fixed;
@@ -129,6 +129,15 @@ body {
   border: none;
   cursor: pointer;
   border-radius: 8px;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+.action-buttons button:hover {
+  opacity: 0.9;
+}
+
+.action-buttons button:active {
+  transform: scale(0.95);
 }
 
 #buy-button {
@@ -141,28 +150,16 @@ body {
   color: white;
 }
 
-#profit, #profit-percentage {
-  font-size: 30px;
-  font-weight: bold;
+/* 新增：行情資訊樣式 */
+.ticker-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  padding: 10px;
 }
 
-.action-buttons button {
-  width: 48%;
-  height: 60px;
+.ticker-item {
   font-size: 18px;
   font-weight: bold;
-  border: none;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: transform 0.1s ease, opacity 0.1s ease;
 }
-
-.action-buttons button:hover {
-  opacity: 0.9;
-}
-
-.action-buttons button:active {
-  transform: scale(0.95);
-}
-
-
