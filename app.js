@@ -183,25 +183,26 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-  function updateTickerDisplay(tickerContainer) {
-    let html = '';
-    const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
-    symbols.forEach(sym => {
-      let price;
-      if (tickersData[sym] === undefined) {
-        price = "Loading...";
-      } else {
-        price = `$${tickersData[sym].toFixed(2)}`;
-      }
-      // 將主幣與 "/USDT" 連在一起，然後顯示冒號及價格
-      const coin = sym.slice(0, sym.length - 4);
-      html += `<div class="ticker-item">
-                 <span class="ticker-coin">${coin}</span><span class="ticker-suffix">/USDT</span>: 
-                 <span class="ticker-price">${price}</span>
-               </div>`;
-    });
-    tickerContainer.innerHTML = html;
-  }
+function updateTickerDisplay(tickerContainer) {
+  let html = '';
+  const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
+  symbols.forEach(sym => {
+    let price;
+    if (tickersData[sym] === undefined) {
+      price = "Loading...";
+    } else {
+      // 移除 "$" 符號
+      price = `${tickersData[sym].toFixed(2)}`;
+    }
+    const coin = sym.slice(0, sym.length - 4);
+    html += `<div class="ticker-item">
+               <span class="ticker-coin">${coin}</span><span class="ticker-suffix">/USDT</span>: 
+               <span class="ticker-price">${price}</span>
+             </div>`;
+  });
+  tickerContainer.innerHTML = html;
+}
+
 
   // 顯示行情資訊區：當買入按鈕被按下時，隱藏原本的盈虧資訊，並建立 ticker 區塊
   function showTickers() {
