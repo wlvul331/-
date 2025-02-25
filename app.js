@@ -13,15 +13,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const loadingBarFill = document.getElementById("loading-bar-fill");
   const loadingPercentage = document.getElementById("loading-percentage");
 
-  // 固定參數（假設總成本與持有量固定）
-  const totalCost = 1690000;  // 總成本 (TWD)
-  const totalQuantity = 21235769401342.17;  // 總持有量
+  // 固定參數
+  const totalCost = 1690000;             // 總成本 (TWD)
+  const totalQuantity = 21235769401342.17; // 總持有量
 
-  // API 參數：透過 CORS 代理取得 CoinGecko 數據
+  // 使用 CORS 代理取得 CoinGecko 數據
   const proxyUrl = "https://corsproxy.io/?";
-  const apiUrl = "https://api.coingecko.com/api/v3/simple/price?ids=baby-doge-coin&vs_currencies=usd,twd";
+  const apiUrl =
+    "https://api.coingecko.com/api/v3/simple/price?ids=baby-doge-coin&vs_currencies=usd,twd";
 
-  // 開始載入進度條
+  // 進度條初始化
   let progress = 0;
   startLoadingBar();
 
@@ -29,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
     progress = 0;
     loadingBarFill.style.width = "0%";
     loadingPercentage.textContent = "0%";
-    // 模擬進度條（直到 API 資料回來）
     let interval = setInterval(() => {
       if (progress < 80) {
         progress += 10;
@@ -45,44 +45,34 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function fetchPrice() {
     try {
-      // 透過代理取得 API 數據
       const response = await fetch(proxyUrl + apiUrl);
       if (!response.ok) throw new Error("API 回應錯誤");
       const data = await response.json();
-      
-      // 從 API 取得 BabyDoge 價格（USD 與 TWD）
+
+      // 取得 USD 與 TWD 價格
       const usdPrice = data["baby-doge-coin"]["usd"];
       const twdPrice = data["baby-doge-coin"]["twd"];
 
-      // 更新當前價格：使用 formatPrice 格式化
+      // 格式化並顯示當前價格
       priceElement.textContent = formatPrice(usdPrice);
-      
-      // 根據與上次的價格比對，動態調整顏色：上漲為綠色，下跌為紅色
-      if (lastUsdPrice !== null) {
-        if (usdPrice > lastUsdPrice) {
-          priceElement.style.color = "#0f0"; // 上漲顯示綠色
-        } else if (usdPrice < lastUsdPrice) {
-          priceElement.style.color = "red"; // 下跌顯示紅色
-        } else {
-          priceElement.style.color = "white"; // 無變化顯示預設顏色
-        }
+      // 更新顏色：初始、上漲或持平時均為綠色，僅下跌時顯示紅色
+      if (lastUsdPrice !== null && usdPrice < lastUsdPrice) {
+        priceElement.style.color = "red";
+      } else {
+        priceElement.style.color = "#0f0";
       }
       lastUsdPrice = usdPrice;
-      
-      // 更新總持有量（使用 toLocaleString() 加入千分位）
+
+      // 更新其他數據
       totalQuantityElement.textContent = totalQuantity.toLocaleString();
-
-      // 更新當前持幣總價值 (TWD)
       totalValueElement.textContent = (totalQuantity * twdPrice).toFixed(2);
-
-      // 計算盈虧與盈虧率
       const unrealizedProfit = totalQuantity * twdPrice - totalCost;
       const profitPercentage = ((unrealizedProfit / totalCost) * 100).toFixed(2);
 
       profitElement.textContent = `NT$${unrealizedProfit.toLocaleString()}`;
       profitPercentageElement.textContent = `${profitPercentage}%`;
 
-      // 設置盈虧顏色：盈餘為綠色，虧損為紅色
+      // 盈虧上色：盈餘為綠色，虧損為紅色
       if (unrealizedProfit >= 0) {
         profitElement.classList.add("positive");
         profitElement.classList.remove("negative");
@@ -98,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
       completeLoadingBar();
     } catch (error) {
       console.error("Error fetching price:", error);
-      priceElement.textContent = "數據加載失敗";
+      // 若數據加載失敗，不更新價格，保留上次成功讀取的數值
       completeLoadingBar();
     }
   }
@@ -109,12 +99,11 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(() => {
       loadingContainer.style.display = "none";
       statsContainer.style.display = "block";
-      // 顯示當前價格區塊
       priceElement.style.display = "inline";
     }, 500);
   }
 
-  // 格式化價格：若大於 0.01 則顯示 8 位小數，否則以 0.0{N}xxxx 格式顯示
+  // 格式化價格：若大於 0.01 則顯示 8 位小數，否則依據情況格式化
   function formatPrice(num) {
     if (num >= 0.01) return `$${num.toFixed(8)}`;
     const numStr = num.toFixed(12);
@@ -122,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return match ? `0.0{${match[1].length}}${match[2]}` : `$${numStr}`;
   }
 
-  // 初次獲取價格
+  // 初次抓取價格
   fetchPrice();
   // 每 90 秒更新一次
   setInterval(fetchPrice, 90000);
