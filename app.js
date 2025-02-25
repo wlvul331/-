@@ -15,12 +15,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const loadingBarFill = document.getElementById("loading-bar-fill");
   const loadingPercentage = document.getElementById("loading-percentage");
   const actionButtons = document.querySelector('.action-buttons');
-  // 新增：取得整個灰色方框（stats-box）
   const statsBox = document.querySelector('.stats-box');
 
-  // 初始隱藏整個灰色方框與按鈕
+  // 初始隱藏整個灰色方框與按鈕與即時價格
   statsBox.style.display = "none";
   actionButtons.style.display = "none";
+  priceElement.style.display = "none";
 
   // 固定參數（以台幣計算）
   const totalCost = 1690000;             // 總成本 (TWD)
@@ -124,9 +124,9 @@ document.addEventListener("DOMContentLoaded", function () {
     updateLoadingBar(progress);
     setTimeout(() => {
       loadingContainer.style.display = "none";
-      statsBox.style.display = "block"; // 顯示整個灰色方框
-      priceElement.style.display = "inline";
-      actionButtons.style.display = "flex";
+      statsBox.style.display = "block";  // 顯示整個灰色方框
+      priceElement.style.display = "inline";  // 顯示即時價格
+      actionButtons.style.display = "flex";  // 顯示按鈕
     }, 500);
   }
 
