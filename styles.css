@@ -29,11 +29,16 @@ body {
 
 /* 主要數據區塊（灰色背景） */
 .stats-box {
-  background-color: #333;
-  padding: 15px;
+  display: flex; /* 讓內部內容排列 */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+  background-color: #f2f2f2; /* 灰色框 */
+  padding: 20px;
   border-radius: 10px;
-  max-width: 400px;
-  margin: 20px auto;
+  transition: opacity 0.5s ease-in-out; /* 透明度過渡，防止切換時閃爍 */
 }
 
 /* 當前價格顯示 */
