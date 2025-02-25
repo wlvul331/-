@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function () {
         priceElement.textContent = formatPrice(usdPrice);
         // 若上次價格存在且新價格下跌，顯示紅色；否則一律綠色
         if (lastUsdPrice !== null && usdPrice < lastUsdPrice) {
-          priceElement.style.color = "red";
+          priceElement.style.color = "orangered";
         } else {
           priceElement.style.color = "#00A67D";
         }
