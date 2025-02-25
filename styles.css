@@ -73,6 +73,12 @@ body {
   color: #00A67D;
 }
 
+#profit, #profit-percentage {
+  font-size: 36px; /* 增加字體大小 */
+  font-weight: bold;
+}
+
+
 /* 讀取中進度條 */
 #loading-container {
   text-align: center;
