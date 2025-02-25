@@ -15,10 +15,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const loadingBarFill = document.getElementById("loading-bar-fill");
   const loadingPercentage = document.getElementById("loading-percentage");
   const actionButtons = document.querySelector('.action-buttons');
+  // 新增：取得整個灰色方框（stats-box）
+  const statsBox = document.querySelector('.stats-box');
 
-  // 初始隱藏即時價格區塊與按鈕
-  statsContainer.style.display = "none";
-  priceElement.style.display = "none";
+  // 初始隱藏整個灰色方框與按鈕
+  statsBox.style.display = "none";
   actionButtons.style.display = "none";
 
   // 固定參數（以台幣計算）
@@ -123,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateLoadingBar(progress);
     setTimeout(() => {
       loadingContainer.style.display = "none";
-      statsContainer.style.display = "block";
+      statsBox.style.display = "block"; // 顯示整個灰色方框
       priceElement.style.display = "inline";
       actionButtons.style.display = "flex";
     }, 500);
