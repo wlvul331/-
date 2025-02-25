@@ -10,11 +10,11 @@ function startLoadingBar() {
     document.getElementById('loading-percentage').textContent = '0%';
 
     progressInterval = setInterval(() => {
-        if (progress < 80) { // 讀取時緩慢增加到 80%
+        if (progress < 90) { // **最多到 90%，避免 API 太慢時卡住**
             progress += 2;
             updateLoadingBar(progress);
         }
-    }, 100);
+    }, 80);
 }
 
 function updateLoadingBar(value) {
@@ -26,27 +26,38 @@ async function fetchPrice() {
     startLoadingBar();
     try {
         const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=baby-doge-coin&vs_currencies=usd,twd");
+        if (!response.ok) throw new Error("API 回應錯誤");
+
         const data = await response.json();
         const usdPrice = data['baby-doge-coin']['usd'];
         const twdPrice = data['baby-doge-coin']['twd'];
 
+        // 更新 UI
         document.getElementById('price-usd').textContent = formatSmallNumber(usdPrice);
-        document.getElementById('total-value').textContent = (totalQuantity * twdPrice).toFixed(2);
+        const totalValue = totalQuantity * twdPrice;
+        document.getElementById('total-value').textContent = totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
-        const unrealizedProfit = totalQuantity * twdPrice - totalPurchasePriceTWD;
-        document.getElementById('profit').textContent = unrealizedProfit.toFixed(2);
+        const unrealizedProfit = totalValue - totalPurchasePriceTWD;
+        document.getElementById('profit').textContent = unrealizedProfit.toLocaleString(undefined, { minimumFractionDigits: 2 });
         document.getElementById('profit-percentage').textContent = ((unrealizedProfit / totalPurchasePriceTWD) * 100).toFixed(2) + '%';
 
-        // 變色
-        document.getElementById('profit').className = `profit ${unrealizedProfit >= 0 ? 'positive' : 'negative'}`;
-        document.getElementById('profit-percentage').className = `profit ${unrealizedProfit >= 0 ? 'positive' : 'negative'}`;
+        // 設置盈虧顏色
+        const profitClass = unrealizedProfit >= 0 ? 'positive' : 'negative';
+        document.getElementById('profit').className = `profit ${profitClass}`;
+        document.getElementById('profit-percentage').className = `profit ${profitClass}`;
 
-        // **進度條快速填滿 100%**
+        // **API 回應後，快速完成進度條**
         isDataLoaded = true;
         completeLoadingBar();
 
     } catch (error) {
         console.error("Error fetching price: ", error);
+        document.getElementById('price-usd').textContent = "載入失敗";
+        document.getElementById('total-value').textContent = "載入失敗";
+        document.getElementById('profit').textContent = "載入失敗";
+        document.getElementById('profit-percentage').textContent = "載入失敗";
+
+        completeLoadingBar();
     }
 }
 
@@ -61,23 +72,23 @@ function completeLoadingBar() {
     }, 500);
 }
 
-// ✅ 修正 `{N}` 顯示方式
+// ✅ **修正格式化小數方式**
 function formatSmallNumber(num) {
-    if (num >= 0.01) {
-        return `$${num.toFixed(12)}`;
-    }
+    if (num >= 0.01) return `$${num.toFixed(8)}`;
 
     const numStr = num.toFixed(12);
     const match = numStr.match(/^0\.0+(.*)/);
-
+    
     if (match) {
-        const zeroCount = numStr.split('0').length - 2;
+        const zeroCount = numStr.match(/0/g).length - 2; // 計算 0 的數量
         return `0.0{${zeroCount}}${match[1]}`;
     }
-
+    
     return `$${numStr}`;
 }
 
-// 執行價格獲取
+// **初次載入**
 fetchPrice();
-setInterval(fetchPrice, 5000);
+
+// **每 10 秒更新一次**
+setInterval(fetchPrice, 10000);
