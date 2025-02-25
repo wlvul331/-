@@ -159,27 +159,38 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch(error => console.error("Error fetching tickers:", error));
   }
 
-  // 新增：顯示行情資訊
-  function showTickers() {
-    // 若已存在 ticker 區塊，則先移除
-    let existingTicker = document.getElementById("ticker-container");
-    if (existingTicker) {
-      existingTicker.parentNode.removeChild(existingTicker);
-    }
-    const tickerContainer = document.createElement("div");
-    tickerContainer.id = "ticker-container";
-    tickerContainer.className = "ticker-container";
-    // 隱藏原本的盈虧資訊
-    statsContainer.style.display = "none";
-    // 將 ticker 區塊加入到 statsBox 中（原本灰色方框）
-    statsBox.appendChild(tickerContainer);
-    // 初始更新
-    updateTickers(tickerContainer);
-    // 設置輪詢，每 5 秒更新一次行情價格
-    tickerInterval = setInterval(() => {
-      updateTickers(tickerContainer);
-    }, 5000);
+// 新增：顯示幣安上部分幣種行情價格（BTC, ETH, SOL, ADA, BNB, DOGE）
+function showTickers() {
+  // 若已存在 ticker 區塊，則先移除
+  let existingTicker = document.getElementById("ticker-container");
+  if (existingTicker) {
+    existingTicker.parentNode.removeChild(existingTicker);
   }
+  const tickerContainer = document.createElement("div");
+  tickerContainer.id = "ticker-container";
+  tickerContainer.className = "ticker-container";
+  // 隱藏原本的盈虧資訊
+  statsContainer.style.display = "none";
+  // 將 ticker 區塊加入到 statsBox 中（原本灰色方框）
+  statsBox.appendChild(tickerContainer);
+
+  const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
+  const requests = symbols.map(sym =>
+    fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${sym}`)
+      .then(response => response.json())
+  );
+  Promise.all(requests)
+    .then(results => {
+      let html = '';
+      results.forEach(result => {
+        // 顯示時將 symbol 中的 "USDT" 移除，只顯示幣名
+        html += `<div class="ticker-item"><span>${result.symbol.replace('USDT','')}</span>: <span>$${parseFloat(result.price).toFixed(2)}</span></div>`;
+      });
+      tickerContainer.innerHTML = html;
+    })
+    .catch(error => console.error("Error fetching tickers:", error));
+}
+
 
   // 當買入按鈕被按下時，顯示行情價格資訊並開始更新
   buyButton.addEventListener("click", function(e) {
