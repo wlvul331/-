@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", function () {
         statsContainer.classList.add("visible");
       }, 500);
     }
-  });
+  }
 
   // 當買入按鈕被按下時，顯示行情資訊
   buyButton.addEventListener("click", function(e) {
