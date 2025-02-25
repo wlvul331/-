@@ -1,78 +1,114 @@
 document.addEventListener("DOMContentLoaded", function () {
-    let priceElement = document.getElementById("price-usd");
-    let totalQuantityElement = document.getElementById("total-quantity");
-    let totalValueElement = document.getElementById("total-value");
-    let profitElement = document.getElementById("profit");
-    let profitPercentageElement = document.getElementById("profit-percentage");
-    let loadingContainer = document.getElementById("loading-container");
-    let statsContainer = document.getElementById("stats-container");
-    let loadingBarFill = document.getElementById("loading-bar-fill");
-    let loadingPercentage = document.getElementById("loading-percentage");
+  // DOM 元素
+  const priceElement = document.getElementById("price-usd");
+  const totalQuantityElement = document.getElementById("total-quantity");
+  const totalValueElement = document.getElementById("total-value");
+  const profitElement = document.getElementById("profit");
+  const profitPercentageElement = document.getElementById("profit-percentage");
+  const loadingContainer = document.getElementById("loading-container");
+  const statsContainer = document.getElementById("stats-container");
+  const loadingBarFill = document.getElementById("loading-bar-fill");
+  const loadingPercentage = document.getElementById("loading-percentage");
 
-    let totalCost = 1690000;  // 總成本 (TWD)
-    let totalQuantity = 21235769401342.17;  // 總持有量
-    let currentPrice = 0.0000000081417;  // 當前價格 (USD)
+  // 固定參數（假設總成本與持有量固定）
+  const totalCost = 1690000;  // 總成本 (TWD)
+  const totalQuantity = 21235769401342.17;  // 總持有量
 
-    // 進度條模擬載入
-    let progress = 0;
-    // 隱藏當前價格直到數據載入完成
-    priceElement.style.display = "none";
+  // API 參數：透過 CORS 代理取得 CoinGecko 數據
+  const proxyUrl = "https://corsproxy.io/?";
+  const apiUrl = "https://api.coingecko.com/api/v3/simple/price?ids=baby-doge-coin&vs_currencies=usd,twd";
+
+  // 開始載入進度條
+  let progress = 0;
+  startLoadingBar();
+
+  function startLoadingBar() {
+    progress = 0;
+    loadingBarFill.style.width = "0%";
+    loadingPercentage.textContent = "0%";
+    // 模擬進度條（直到 API 資料回來）
     let interval = setInterval(() => {
-        progress += 20;
-        loadingBarFill.style.width = progress + "%";
-        loadingPercentage.innerText = progress + "%";
-        if (progress >= 100) {
-            clearInterval(interval);
-            showData();
-        }
+      if (progress < 80) {
+        progress += 10;
+        updateLoadingBar(progress);
+      }
+    }, 200);
+  }
+
+  function updateLoadingBar(value) {
+    loadingBarFill.style.width = value + "%";
+    loadingPercentage.textContent = value + "%";
+  }
+
+  async function fetchPrice() {
+    try {
+      // 透過代理取得 API 數據
+      const response = await fetch(proxyUrl + apiUrl);
+      if (!response.ok) throw new Error("API 回應錯誤");
+      const data = await response.json();
+      
+      // 從 API 取得 BabyDoge 價格（USD 與 TWD）
+      const usdPrice = data["baby-doge-coin"]["usd"];
+      const twdPrice = data["baby-doge-coin"]["twd"];
+
+      // 更新當前價格：使用 formatPrice 格式化
+      priceElement.textContent = formatPrice(usdPrice);
+      
+      // 更新總持有量（使用 toLocaleString() 來加入千分位，或按需求直接顯示數字）
+      totalQuantityElement.textContent = totalQuantity.toLocaleString();
+
+      // 更新當前持幣總價值 (TWD)
+      totalValueElement.textContent = (totalQuantity * twdPrice).toFixed(2);
+
+      // 計算盈虧與盈虧率
+      const unrealizedProfit = totalQuantity * twdPrice - totalCost;
+      const profitPercentage = ((unrealizedProfit / totalCost) * 100).toFixed(2);
+
+      profitElement.textContent = `NT$${unrealizedProfit.toLocaleString()}`;
+      profitPercentageElement.textContent = `${profitPercentage}%`;
+
+      // 設置盈虧顏色：盈餘為綠色，虧損為紅色
+      if (unrealizedProfit >= 0) {
+        profitElement.classList.add("positive");
+        profitElement.classList.remove("negative");
+        profitPercentageElement.classList.add("positive");
+        profitPercentageElement.classList.remove("negative");
+      } else {
+        profitElement.classList.add("negative");
+        profitElement.classList.remove("positive");
+        profitPercentageElement.classList.add("negative");
+        profitPercentageElement.classList.remove("positive");
+      }
+
+      completeLoadingBar();
+    } catch (error) {
+      console.error("Error fetching price:", error);
+      priceElement.textContent = "數據加載失敗";
+      completeLoadingBar();
+    }
+  }
+
+  function completeLoadingBar() {
+    progress = 100;
+    updateLoadingBar(progress);
+    setTimeout(() => {
+      loadingContainer.style.display = "none";
+      statsContainer.style.display = "block";
+      // 顯示當前價格區塊
+      priceElement.style.display = "inline";
     }, 500);
+  }
 
-    function showData() {
-        let totalValue = totalQuantity * currentPrice * 31.5; // 轉換為 TWD（假設匯率 31.5）
-        let profit = totalValue - totalCost;
-        let profitPercentage = ((profit / totalCost) * 100).toFixed(2);
+  // 格式化價格：若大於 0.01 則顯示 8 位小數，否則以 0.0{N}xxxx 格式顯示
+  function formatPrice(num) {
+    if (num >= 0.01) return `$${num.toFixed(8)}`;
+    const numStr = num.toFixed(12);
+    const match = numStr.match(/^0\.(0+)([1-9]\d*)$/);
+    return match ? `0.0{${match[1].length}}${match[2]}` : `$${numStr}`;
+  }
 
-        // 更新當前價格，使用自定義格式化函數
-        priceElement.innerHTML = formatPrice(currentPrice);
-        // 顯示時恢復當前價格區塊
-        priceElement.style.display = "inline";
-
-        totalQuantityElement.innerText = totalQuantity.toLocaleString();
-        totalValueElement.innerText = totalValue.toFixed(2);
-        profitElement.innerText = `NT$${profit.toLocaleString()}`;
-        profitPercentageElement.innerText = `${profitPercentage}%`;
-
-        // 盈虧顏色設定
-        if (profit >= 0) {
-            profitElement.classList.add("positive");
-            profitElement.classList.remove("negative");
-            profitPercentageElement.classList.add("positive");
-            profitPercentageElement.classList.remove("negative");
-        } else {
-            profitElement.classList.add("negative");
-            profitElement.classList.remove("positive");
-            profitPercentageElement.classList.add("negative");
-            profitPercentageElement.classList.remove("positive");
-        }
-
-        loadingContainer.style.display = "none";
-        statsContainer.style.display = "block";
-    }
-
-    // 格式化當前價格，正則表達式只匹配小數點後的連續零
-    function formatPrice(price) {
-        if (price >= 0.01) return `$${price.toFixed(8)}`;
-        const numStr = price.toFixed(12);
-        const match = numStr.match(/^0\.(0+)([1-9]\d*)$/);
-        return match ? `0.0{${match[1].length}}${match[2]}` : `$${numStr}`;
-    }
-    
-    // 執行數據獲取（此處模擬固定數據，實際應從 API 獲取更新） 
-    // 如果你有 API 請求邏輯，請在此替換模擬數據
-    // 模擬數據已在上面直接使用固定變數 currentPrice, totalQuantity, totalCost
-
-    setInterval(() => {
-        // 在模擬載入完成後，可重新呼叫 showData() 來更新數據
-        showData();
-    }, 90000);
+  // 初次獲取價格
+  fetchPrice();
+  // 每 90 秒更新一次
+  setInterval(fetchPrice, 90000);
 });
