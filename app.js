@@ -165,13 +165,14 @@ function updateTickerDisplay(tickerContainer) {
 
     html += `<div class="ticker-item">
                <img src="${coinIcon}" alt="${coin}" class="coin-icon">
-               <span class="ticker-coin">${coin}</span><span class="ticker-suffix">/USDT</span>
+               <span class="ticker-coin">${coin}<span class="ticker-suffix">/USDT</span></span>
                <span class="ticker-price">${price}</span>
              </div>`;
   });
 
   tickerContainer.innerHTML = html;
 }
+
 
 
 
