@@ -1,104 +1,104 @@
 /* 全局設定 */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #111;
-    color: white;
-    text-align: center;
-    margin: 0;
-    padding: 0;
+  font-family: Arial, sans-serif;
+  background-color: #111;
+  color: white;
+  text-align: center;
+  margin: 0;
+  padding: 0;
 }
 
 /* 標題區塊 */
 .title-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
 .coin-logo {
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
 }
 
 .title {
-    font-size: 24px;
-    font-weight: bold;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 /* 主要數據區塊（灰色背景） */
 .stats-box {
-    background-color: #333;  /* 灰色背景 */
-    padding: 15px;
-    border-radius: 10px;
-    max-width: 400px;
-    margin: 20px auto;
+  background-color: #333;
+  padding: 15px;
+  border-radius: 10px;
+  max-width: 400px;
+  margin: 20px auto;
 }
 
 /* 當前價格顯示 */
 .price-container {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 /* 盈虧數據區塊 */
 .container {
-    background-color: #222;
-    padding: 20px;
-    margin: 20px auto 0;
-    width: 90%;
-    max-width: 400px;
-    border-radius: 10px;
+  background-color: #222;
+  padding: 20px;
+  margin: 20px auto 0;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 10px;
 }
 
 .stat {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 16px;
 }
 
 /* 盈虧數字樣式 */
 .profit {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .profit.negative {
-    color: red;
+  color: red;
 }
 
 .profit.positive {
-    color: #0f0;
+  color: #0f0;
 }
 
 /* 讀取中進度條 */
 #loading-container {
-    text-align: center;
-    margin: 20px auto;
+  text-align: center;
+  margin: 20px auto;
 }
 
 .loading-bar {
-    width: 80%;
-    max-width: 400px;
-    height: 10px;
-    background-color: #444;
-    border-radius: 5px;
-    margin: 10px auto;
-    position: relative;
-    overflow: hidden;
+  width: 80%;
+  max-width: 400px;
+  height: 10px;
+  background-color: #444;
+  border-radius: 5px;
+  margin: 10px auto;
+  position: relative;
+  overflow: hidden;
 }
 
 #loading-bar-fill {
-    height: 100%;
-    width: 0%;
-    background-color: #0f0;
-    transition: width 0.5s;
+  height: 100%;
+  width: 0%;
+  background-color: #0f0;
+  transition: width 0.5s;
 }
 
 /* 進度百分比 */
 #loading-percentage {
-    font-size: 14px;
-    color: #ccc;
+  font-size: 14px;
+  color: #ccc;
 }
