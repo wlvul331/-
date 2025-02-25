@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 初始隱藏整個灰色方框與按鈕與即時價格
   statsBox.style.display = "none";
+  statsContainer.style.display = "none";
   actionButtons.style.display = "none";
   priceElement.style.display = "none";
 
@@ -80,11 +81,11 @@ document.addEventListener("DOMContentLoaded", function () {
         totalQuantityElement.textContent = totalQuantity.toLocaleString();
         totalValueElement.textContent = (totalQuantity * twdPrice / 1e6)
           .toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        // 未實現盈虧也除以 1,000,000
+        // 未實現盈虧也除以 1,000,000，並以 Math.round() 四捨五入
         const unrealizedProfit = totalQuantity * twdPrice / 1e6 - totalCost;
         const profitPercentage = ((unrealizedProfit / totalCost) * 100).toFixed(2);
 
-        profitElement.textContent = `NT$${unrealizedProfit.toLocaleString()}`;
+        profitElement.textContent = `NT$${Math.round(unrealizedProfit).toLocaleString()}`;
         profitPercentageElement.textContent = `${profitPercentage}%`;
 
         // 設定盈虧數字顏色：盈餘為綠色，虧損為紅色
@@ -124,10 +125,10 @@ document.addEventListener("DOMContentLoaded", function () {
     updateLoadingBar(progress);
     setTimeout(() => {
       loadingContainer.style.display = "none";
-      statsBox.style.display = "block";  // 顯示整個灰色方框
-      statsContainer.style.display = "block";
-      priceElement.style.display = "inline";  // 顯示即時價格
-      actionButtons.style.display = "flex";  // 顯示按鈕
+      statsBox.style.display = "block";      // 顯示整個灰色方框
+      statsContainer.style.display = "block";  // 顯示盈虧及其他數據容器
+      priceElement.style.display = "inline";   // 顯示即時價格
+      actionButtons.style.display = "flex";    // 顯示按鈕
     }, 500);
   }
 
