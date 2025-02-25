@@ -14,6 +14,18 @@ function startLoadingBar() {
     }, 100);
 }
 
+// 取得即時 USD/TWD 匯率
+async function fetchExchangeRate() {
+    try {
+        const response = await fetch("https://v6.exchangerate-api.com/v6/YOUR_API_KEY/latest/USD");
+        const data = await response.json();
+        return data.conversion_rates.TWD;
+    } catch (error) {
+        console.error("獲取匯率失敗:", error);
+        return 31.5; // API 失敗時使用預設值
+    }
+}
+
 async function fetchPrice() {
     startLoadingBar();
     try {
@@ -32,6 +44,12 @@ async function fetchPrice() {
         // 變色
         document.getElementById('profit').className = `profit ${unrealizedProfit >= 0 ? 'positive' : 'negative'}`;
         document.getElementById('profit-percentage').className = `profit ${unrealizedProfit >= 0 ? 'positive' : 'negative'}`;
+
+        // 計算購入均價 (USD)
+        const exchangeRate = await fetchExchangeRate();
+        const totalCostUSD = totalPurchasePriceTWD / exchangeRate;
+        const avgPriceUSD = totalCostUSD / totalQuantity;
+        document.getElementById("avg-price").textContent = `$${avgPriceUSD.toFixed(10)}`;
 
         // 快速跑滿 100%
         clearInterval(progressInterval);
