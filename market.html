@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Carter's BabyDoge 盈虧</title>
   <link rel="stylesheet" href="styles.css?v=4">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
-
 </head>
 <body>
   <!-- 標題區塊 -->
@@ -19,11 +17,11 @@
   <div class="stats-box">
     <!-- 當前價格顯示 -->
     <div class="price-container">
-      <span>1MBABYDOGE / USDT  </span>
+      <span>當前價格 (USD): </span>
       <span id="price-usd" class="price">Loading...</span>
     </div>
 
-    <!-- 盈虧數據 -->
+    <!-- 盈虧數據，預設內容，讀條結束後會顯示或被買入按鈕替換 -->
     <div id="stats-container" style="display: none;">
       <div class="container">
         <div class="stat">
@@ -35,7 +33,7 @@
           <span>NT$<span id="total-cost">1,690,000</span></span>
         </div>
         <div class="stat">
-          <span>持倉總價值 (TWD)</span>
+          <span>當前持幣總價值 (TWD)</span>
           <span>NT$<span id="total-value">Loading...</span></span>
         </div>
         <div class="stat">
@@ -61,8 +59,9 @@
 
   <!-- 按鈕容器 (固定在畫面最下方) -->
   <div class="action-buttons">
-    <button id="buy-button" onclick="window.location.href='https://www.xvideos.com/'">通用行情</button>
-    <button id="sell-button" onclick="window.location.href='https://cn.pornhub.com/'">盈虧訊息</button>
+    <!-- 注意：買入按鈕不再直接導向其他網址，而是觸發行情更新 -->
+    <button id="buy-button">買入</button>
+    <button id="sell-button" onclick="window.location.href='https://cn.pornhub.com/'">賣出</button>
   </div>
 
   <script src="app.js?v=4"></script>
