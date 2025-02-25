@@ -148,26 +148,27 @@ document.addEventListener("DOMContentLoaded", function () {
     };
   }
 
-  function updateTickerDisplay(tickerContainer) {
-    let html = '';
-    const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
-    symbols.forEach(sym => {
-      let price;
-      if (tickersData[sym] === undefined) {
-        price = "Loading...";
-      } else {
-        price = `$${tickersData[sym].toFixed(2)}`;
-      }
-      // 將 symbol 轉換為主幣與 /USDT，且 /USDT 以較小字體顯示
-      const coin = sym.slice(0, sym.length - 4);
-      html += `<div class="ticker-item">
-                 <span class="ticker-coin">${coin}</span>
-                 <span class="ticker-suffix">/USDT</span>: 
-                 <span class="ticker-price">${price}</span>
-               </div>`;
-    });
-    tickerContainer.innerHTML = html;
-  }
+function updateTickerDisplay(tickerContainer) {
+  let html = '';
+  const symbols = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT", "BNBUSDT", "DOGEUSDT"];
+  symbols.forEach(sym => {
+    let price;
+    if (tickersData[sym] === undefined) {
+      price = "Loading...";
+    } else {
+      price = `$${tickersData[sym].toFixed(2)}`;
+    }
+    // 取前面部分作為主幣，例如 BTCUSDT -> BTC
+    const coin = sym.slice(0, sym.length - 4);
+    // 調整順序：先顯示幣種名稱，緊接著顯示 "/USDT"，再顯示冒號與價格
+    html += `<div class="ticker-item">
+               <span class="ticker-coin">${coin}</span><span class="ticker-suffix">/USDT</span>: 
+               <span class="ticker-price">${price}</span>
+             </div>`;
+  });
+  tickerContainer.innerHTML = html;
+}
+
 
   // 顯示行情資訊區：當買入按鈕被按下時，隱藏原本的盈虧資訊區，並建立 ticker 區塊
   function showTickers() {
