@@ -183,13 +183,15 @@ body {
 
 .ticker-item {
   display: flex;
+  align-items: center; /* 垂直居中 */
   justify-content: space-between;
-  padding: 10px 15px;
-  background-color: #333; /* 更深的背景框 */
+  padding: 8px 12px; /* 減少內邊距 */
+  background-color: #333;
   border-radius: 8px;
   margin-bottom: 8px;
   font-size: 18px;
 }
+
 
 .ticker-coin {
   font-weight: bold;
@@ -207,13 +209,14 @@ body {
   text-align: right;
 }
 
-/* 幣名 + /USDT */
 .ticker-left {
   display: flex;
   align-items: center;
   text-align: left;
-  flex-grow: 20; /* 讓名稱區塊擴展到最左側 */
+  flex-grow: 1;
+  gap: 5px; /* 減少間距 */
 }
+
 
 .coin-icon {
   width: 20px;
