@@ -1,6 +1,5 @@
 const totalQuantity = 21235769401342.17;
 const totalPurchasePriceTWD = 1690000;
-let lastUsdPrice = null;
 let progress = 0;
 let progressInterval;
 
@@ -12,6 +11,17 @@ function startLoadingBar() {
             document.getElementById('loading-percentage').textContent = progress + '%';
         }
     }, 100);
+}
+
+// 轉換小數格式為 0.0{N}X
+function formatSmallNumber(num) {
+    const str = num.toFixed(12);
+    const match = str.match(/^0\.0+(.*?)$/);
+    if (match) {
+        const zeroCount = match[0].length - 2; // 計算 0 的數量
+        return `0.0{${zeroCount}}${match[1]}`;
+    }
+    return num.toFixed(12); // 正常顯示數字
 }
 
 // 取得即時 USD/TWD 匯率
@@ -34,7 +44,7 @@ async function fetchPrice() {
         const usdPrice = data['baby-doge-coin']['usd'];
         const twdPrice = data['baby-doge-coin']['twd'];
 
-        document.getElementById('price-usd').textContent = `$${usdPrice.toFixed(12)}`;
+        document.getElementById('price-usd').textContent = formatSmallNumber(usdPrice);
         document.getElementById('total-value').textContent = (totalQuantity * twdPrice).toFixed(2);
 
         const unrealizedProfit = totalQuantity * twdPrice - totalPurchasePriceTWD;
@@ -49,7 +59,7 @@ async function fetchPrice() {
         const exchangeRate = await fetchExchangeRate();
         const totalCostUSD = totalPurchasePriceTWD / exchangeRate;
         const avgPriceUSD = totalCostUSD / totalQuantity;
-        document.getElementById("avg-price").textContent = `$${avgPriceUSD.toFixed(10)}`;
+        document.getElementById("avg-price").textContent = formatSmallNumber(avgPriceUSD);
 
         // 快速跑滿 100%
         clearInterval(progressInterval);
