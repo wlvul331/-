@@ -71,14 +71,14 @@ function formatSmallNumber(num) {
     if (num >= 0.01) return `$${num.toFixed(8)}`;
 
     const numStr = num.toFixed(12);
-    const match = numStr.match(/^0\.0+(.*)/);
+    const match = numStr.match(/^0\.(0+)([1-9]\d*)$/); // ✅ 修正正則表達式
 
     if (match) {
-        const zeroCount = match[0].length - 3;
-        return `0.0{${zeroCount}}${match[1]}`;
+        const zeroCount = match[1].length; // ✅ 計算 `0` 的數量
+        return `0.0{${zeroCount}}${match[2]}`;
     }
-    
-    return `$${numStr}`;
+
+    return `$${numStr}`; // 沒匹配到，回傳完整數字
 }
 
 // ⏳ 執行價格獲取
