@@ -47,6 +47,7 @@ async function fetchPrice() {
         lastUsdPrice = usdPrice;
 
         document.getElementById('total-quantity').textContent = totalQuantity.toString();
+        document.getElementById('total-cost').textContent = totalPurchasePriceTWD.toLocaleString(); // ✅ 顯示 `,`
         document.getElementById('total-value').textContent = (totalQuantity * twdPrice).toFixed(2);
 
         const unrealizedProfit = totalQuantity * twdPrice - totalPurchasePriceTWD;
