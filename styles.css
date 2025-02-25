@@ -1,45 +1,89 @@
 body {
-    background-color: black;
+    background-color: #121212;
     color: white;
-    text-align: center;
     font-family: Arial, sans-serif;
+    text-align: center;
 }
 
 .title-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
     margin-top: 20px;
 }
 
 .coin-logo {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.price-box {
+    background-color: #333;
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 10px;
 }
 
 .price-container {
-    font-size: 1.5em;
+    font-size: 20px;
+    margin-top: 20px;
+}
+
+.price {
+    font-size: 22px;
     font-weight: bold;
+    color: #FFD700;
+}
+
+.loading-bar {
+    width: 80%;
+    height: 10px;
+    background-color: #444;
+    border-radius: 5px;
+    margin: 10px auto;
+    position: relative;
+}
+
+#loading-bar-fill {
+    height: 100%;
+    width: 0;
+    background-color: #4caf50;
+    border-radius: 5px;
 }
 
 .container {
-    background: rgba(255, 255, 255, 0.1);
+    background-color: #222;
     padding: 20px;
+    margin: 20px auto;
+    width: 90%;
+    max-width: 400px;
     border-radius: 10px;
-    display: inline-block;
+}
+
+.stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 16px;
 }
 
 .profit {
-    font-size: 1.2em;
     font-weight: bold;
 }
 
-.profit.positive {
-    color: #00ff00; /* 綠色 */
+.positive {
+    color: #00FF00;
 }
 
-.profit.negative {
-    color: #ff4444; /* 紅色 */
+.negative {
+    color: #FF4444;
 }
