@@ -16,14 +16,17 @@ function startLoadingBar() {
 
 // 轉換小數格式為 0.0{N}X
 function formatSmallNumber(num) {
-    const str = num.toFixed(12);
-    const match = str.match(/^0\.0+(.*?)$/);
+    const str = num.toFixed(12);  // 轉成 12 位小數
+    const trimmed = str.replace(/0+$/, ""); // 移除尾端不必要的 0
+    const match = trimmed.match(/^0\.0+(.*?)$/);
+
     if (match) {
-        const zeroCount = match[0].length - 2; // 計算 0 的數量
+        const zeroCount = match[0].length - 3; // 減掉 "0.0"
         return `0.0{${zeroCount}}${match[1]}`;
     }
-    return num.toFixed(12); // 正常顯示數字
+    return num.toFixed(12); // 若非極小數，正常顯示
 }
+
 
 // 取得即時 USD/TWD 匯率
 async function fetchExchangeRate() {
