@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#1e1e2f">
     <link rel="icon" sizes="192x192" href="icons/icon-192x192.png">
     <link rel="apple-touch-icon" href="icons/icon-512x512.png">
-    
+
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('service-worker.js')
@@ -18,13 +18,14 @@
             .catch(err => console.error("Service Worker 註冊失敗:", err));
         }
     </script>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* 背景漸變 */
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #121212;
+            background: linear-gradient(135deg, #1e1e2f, #181825);
             color: white;
             text-align: center;
             margin: 0;
@@ -35,63 +36,81 @@
             justify-content: center;
             height: 100vh;
         }
+
+        /* 容器樣式 */
         .container {
             width: 90%;
-            max-width: 400px;
-            background: #1e1e2f;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0px 0px 20px rgba(255, 255, 255, 0.1);
-            display: none; /* 預設隱藏，數據載入後顯示 */
+            max-width: 420px;
+            background: rgba(30, 30, 47, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0px 8px 25px rgba(255, 255, 255, 0.1);
+            display: none; /* 預設隱藏 */
         }
+
         .title {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: bold;
             margin-bottom: 15px;
         }
+
         .stat {
             display: flex;
             justify-content: space-between;
-            font-size: 16px;
-            margin: 8px 0;
+            font-size: 18px;
+            margin: 12px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
         }
+
         .profit {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
         }
+
         .positive {
             color: #4caf50;
         }
+
         .negative {
             color: #f44336;
         }
 
-        /* 進度條樣式 */
+        /* 進度條 */
         #loading-container {
             width: 80%;
-            max-width: 300px;
-            background: #333;
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 15px;
+            max-width: 320px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
             display: block;
         }
+
         .loading-bar {
             width: 100%;
-            height: 10px;
-            background: #555;
-            border-radius: 5px;
+            height: 12px;
+            background: #444;
+            border-radius: 6px;
             overflow: hidden;
         }
+
         .loading-fill {
             height: 100%;
             width: 0%;
-            background: #4caf50;
-            transition: width 0.2s;
+            background: linear-gradient(90deg, #ff7eb3, #ff758c);
+            transition: width 0.3s ease-in-out;
+        }
+
+        #loading-percentage {
+            margin-top: 10px;
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
+
     <!-- 進度條 -->
     <div id="loading-container">
         <div class="loading-bar">
@@ -114,7 +133,7 @@
         </div>
         <div class="stat">
             <span>總成本 (TWD)</span>
-            <span>NT$<span id="total-cost">1690000</span></span>
+            <span>NT$<span id="total-cost">1,690,000</span></span>
         </div>
         <div class="stat">
             <span>購入均價 (USD)</span>
@@ -133,7 +152,7 @@
             <span id="profit-percentage" class="profit">Loading...</span>
         </div>
     </div>
-    
+
     <script src="app.js"></script>
 </body>
 </html>
