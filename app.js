@@ -2,11 +2,15 @@ const totalQuantity = 21235769401342.17;
 const totalPurchasePriceTWD = 1690000;
 let progress = 0;
 let progressInterval;
-let isDataLoaded = false; // 追蹤是否數據已載入
+let isDataLoaded = false;
 
 function startLoadingBar() {
+    progress = 0;
+    document.getElementById('loading-bar-fill').style.width = '0%';
+    document.getElementById('loading-percentage').textContent = '0%';
+
     progressInterval = setInterval(() => {
-        if (progress < 80) { // 載入時慢慢增加到 80%
+        if (progress < 80) {
             progress += 2;
             document.getElementById('loading-bar-fill').style.width = progress + '%';
             document.getElementById('loading-percentage').textContent = progress + '%';
@@ -33,10 +37,9 @@ async function fetchPrice() {
         document.getElementById('profit').className = `profit ${unrealizedProfit >= 0 ? 'positive' : 'negative'}`;
         document.getElementById('profit-percentage').className = `profit ${unrealizedProfit >= 0 ? 'positive' : 'negative'}`;
 
-        // **所有數據載入完成後**
+        // 確保所有數據載入完成
         isDataLoaded = true;
         hideLoadingBar();
-
     } catch (error) {
         console.error("Error fetching price: ", error);
     }
@@ -48,7 +51,6 @@ function hideLoadingBar() {
         document.getElementById('loading-bar-fill').style.width = '100%';
         document.getElementById('loading-percentage').textContent = '100%';
 
-        // **確保隱藏進度條，顯示數據**
         setTimeout(() => {
             document.getElementById('loading-container').style.display = 'none';
             document.getElementById('stats-container').style.display = 'block';
@@ -56,6 +58,23 @@ function hideLoadingBar() {
     }
 }
 
-// 確保 fetchPrice 執行後，載入完才隱藏進度條
+// ✅ 修正格式化函數，確保 `{N}` 正確
+function formatSmallNumber(num) {
+    if (num >= 0.01) {
+        return `$${num.toFixed(12)}`;
+    }
+
+    const numStr = num.toFixed(12);
+    const match = numStr.match(/^0\.0+(.*)/);
+
+    if (match) {
+        const zeroCount = numStr.split('0').length - 2; // 計算 0 的數量
+        return `0.0{${zeroCount}}${match[1]}`;
+    }
+
+    return `$${numStr}`;
+}
+
+// 執行價格獲取
 fetchPrice();
 setInterval(fetchPrice, 5000);
