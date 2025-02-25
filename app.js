@@ -119,4 +119,23 @@ document.addEventListener("DOMContentLoaded", function () {
     progress = 100;
     updateLoadingBar(progress);
     setTimeout(() => {
-      loadingContain
+      loadingContainer.style.display = "none";
+      statsContainer.style.display = "block";
+      priceElement.style.display = "inline";
+    }, 500);
+  }
+
+  // 格式化價格函數：
+  // 若價格大於 0.01 則顯示 8 位小數；
+  // 否則，若小數部分開頭的 0 個數 >= 6 則用 0.0{n} 格式，否則直接顯示正常數字
+  function formatPrice(num) {
+    if (num >= 0.01) return `$${num.toFixed(8)}`;
+    const numStr = num.toFixed(12);
+    const match = numStr.match(/^0\.(0+)([1-9]\d*)$/);
+    if (match && match[1].length >= 6) {
+      return `0.0{${match[1].length}}${match[2]}`;
+    } else {
+      return `$${numStr}`;
+    }
+  }
+});
