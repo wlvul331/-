@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    let priceElement = document.getElementById("price-usd");
     let totalQuantityElement = document.getElementById("total-quantity");
     let totalValueElement = document.getElementById("total-value");
     let profitElement = document.getElementById("profit");
@@ -14,6 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // 進度條模擬載入
     let progress = 0;
+    priceElement.style.display = "none"; // 加載時隱藏價格
     let interval = setInterval(() => {
         progress += 20;
         loadingBarFill.style.width = progress + "%";
@@ -29,8 +31,10 @@ document.addEventListener("DOMContentLoaded", function () {
         let profit = totalValue - totalCost;
         let profitPercentage = ((profit / totalCost) * 100).toFixed(2);
 
-        // ✅ 更新 **總持有量** 顯示（**這是關鍵修正**）
+        // ✅ 更新 **總持有量** 顯示
         totalQuantityElement.innerText = totalQuantity.toLocaleString();
+        priceElement.innerText = formatPrice(currentPrice);
+        priceElement.style.display = "inline"; // 數據加載完成後顯示價格
 
         // ✅ 更新其餘數據
         totalValueElement.innerText = totalValue.toFixed(2);
@@ -53,5 +57,17 @@ document.addEventListener("DOMContentLoaded", function () {
         // ✅ 顯示數據，隱藏讀取條
         loadingContainer.style.display = "none";
         statsContainer.style.display = "block";
+    }
+
+    function formatPrice(price) {
+        let numStr = price.toFixed(12);
+        let match = numStr.match(/^0\.0+(.*)/);
+        
+        if (match) {
+            let zeroCount = match[0].length - 3;
+            return `0.0{${zeroCount}}${match[1]}`;
+        }
+        
+        return price.toFixed(8);
     }
 });
