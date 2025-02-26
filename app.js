@@ -183,38 +183,32 @@ html += `<div class="ticker-item">
 
 
 
-  // 顯示行情資訊區：當買入按鈕被按下時，隱藏原本的盈虧資訊區，並建立 ticker 區塊
 function showTickers() {
-  let existingTicker = document.getElementById("ticker-container");
+    let existingTicker = document.querySelector(".ticker-container");
+    if (existingTicker) {
+        return; // 若已存在行情畫面，直接返回，避免重複創建
+    }
 
-  // 如果已經存在行情頁面，則不執行任何動作
-  if (existingTicker) {
-    return;
-  }
+    statsContainer.classList.remove("visible");
+    statsContainer.classList.add("hidden");
 
-  // 透過 transition 顯示/隱藏效果：先隱藏盈虧資訊區
-  statsContainer.classList.remove("visible");
-  statsContainer.classList.add("hidden");
+    setTimeout(() => {
+        statsContainer.style.display = "none";
 
-  setTimeout(() => {
-    statsContainer.style.display = "none";
+        const tickerContainer = document.createElement("div");
+        tickerContainer.id = "ticker-container";
+        tickerContainer.className = "ticker-container hidden";
+        statsBox.appendChild(tickerContainer);
 
-    // 創建新的 ticker 容器
-    const tickerContainer = document.createElement("div");
-    tickerContainer.id = "ticker-container";
-    tickerContainer.className = "ticker-container hidden";
+        void tickerContainer.offsetWidth;
 
-    statsBox.appendChild(tickerContainer);
+        tickerContainer.classList.remove("hidden");
+        tickerContainer.classList.add("visible");
 
-    // 強制 reflow 讓 transition 生效
-    void tickerContainer.offsetWidth;
-
-    tickerContainer.classList.remove("hidden");
-    tickerContainer.classList.add("visible");
-
-    connectTickersWebSocket(tickerContainer);
-  }, 500);
+        connectTickersWebSocket(tickerContainer);
+    }, 500);
 }
+
 
 
   // 當買入按鈕被按下時，顯示行情資訊
@@ -223,15 +217,15 @@ function showTickers() {
     showTickers();
   });
 
-  // 當賣出按鈕被按下時，移除行情區域，恢復原本盈虧資訊
-  sellButton.addEventListener("click", function(e) {
+sellButton.addEventListener("click", function(e) {
     e.preventDefault();
     let tickerContainer = document.getElementById("ticker-container");
     if (tickerContainer) {
-      tickerContainer.parentNode.removeChild(tickerContainer);
+        tickerContainer.remove(); // 這樣更直接
     }
     statsContainer.style.display = "block";
-  });
+});
+
 
   connectWebSocket();
 });
