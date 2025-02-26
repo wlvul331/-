@@ -34,28 +34,6 @@ body {
   border-radius: 10px;
   max-width: 400px;
   margin: 20px auto;
-  position: relative; /* 讓子元素可以疊加 */
-}
-
-/* 讓盈虧與行情資訊區塊重疊 */
-#stats-container, #ticker-container {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  transition: opacity 0.3s ease, z-index 0.3s ease;
-}
-
-/* 初始時盈虧計算在上層 */
-#stats-container {
-  z-index: 2;
-  opacity: 1;
-}
-
-#ticker-container {
-  z-index: 1;
-  opacity: 1;
 }
 
 /* 當前價格顯示 */
@@ -96,9 +74,10 @@ body {
 }
 
 #profit, #profit-percentage {
-  font-size: 20px;
+  font-size: 20px; /* 增加字體大小 */
   font-weight: bold;
 }
+
 
 /* 讀取中進度條 */
 #loading-container {
@@ -156,7 +135,6 @@ body {
   border: none;
   cursor: pointer;
   border-radius: 8px;
-  transition: transform 0.1s ease, opacity 0.1s ease;
 }
 
 #buy-button {
@@ -169,6 +147,22 @@ body {
   color: white;
 }
 
+#profit, #profit-percentage {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.action-buttons button {
+  width: 48%;
+  height: 60px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
 .action-buttons button:hover {
   opacity: 0.9;
 }
@@ -177,9 +171,8 @@ body {
   transform: scale(0.95);
 }
 
-/* 行情資訊區 */
 .ticker-container {
-  background-color: #222;
+  background-color: #222; /* 深色背景 */
   padding: 15px;
   margin: 20px auto;
   width: 90%;
@@ -190,14 +183,15 @@ body {
 
 .ticker-item {
   display: flex;
-  align-items: center;
+  align-items: center; /* 垂直居中 */
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 8px 12px; /* 減少內邊距 */
   background-color: #333;
   border-radius: 8px;
   margin-bottom: 8px;
   font-size: 18px;
 }
+
 
 .ticker-coin {
   font-weight: bold;
@@ -205,7 +199,7 @@ body {
 }
 
 .ticker-suffix {
-  font-size: 12px;
+  font-size: 12px; /* 縮小 /USDT */
   font-weight: normal;
 }
 
@@ -220,22 +214,12 @@ body {
   align-items: center;
   text-align: left;
   flex-grow: 1;
-  gap: 5px;
+  gap: 5px; /* 減少間距 */
 }
+
 
 .coin-icon {
   width: 20px;
   height: 20px;
   vertical-align: middle;
-}
-
-/* 切換可見性 */
-.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.visible {
-  opacity: 1;
-  pointer-events: auto;
 }
