@@ -31,14 +31,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const totalQuantity = 21235769401342.17; // 總持有量
   const conversionRate = 32.8;           // 預設美元轉台幣匯率
 
-  const sortButton = document.createElement("button");
-  sortButton.textContent = "按價格排序";
-  sortButton.addEventListener("click", function() {
-  const sortedSymbols = symbols.sort((a, b) => tickersData[a] - tickersData[b]);
-  updateTickerDisplay(tickerContainer, sortedSymbols);
-  });
-  tickerContainer.appendChild(sortButton);
-
   // 進度條初始化
   let progress = 0;
   startLoadingBar();
