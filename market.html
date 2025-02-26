@@ -17,12 +17,12 @@
   <div class="stats-box">
     <!-- 當前價格顯示 -->
     <div class="price-container">
-      <span>1MBABYDOGE / USDT  </span>
+      <span>1MBABYDOGE / USDT</span>
       <span id="price-usd" class="price">Loading...</span>
     </div>
 
-    <!-- 盈虧數據，預設內容（讀條結束後顯示或被買入按鈕替換） -->
-    <div id="stats-container" style="display: none;">
+    <!-- 盈虧計算區塊 -->
+    <div id="stats-container">
       <div class="container">
         <div class="stat">
           <span>總持有量</span>
@@ -45,6 +45,11 @@
           <span id="profit-percentage" class="profit">Loading...</span>
         </div>
       </div>
+    </div>
+
+    <!-- 通用行情區塊（預設被盈虧計算覆蓋） -->
+    <div id="ticker-container">
+      <p>行情數據載入中...</p>
     </div>
   </div>
 
