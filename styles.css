@@ -223,3 +223,15 @@ body {
   height: 20px;
   vertical-align: middle;
 }
+
+.ticker-container {
+  transition: opacity 0.3s ease;
+}
+
+.ticker-container.hidden {
+  opacity: 0;
+}
+
+.ticker-container.visible {
+  opacity: 1;
+}
