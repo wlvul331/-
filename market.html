@@ -12,7 +12,7 @@
       padding: 0;
       box-sizing: border-box;
     }
-    /* 背景：初始黑色漸層，並在中央放置透明幣種圖片；新增轉場效果 */
+    /* 背景：初始黑色漸層，並在中央放置透明幣種圖片；背景會根據盈虧率動態更新 */
     body {
       overflow-x: hidden;
       display: flex;
@@ -325,7 +325,7 @@
     // 定義選單順序（用於盈虧訊息拖曳切換）
     const profilesOrder = ["carter", "hannah", "eric"];
 
-    // 更新盈虧資訊並根據盈虧率更新背景漸層（背景顏色以黑色為主）
+    // 更新盈虧資訊並根據盈虧率更新背景漸層（背景黑色比例較大）
     function updateProfile(profileKey, currentPrice) {
       const profile = profiles[profileKey];
       const valueTWD = profile.totalAmount * currentPrice * exchangeRate;
@@ -343,7 +343,7 @@
       document.getElementById('unrealized').className = unrealizedTWD >= 0 ? "positive" : "negative";
       document.getElementById('profitRate').className = profitRate >= 0 ? "positive" : "negative";
       
-      // 根據盈虧率更新背景，黑色佔較大比例，且深紅/深藍互換時平滑過渡
+      // 根據盈虧率更新背景漸層：上方 10% 為深色，剩餘以黑色為主
       if (profitRate >= 0) {
         document.body.style.background = "linear-gradient(180deg, #000033 0%, #000000 30%)";
       } else {                                                                
