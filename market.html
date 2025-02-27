@@ -12,7 +12,7 @@
       padding: 0;
       box-sizing: border-box;
     }
-    /* 背景：黑色漸變，並在中央放置透明幣種圖片 */
+    /* 背景：初始黑色漸層，並在中央放置透明幣種圖片；新增轉場效果 */
     body {
       overflow-x: hidden;
       display: flex;
@@ -20,6 +20,7 @@
       align-items: center;
       height: 100vh;
       background: linear-gradient(135deg, #000000 0%, #000000 20%, #1a1a1a 100%);
+      transition: background 0.5s ease;
       color: #fff;
       font-family: Arial, sans-serif;
       text-align: center;
@@ -163,7 +164,8 @@
     .profit-details {
       width: 95vw;
       padding: 0 20px;
-      font-size: 20px;
+      font-size: 16px;
+      font-weight: bold;
       text-align: left;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       display: none;
@@ -230,7 +232,7 @@
   <!-- 進度條 -->
   <div class="progress-container" id="progressContainer">
     <div class="progress-bar" id="progressBar"></div>
-    <p id="progressText">0%</p>
+    <p id="progressText">載入中: 0%</p>
   </div>
   <!-- 主資訊區 -->
   <div class="main-info" id="mainInfo">
@@ -316,14 +318,14 @@
       },
       eric: {
         totalCost: 3000,
-        totalAmount: 40468291459
+        totalAmount: 4046829145900
       }
     };
 
     // 定義選單順序（用於盈虧訊息拖曳切換）
     const profilesOrder = ["carter", "hannah", "eric"];
 
-    // 更新盈虧資訊
+    // 更新盈虧資訊並根據盈虧率更新背景漸層（背景顏色以黑色為主）
     function updateProfile(profileKey, currentPrice) {
       const profile = profiles[profileKey];
       const valueTWD = profile.totalAmount * currentPrice * exchangeRate;
@@ -340,6 +342,13 @@
       
       document.getElementById('unrealized').className = unrealizedTWD >= 0 ? "positive" : "negative";
       document.getElementById('profitRate').className = profitRate >= 0 ? "positive" : "negative";
+      
+      // 根據盈虧率更新背景，黑色佔較大比例，且深紅/深藍互換時平滑過渡
+      if (profitRate >= 0) {
+        document.body.style.background = "linear-gradient(180deg, #000033 0%, #000000 30%)";
+      } else {                                                                
+        document.body.style.background = "linear-gradient(180deg, #2F0000 0%, #000000 30%)";
+      }
     }
 
     // 取得一天前價格
@@ -375,44 +384,16 @@
       progressText.textContent = `${progress}%`;
     }
 
-    // WebSocket 連線並更新行情價格
+    // WebSocket 連線並更新行情價格，進度條平滑從 0 遞增到 100
     function connectWebSocket() {
       const ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
       let progress = 0;
-      const interval = setInterval(() => {
-        progress += 1;
+      // 每50毫秒遞增1%，直到達到100%
+      const progressInterval = setInterval(() => {
+        progress++;
         updateProgressBar(progress);
-        if (progress >= 90) clearInterval(interval);
-      }, 300);
-
-      ws.onmessage = function(event) {
-        const data = JSON.parse(event.data);
-        if (data.c) {
-          const rawPrice = parseFloat(data.c);
-          const newPrice = rawPrice / 1000000;
-          priceText.textContent = newPrice.toFixed(13);
-          priceText.style.color = lastPrice !== null ? (newPrice > lastPrice ? "#00bcd4" : "orangered") : "#00bcd4";
-
-          if (oneDayAgoPrice !== null) {
-            const changePercent = ((newPrice - oneDayAgoPrice) / oneDayAgoPrice) * 100;
-            const sign = changePercent >= 0 ? "+" : "-";
-            changeBox.textContent = `${sign}${Math.abs(changePercent).toFixed(2)}%`;
-            if(changePercent >= 0){
-              // 正值以藍色漸變效果顯示
-              changeBox.style.backgroundImage = "linear-gradient(90deg, #00bcd4, #00ffcc)";
-              changeBox.style.backgroundColor = "";
-            } else {
-              // 負值以紅色漸變效果顯示
-              changeBox.style.backgroundImage = "linear-gradient(90deg, #ff4500, #ff0000)";
-              changeBox.style.backgroundColor = "";
-            }
-          }
-          lastPrice = newPrice;
-          updateProfile(activeProfile, newPrice);
-
-          clearInterval(interval);
-          updateProgressBar(100);
-
+        if (progress >= 100) {
+          clearInterval(progressInterval);
           setTimeout(() => {
             progressContainer.style.display = "none";
             mainInfo.style.opacity = 1;
@@ -428,6 +409,31 @@
             }, 1000);
           }, 500);
         }
+      }, 5);
+
+      ws.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        if (data.c) {
+          const rawPrice = parseFloat(data.c);
+          const newPrice = rawPrice / 1000000;
+          priceText.textContent = newPrice.toFixed(13);
+          priceText.style.color = lastPrice !== null ? (newPrice > lastPrice ? "#00bcd4" : "orangered") : "#00bcd4";
+
+          if (oneDayAgoPrice !== null) {
+            const changePercent = ((newPrice - oneDayAgoPrice) / oneDayAgoPrice) * 100;
+            const sign = changePercent >= 0 ? "+" : "-";
+            changeBox.textContent = `${sign}${Math.abs(changePercent).toFixed(2)}%`;
+            if (changePercent >= 0) {
+              changeBox.style.backgroundImage = "linear-gradient(90deg, #00bcd4, #00ffcc)";
+              changeBox.style.backgroundColor = "";
+            } else {
+              changeBox.style.backgroundImage = "linear-gradient(90deg, #ff4500, #ff0000)";
+              changeBox.style.backgroundColor = "";
+            }
+          }
+          lastPrice = newPrice;
+          updateProfile(activeProfile, newPrice);
+        }
       };
     }
 
@@ -437,7 +443,7 @@
       connectWebSocket();
     }
 
-    // 更新 slider 位置與寬度 (考慮到 container 滾動)
+    // 更新 slider 位置與寬度 (考慮到容器滾動)
     function updateSlider() {
       const selected = document.querySelector('.profit-selection span.selected');
       if (!selected) return;
@@ -448,7 +454,7 @@
       sliderElement.style.width = selectedRect.width + "px";
     }
 
-    // 點選選單（點擊方式）
+    // 點選選單（點擊方式）：點選當下立即更新盈虧訊息
     carterProfit.addEventListener("click", () => {
       activeProfile = 'carter';
       slideUpAudio.currentTime = 0;
@@ -457,6 +463,9 @@
       hannahProfit.classList.remove("selected");
       ericProfit.classList.remove("selected");
       updateSlider();
+      if(lastPrice !== null) {
+        updateProfile(activeProfile, lastPrice);
+      }
     });
     hannahProfit.addEventListener("click", () => {
       activeProfile = 'hannah';
@@ -466,6 +475,9 @@
       carterProfit.classList.remove("selected");
       ericProfit.classList.remove("selected");
       updateSlider();
+      if(lastPrice !== null) {
+        updateProfile(activeProfile, lastPrice);
+      }
     });
     ericProfit.addEventListener("click", () => {
       activeProfile = 'eric';
@@ -475,6 +487,9 @@
       carterProfit.classList.remove("selected");
       hannahProfit.classList.remove("selected");
       updateSlider();
+      if(lastPrice !== null) {
+        updateProfile(activeProfile, lastPrice);
+      }
     });
 
     window.onload = () => {
@@ -484,7 +499,7 @@
       updateSlider();
     };
 
-    // --- 以下為「選單區域拖曳」功能（拖曳整個 profit-selection 區域水平滾動） ---
+    // --- 選單區域拖曳功能 ---
     let isContainerDragging = false;
     let containerDragStartX = 0;
     let containerScrollStart = 0;
@@ -513,10 +528,10 @@
       }
     });
 
-    // --- 以下為「盈虧訊息區拖曳」功能 ---
+    // --- 盈虧訊息區拖曳功能 ---
     let isSwiping = false;
     let swipeStartX = 0;
-    const swipeThreshold = 50; // 門檻值
+    const swipeThreshold = 50;
 
     profitDetailsContainer.addEventListener("mousedown", (e) => {
       swipeStartX = e.clientX;
@@ -540,7 +555,6 @@
           } else if (deltaX > 0 && currentIndex > 0) {
             activeProfile = profilesOrder[currentIndex - 1];
           }
-          // 更新選單選中狀態
           document.querySelectorAll('.profit-selection span').forEach(span => {
             span.classList.remove("selected");
           });
