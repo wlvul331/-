@@ -25,6 +25,7 @@
       color: #fff;
       padding: 20px;
       position: relative;
+      overflow: hidden;
     }
     body::before {
       content: "";
@@ -40,15 +41,19 @@
       opacity: 0.08;
       z-index: -1;
     }
-    /* 進度條 */
+    /* 進度條，置中設定 */
     .progress-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       width: 80%;
       max-width: 400px;
       height: 6px;
       background: rgba(255, 255, 255, 0.2);
       border-radius: 3px;
       margin-bottom: 20px;
-      position: relative;
+      z-index: 10;
     }
     .progress-bar {
       height: 100%;
@@ -78,9 +83,6 @@
       opacity: 0;
       transform: translateY(20px);
       transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-    .main-info.move-to-top {
-      transform: translateY(0);
     }
     .header {
       display: flex;
@@ -113,7 +115,7 @@
       color: #00bcd4;
       margin-top: 10px;
     }
-    /* 精美高級的選單樣式：玻璃質感、柔和陰影與內部間距 */
+    /* 選單區塊 */
     .profit-selection {
       display: flex;
       justify-content: center;
@@ -129,6 +131,9 @@
       cursor: pointer;
       width: 90%;
       max-width: 500px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
     .profit-selection span {
       padding: 8px 16px;
@@ -155,9 +160,11 @@
       text-align: center;
       font-size: 14px;
       line-height: 1.4;
-      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
-    /* 盈虧詳細資訊：將每筆數據分為兩行顯示 */
+    /* 盈虧詳細資訊區塊 */
     .profit-details-container {
       width: 90%;
       max-width: 500px;
@@ -168,6 +175,9 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       cursor: pointer;
       overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
     .profit-details {
       font-size: 16px;
@@ -183,7 +193,6 @@
     }
     .profit-details p {
       margin: 8px 0;
-      /* 取消單行顯示 */
       white-space: normal;
     }
     .profit-details .label {
@@ -261,7 +270,7 @@
     <span id="ericProfit">Eric</span>
     <span id="testProfit">Test</span>
   </div>
-  <!-- 說明區塊，預設隱藏 -->
+  <!-- 說明區塊 -->
   <div class="description-box" id="descriptionBox">
     <p id="descriptionText"></p>
   </div>
@@ -412,9 +421,8 @@
         document.body.style.background = "linear-gradient(135deg, #4a0000 0%, #000814 100%)";
       }
       
-      // 更新說明文字並顯示說明區塊
+      // 更新說明文字
       descriptionText.textContent = explanations[profileKey];
-      descriptionBox.style.display = "block";
     }
 
     async function fetchOneDayAgoPrice() {
@@ -457,10 +465,17 @@
         updateProgressBar(progress);
         if (progress >= 100) {
           clearInterval(progressInterval);
+          // 進度條載入 100% 後，隱藏進度條，並滑動進場所有區塊
           setTimeout(() => {
             progressContainer.style.display = "none";
-            mainInfo.style.opacity = 1;
-            mainInfo.classList.add("move-to-top");
+            mainInfo.style.opacity = "1";
+            mainInfo.style.transform = "translateY(0)";
+            profitSelection.style.opacity = "1";
+            profitSelection.style.transform = "translateY(0)";
+            descriptionBox.style.opacity = "1";
+            descriptionBox.style.transform = "translateY(0)";
+            profitDetailsContainer.style.opacity = "1";
+            profitDetailsContainer.style.transform = "translateY(0)";
             setTimeout(() => {
               profitDetails.classList.add("active");
             }, 300);
@@ -505,7 +520,7 @@
       connectWebSocket();
     }
 
-    // 點選選單，除了切換 profile 還更新說明區塊
+    // 點選選單，切換 profile 與更新說明區塊
     carterProfit.addEventListener("click", () => {
       activeProfile = 'carter';
       carterProfit.classList.add("selected");
