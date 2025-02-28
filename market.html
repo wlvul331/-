@@ -144,7 +144,7 @@
       color: #000;
       transform: scale(1.05);
     }
-    /* 盈虧詳細資訊：防止數字過長 */
+    /* 盈虧詳細資訊：將每筆數據分為兩行顯示 */
     .profit-details-container {
       width: 90%;
       max-width: 500px;
@@ -170,21 +170,19 @@
     }
     .profit-details p {
       margin: 8px 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      /* 取消單行顯示 */
+      white-space: normal;
     }
     .profit-details .label {
-      display: inline-block;
-      width: 55%;
+      display: block;
+      font-weight: normal;
     }
     .profit-details .value {
-      display: inline-block;
-      width: 40%;
+      display: block;
       text-align: right;
+      font-weight: bold;
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
     }
     .positive {
       color: #00bcd4;
