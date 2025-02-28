@@ -12,19 +12,18 @@
       padding: 0;
       box-sizing: border-box;
     }
-    /* 背景：初始黑色漸層，中央放置透明幣種圖片；背景依盈虧率動態更新 */
+    /* 基本設定與背景 */
     body {
-      overflow-x: hidden;
       display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #000000 0%, #000000 20%, #1a1a1a 100%);
-      transition: background 0.5s ease;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
       flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #001f3f 0%, #000814 100%);
+      transition: background 0.5s ease;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      color: #fff;
+      padding: 20px;
       position: relative;
     }
     body::before {
@@ -36,27 +35,26 @@
       background-image: url("https://cryptologos.cc/logos/baby-doge-coin-babydoge-logo.png");
       background-repeat: no-repeat;
       background-size: contain;
-      width: 300px;
-      height: 300px;
-      opacity: 0.1;
+      width: 200px;
+      height: 200px;
+      opacity: 0.08;
       z-index: -1;
     }
-    /* 進度條 - 置中顯示，藍色漸變，百分比文字置於進度條上方 */
+    /* 進度條 */
     .progress-container {
-      position: absolute;
-      top: 0%;
-      left: 25%;
-      transform: translate(-50%, -50%);
-      width: 50%;
+      width: 80%;
+      max-width: 400px;
       height: 6px;
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 3px;
+      margin-bottom: 20px;
       position: relative;
     }
     .progress-bar {
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, #00bcd4, #00ffcc);
+      border-radius: 3px;
       transition: width 0.3s ease;
     }
     .progress-container p {
@@ -71,18 +69,19 @@
     }
     /* 主資訊區 */
     .main-info {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 500px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
       opacity: 0;
-      transition: all 0.5s ease-in-out;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
     .main-info.move-to-top {
-      top: 5%;
-      transform: translate(-50%, 0);
+      transform: translateY(0);
     }
-    /* Header */
     .header {
       display: flex;
       align-items: center;
@@ -93,10 +92,11 @@
       width: 40px;
       height: 40px;
       cursor: pointer;
-      transition: transform 0.6s ease-in-out;
+      transition: transform 0.6s ease;
     }
     .header span {
-      font-size: 16px;
+      font-size: 18px;
+      font-weight: bold;
     }
     .change-box {
       padding: 5px 10px;
@@ -105,102 +105,89 @@
       font-weight: bold;
       background: #333;
       text-align: center;
+      min-width: 100px;
     }
     .price {
-      font-size: 40px;
+      font-size: 32px;
       font-weight: bold;
       color: #00bcd4;
       margin-top: 10px;
-      transition: color 0.3s ease-in-out;
     }
-    /* 盈虧選擇選單：獨立從左方展開 */
+    /* 盈虧選擇選單 */
     .profit-selection {
       display: flex;
-      justify-content: flex-start;
-      gap: 0.05px;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
       opacity: 0;
       transform: translateX(-100%);
-      transform-origin: left;
-      transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-      margin-top: 150px;
-      font-size: 18px;
-      font-weight: bold;
-      position: relative;
-      user-select: none;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      width: 100%;
       overflow-x: auto;
       white-space: nowrap;
-      cursor: grab;
+      cursor: pointer;
+      position: relative;
     }
     .profit-selection.expand {
       opacity: 1;
       transform: translateX(0);
     }
     .profit-selection span {
-      padding: 5px 20px;
-      position: relative;
-      z-index: 1;
+      padding: 8px 15px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.1);
       flex-shrink: 0;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background 0.3s;
     }
     .profit-selection span.selected {
+      background: #00bcd4;
       color: #000;
     }
-    /* 滑動指示條，藍色漸變效果 */
     .profit-selection .slider {
       position: absolute;
       bottom: 0;
-      height: 100%;
+      height: 3px;
       background: linear-gradient(90deg, #00bcd4, #00ffcc);
       border-radius: 5px;
       transition: left 0.3s ease, width 0.3s ease;
       z-index: 0;
     }
-    /* 盈虧詳細資訊區 */
+    /* 盈虧詳細資訊 */
     .profit-details-container {
-      width: 95vw;
+      width: 90%;
+      max-width: 500px;
       margin-top: 20px;
-      padding: 0;
-      cursor: grab;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
     }
-    /* 盈虧內容入場動畫：初始隱藏並向下偏移 */
     .profit-details {
-      width: 95vw;
-      padding: 0 20px;
       font-size: 16px;
       font-weight: bold;
       text-align: left;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       opacity: 0;
       transform: translateY(20px);
-      transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+      transition: opacity 0.5s ease, transform 0.5s ease;
     }
-    /* 加入 active 後，內容會淡入並向上回到原位 */
     .profit-details.active {
       opacity: 1;
       transform: translateY(0);
     }
     .profit-details p {
-      width: 100%;
-      margin: 10px 0;
+      margin: 8px 0;
     }
     .profit-details .label {
-      display: block;
-      text-align: left;
+      display: inline-block;
+      width: 55%;
     }
     .profit-details .value {
-      display: block;
+      display: inline-block;
+      width: 40%;
       text-align: right;
-    }
-    .double-line {
-      margin: 10px 0;
-    }
-    .double-line .label {
-      display: block;
-      text-align: left;
-    }
-    .double-line .value {
-      display: block;
-      text-align: right;
-      margin-top: 5px;
     }
     .positive {
       color: #00bcd4;
@@ -209,27 +196,32 @@
       color: orangered;
     }
     .usd-rate {
-      display: block;
-      width: 100%;
-      margin-top: 35px;
+      margin-top: 15px;
       font-size: 12px;
-      color: #fff;
       text-align: center;
     }
-    /* 內容區：盈虧內容從中間往外展開 */
-    .content {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      transform-origin: center;
-      transition: all 0.5s ease-in-out;
-    }
-    .content.expand {
-      transform: translate(-50%, -50%) scale(1);
+    /* 響應式調整：適合 iPhone */
+    @media only screen and (max-width: 480px) {
+      .header span {
+        font-size: 16px;
+      }
+      .price {
+        font-size: 28px;
+      }
+      .change-box {
+        font-size: 14px;
+        min-width: 80px;
+      }
+      .profit-selection span {
+        font-size: 14px;
+        padding: 6px 12px;
+      }
+      .profit-details p {
+        font-size: 14px;
+      }
+      .usd-rate {
+        font-size: 11px;
+      }
     }
   </style>
 </head>
@@ -243,50 +235,46 @@
   <div class="main-info" id="mainInfo">
     <div class="header">
       <img src="https://cryptologos.cc/logos/baby-doge-coin-babydoge-logo.png" id="coinImage" alt="BABYDOGE">
-      <p>BABYDOGE/<span>USDT</span></p>
+      <span>BABYDOGE/USDT</span>
       <div class="change-box" id="change">載入中...</div>
     </div>
     <p class="price" id="price">載入中...</p>
   </div>
   <!-- 內容區：選單與盈虧資訊 -->
-  <div class="content" id="content">
-    <!-- 盈虧選擇選單：獨立從左方展開 -->
-    <div class="profit-selection" id="profitSelection">
-      <span id="carterProfit" class="selected">Carter</span>
-      <span id="hannahProfit">Hannah</span>
-      <span id="ericProfit">Eric</span>
-      <div class="slider"></div>
+  <div class="profit-selection" id="profitSelection">
+    <span id="carterProfit" class="selected">Carter</span>
+    <span id="hannahProfit">Hannah</span>
+    <span id="ericProfit">Eric</span>
+    <div class="slider"></div>
+  </div>
+  <div class="profit-details-container" id="profitDetailsContainer">
+    <div class="profit-details" id="profitDetails">
+      <p>
+        <span class="label">總持倉量 (BABYDOGE):</span>
+        <span class="value" id="totalAmount">-</span>
+      </p>
+      <p>
+        <span class="label">總成本 (TWD):</span>
+        <span class="value" id="totalCost">-</span>
+      </p>
+      <p>
+        <span class="label">持倉價值 (TWD):</span>
+        <span class="value" id="value">計算中...</span>
+      </p>
+      <p>
+        <span class="label">購入均價 (USD):</span>
+        <span class="value" id="avgPrice">計算中...</span>
+      </p>
+      <p>
+        <span class="label">未實現盈虧 (TWD):</span>
+        <span class="value" id="unrealized">計算中...</span>
+      </p>
+      <p>
+        <span class="label">盈虧率:</span>
+        <span class="value" id="profitRate">計算中...</span>
+      </p>
     </div>
-    <!-- 盈虧詳細資訊 -->
-    <div class="profit-details-container" id="profitDetailsContainer">
-      <div class="profit-details" id="profitDetails">
-        <p>
-          <span class="label">總持倉量 (BABYDOGE):</span>
-          <span class="value" id="totalAmount">-</span>
-        </p>
-        <p>
-          <span class="label">總成本 (TWD):</span>
-          <span class="value" id="totalCost">-</span>
-        </p>
-        <p>
-          <span class="label">持倉價值 (TWD):</span>
-          <span class="value" id="value">計算中...</span>
-        </p>
-        <p>
-          <span class="label">購入均價 (USD):</span>
-          <span class="value" id="avgPrice">計算中...</span>
-        </p>
-        <p class="double-line">
-          <span class="label">未實現盈虧 (TWD):</span>
-          <span class="value" id="unrealized">計算中...</span>
-        </p>
-        <p class="double-line">
-          <span class="label">盈虧率:</span>
-          <span class="value" id="profitRate">計算中...</span>
-        </p>
-      </div>
-      <div class="usd-rate">美元匯率: 1 USD = <span id="usdRateValue"></span> TWD</div>
-    </div>
+    <div class="usd-rate">美元匯率: 1 USD = <span id="usdRateValue"></span> TWD</div>
   </div>
   
   <script>
@@ -317,7 +305,6 @@
     const progressContainer = document.getElementById('progressContainer');
     const progressText = document.getElementById('progressText');
     const mainInfo = document.getElementById('mainInfo');
-    const content = document.getElementById('content');
     const profitSelection = document.getElementById('profitSelection');
     const carterProfit = document.getElementById('carterProfit');
     const hannahProfit = document.getElementById('hannahProfit');
@@ -339,14 +326,14 @@
       },
       eric: {
         totalCost: 10706,
-        totalAmount: 190170442010
+        totalAmount: 190170442010000
       }
     };
 
     // 定義選單順序（用於盈虧訊息拖曳切換）
     const profilesOrder = ["carter", "hannah", "eric"];
 
-    // 更新盈虧資訊並根據盈虧率更新背景漸層（背景黑色比例較大）
+    // 更新盈虧資訊並根據盈虧率更新背景漸層
     function updateProfile(profileKey, currentPrice) {
       const profile = profiles[profileKey];
       const valueTWD = profile.totalAmount * currentPrice * exchangeRate;
@@ -361,7 +348,6 @@
       const unrealizedElem = document.getElementById('unrealized');
       const profitRateElem = document.getElementById('profitRate');
       
-      // 解析原本的數值；若第一次為空則預設為 0
       const prevTotalAmount = parseFloat(totalAmountElem.textContent.replace(/,/g, '')) || 0;
       const prevTotalCost = parseFloat(totalCostElem.textContent.replace(/,/g, '')) || 0;
       const prevValue = parseFloat(valueElem.textContent.replace(/,/g, '')) || 0;
@@ -369,7 +355,7 @@
       const prevUnrealized = parseFloat(unrealizedElem.textContent.replace(/,/g, '')) || 0;
       const prevProfitRate = parseFloat(profitRateElem.textContent.replace(/%/g, '')) || 0;
       
-      const duration = 500; // 動畫時間 500 毫秒
+      const duration = 500;
       
       animateValue(totalAmountElem, prevTotalAmount, profile.totalAmount, duration, value => value.toLocaleString());
       animateValue(totalCostElem, prevTotalCost, profile.totalCost, duration, value => value.toLocaleString());
@@ -378,19 +364,16 @@
       animateValue(unrealizedElem, prevUnrealized, unrealizedTWD, duration, value => value.toFixed(2));
       animateValue(profitRateElem, prevProfitRate, profitRate, duration, value => value.toFixed(2) + "%");
       
-      // 根據盈虧更新正負顏色
       unrealizedElem.className = unrealizedTWD >= 0 ? "positive" : "negative";
       profitRateElem.className = profitRate >= 0 ? "positive" : "negative";
       
-      // 根據盈虧率更新背景漸層
       if (profitRate >= 0) {
-        document.body.style.background = "linear-gradient(180deg, #000033 0%, #000000 30%)";
+        document.body.style.background = "linear-gradient(135deg, #001f3f 0%, #000814 100%)";
       } else {
-        document.body.style.background = "linear-gradient(180deg, #2F0000 0%, #000000 30%)";
+        document.body.style.background = "linear-gradient(135deg, #4a0000 0%, #000814 100%)";
       }
     }
 
-    // 取得一天前價格
     async function fetchOneDayAgoPrice() {
       try {
         const response = await fetch('https://api.binance.com/api/v3/klines?symbol=1MBABYDOGEUSDT&interval=1d&limit=2');
@@ -404,7 +387,6 @@
       }
     }
 
-    // 取得美元對台幣匯率
     async function fetchExchangeRate() {
       try {
         const response = await fetch('https://open.er-api.com/v6/latest/USD');
@@ -423,12 +405,10 @@
       progressText.textContent = `${progress}%`;
     }
 
-    // WebSocket 連線並更新行情價格與漲跌幅（採動畫平滑過渡）
     function connectWebSocket() {
       const ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
       let progress = 0;
-      const duration = 500; // 價格與漲跌動畫持續時間
-      // 每5 毫秒遞增1%，直到達到100%
+      const duration = 500;
       const progressInterval = setInterval(() => {
         progress++;
         updateProgressBar(progress);
@@ -437,18 +417,12 @@
           setTimeout(() => {
             progressContainer.style.display = "none";
             mainInfo.style.opacity = 1;
+            mainInfo.classList.add("move-to-top");
+            profitSelection.classList.add("expand");
+            updateSlider();
             setTimeout(() => {
-              mainInfo.classList.add("move-to-top");
-              content.style.display = "flex";
-              content.classList.add("expand");
-              // 延遲展開選單區與盈虧內容動畫
-              setTimeout(() => {
-                profitSelection.classList.add("expand");
-                updateSlider();
-                // 觸發盈虧內容入場動畫
-                profitDetails.classList.add("active");
-              }, 300);
-            }, 1000);
+              profitDetails.classList.add("active");
+            }, 300);
           }, 500);
         }
       }, 5);
@@ -458,7 +432,6 @@
         if (data.c) {
           const rawPrice = parseFloat(data.c);
           const newPrice = rawPrice / 1000000;
-          // 價格動畫：若 lastPrice 存在則平滑過渡，否則直接設定
           if (lastPrice !== null) {
             animateValue(priceText, lastPrice, newPrice, duration, value => value.toFixed(13));
           } else {
@@ -466,7 +439,6 @@
           }
           priceText.style.color = lastPrice !== null ? (newPrice > lastPrice ? "#00bcd4" : "orangered") : "#00bcd4";
 
-          // 漲跌幅動畫
           if (oneDayAgoPrice !== null) {
             const computedChange = ((newPrice - oneDayAgoPrice) / oneDayAgoPrice) * 100;
             const prevChange = parseFloat(changeBox.textContent.replace(/[^\d.-]/g, '')) || 0;
@@ -492,7 +464,6 @@
       connectWebSocket();
     }
 
-    // 更新 slider 位置與寬度 (考慮到容器滾動)
     function updateSlider() {
       const selected = document.querySelector('.profit-selection span.selected');
       if (!selected) return;
@@ -503,11 +474,8 @@
       sliderElement.style.width = selectedRect.width + "px";
     }
 
-    // 點選選單：立即更新盈虧訊息
     carterProfit.addEventListener("click", () => {
       activeProfile = 'carter';
-      slideUpAudio.currentTime = 0;
-      slideUpAudio.play().catch(err => console.log("播放音效失敗:", err));
       carterProfit.classList.add("selected");
       hannahProfit.classList.remove("selected");
       ericProfit.classList.remove("selected");
@@ -518,8 +486,6 @@
     });
     hannahProfit.addEventListener("click", () => {
       activeProfile = 'hannah';
-      slideUpAudio.currentTime = 0;
-      slideUpAudio.play().catch(err => console.log("播放音效失敗:", err));
       hannahProfit.classList.add("selected");
       carterProfit.classList.remove("selected");
       ericProfit.classList.remove("selected");
@@ -530,8 +496,6 @@
     });
     ericProfit.addEventListener("click", () => {
       activeProfile = 'eric';
-      slideUpAudio.currentTime = 0;
-      slideUpAudio.play().catch(err => console.log("播放音效失敗:", err));
       ericProfit.classList.add("selected");
       carterProfit.classList.remove("selected");
       hannahProfit.classList.remove("selected");
@@ -542,9 +506,6 @@
     });
 
     window.onload = () => {
-      carterProfit.classList.add("selected");
-      hannahProfit.classList.remove("selected");
-      ericProfit.classList.remove("selected");
       updateSlider();
     };
 
@@ -612,8 +573,6 @@
           if (lastPrice !== null) {
             updateProfile(activeProfile, lastPrice);
           }
-          slideUpAudio.currentTime = 0;
-          slideUpAudio.play().catch(err => console.log("播放音效失敗:", err));
         }
       }
     });
@@ -627,10 +586,6 @@
     });
 
     window.addEventListener('resize', updateSlider);
-
-    // 全域預先載入音效
-    const slideUpAudio = new Audio('audio/slide-up.mp3');
-    slideUpAudio.load();
 
     init();
   </script>
