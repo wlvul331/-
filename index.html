@@ -12,7 +12,7 @@
       padding: 0;
       box-sizing: border-box;
     }
-    /* 背景：初始黑色漸層，並在中央放置透明幣種圖片；背景會根據盈虧率動態更新 */
+    /* 背景：初始黑色漸層，中央放置透明幣種圖片；背景依盈虧率動態更新 */
     body {
       overflow-x: hidden;
       display: flex;
@@ -61,7 +61,7 @@
     }
     .progress-container p {
       position: absolute;
-      top: -25px;  /* 放在進度條上方 */
+      top: -25px;
       left: 50%;
       transform: translateX(-50%);
       font-size: 14px;
@@ -161,6 +161,7 @@
       padding: 0;
       cursor: grab;
     }
+    /* 盈虧內容入場動畫：初始隱藏並向下偏移 */
     .profit-details {
       width: 95vw;
       padding: 0 20px;
@@ -168,10 +169,14 @@
       font-weight: bold;
       text-align: left;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
     }
+    /* 加入 active 後，內容會淡入並向上回到原位 */
     .profit-details.active {
-      display: block;
+      opacity: 1;
+      transform: translateY(0);
     }
     .profit-details p {
       width: 100%;
@@ -254,7 +259,7 @@
     </div>
     <!-- 盈虧詳細資訊 -->
     <div class="profit-details-container" id="profitDetailsContainer">
-      <div class="profit-details active" id="profitDetails">
+      <div class="profit-details" id="profitDetails">
         <p>
           <span class="label">總持倉量 (BABYDOGE):</span>
           <span class="value" id="totalAmount">-</span>
@@ -319,6 +324,7 @@
     const ericProfit = document.getElementById('ericProfit');
     const usdRateElem = document.getElementById('usdRateValue');
     const sliderElement = profitSelection.querySelector('.slider');
+    const profitDetails = document.getElementById('profitDetails');
     const profitDetailsContainer = document.getElementById('profitDetailsContainer');
 
     // 固定資料設定
@@ -379,7 +385,7 @@
       // 根據盈虧率更新背景漸層
       if (profitRate >= 0) {
         document.body.style.background = "linear-gradient(180deg, #000033 0%, #000000 30%)";
-      } else {                                                                
+      } else {
         document.body.style.background = "linear-gradient(180deg, #2F0000 0%, #000000 30%)";
       }
     }
@@ -417,7 +423,7 @@
       progressText.textContent = `${progress}%`;
     }
 
-    // WebSocket 連線並更新行情價格與漲跌幅，採用動畫平滑過渡
+    // WebSocket 連線並更新行情價格與漲跌幅（採動畫平滑過渡）
     function connectWebSocket() {
       const ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
       let progress = 0;
@@ -435,10 +441,12 @@
               mainInfo.classList.add("move-to-top");
               content.style.display = "flex";
               content.classList.add("expand");
-              // 延遲展開選單區：從左方往右展開
+              // 延遲展開選單區與盈虧內容動畫
               setTimeout(() => {
                 profitSelection.classList.add("expand");
                 updateSlider();
+                // 觸發盈虧內容入場動畫
+                profitDetails.classList.add("active");
               }, 300);
             }, 1000);
           }, 500);
@@ -450,19 +458,17 @@
         if (data.c) {
           const rawPrice = parseFloat(data.c);
           const newPrice = rawPrice / 1000000;
-          // 價格動畫：若 lastPrice 存在則從上次價格平滑過渡，否則直接設定
+          // 價格動畫：若 lastPrice 存在則平滑過渡，否則直接設定
           if (lastPrice !== null) {
             animateValue(priceText, lastPrice, newPrice, duration, value => value.toFixed(13));
           } else {
             priceText.textContent = newPrice.toFixed(13);
           }
-          // 更新價格顏色：根據漲跌決定
           priceText.style.color = lastPrice !== null ? (newPrice > lastPrice ? "#00bcd4" : "orangered") : "#00bcd4";
 
           // 漲跌幅動畫
           if (oneDayAgoPrice !== null) {
             const computedChange = ((newPrice - oneDayAgoPrice) / oneDayAgoPrice) * 100;
-            // 嘗試從 changeBox 取出上一個數字，若無則預設 0
             const prevChange = parseFloat(changeBox.textContent.replace(/[^\d.-]/g, '')) || 0;
             animateValue(changeBox, prevChange, computedChange, duration, value => {
               const sign = value >= 0 ? "+" : "-";
@@ -497,7 +503,7 @@
       sliderElement.style.width = selectedRect.width + "px";
     }
 
-    // 點選選單（點擊方式）：點選當下立即更新盈虧訊息
+    // 點選選單：立即更新盈虧訊息
     carterProfit.addEventListener("click", () => {
       activeProfile = 'carter';
       slideUpAudio.currentTime = 0;
@@ -542,7 +548,7 @@
       updateSlider();
     };
 
-    // --- 選單區域拖曳功能 ---
+    // 選單區域拖曳功能
     let isContainerDragging = false;
     let containerDragStartX = 0;
     let containerScrollStart = 0;
@@ -571,7 +577,7 @@
       }
     });
 
-    // --- 盈虧訊息區拖曳功能 ---
+    // 盈虧訊息區拖曳功能
     let isSwiping = false;
     let swipeStartX = 0;
     const swipeThreshold = 50;
@@ -612,7 +618,7 @@
       }
     });
 
-    // --- 幣種圖片點擊旋轉 ---
+    // 幣種圖片點擊旋轉
     const coinImage = document.getElementById('coinImage');
     let rotationAngle = 0;
     coinImage.addEventListener("click", () => {
