@@ -265,7 +265,7 @@
   </div>
   <!-- 盈虧選單 -->
   <div class="profit-selection" id="profitSelection">
-    <span id="carterProfit" class="selected">Carter</span>
+    <span id="carterProfit">Carter</span>
     <span id="hannahProfit">Hannah</span>
     <span id="ericProfit">Eric</span>
     <span id="simonProfit">Simon</span>
@@ -325,7 +325,8 @@
     let lastPrice = null;
     let oneDayAgoPrice = null;
     let exchangeRate = 0;
-    let activeProfile = 'carter';  // 預設顯示 Carter
+    // 先暫時不設定 activeProfile，在 profiles 定義後再取得預設值
+    let activeProfile;
 
     const priceText = document.getElementById('price');
     const changeBox = document.getElementById('change');
@@ -374,6 +375,23 @@
 
     // 定義選單順序（用於盈虧訊息拖曳切換）
     const profilesOrder = ["carter", "hannah", "eric", "simon"];
+
+    // 新增：從 URL 取得預設的 profile
+    function getDefaultProfileFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const profile = params.get('profile');
+      if (profile && profiles[profile]) {
+        return profile;
+      }
+      return 'carter'; // 預設為 carter
+    }
+
+    // 設定 activeProfile 取得預設值，並更新選單初始狀態
+    activeProfile = getDefaultProfileFromURL();
+    document.querySelectorAll('.profit-selection span').forEach(span => {
+      span.classList.remove("selected");
+    });
+    document.getElementById(activeProfile + "Profit").classList.add("selected");
 
     // 更新盈虧資訊並根據盈虧率更新背景漸層
     function updateProfile(profileKey, currentPrice) {
