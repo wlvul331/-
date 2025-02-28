@@ -144,6 +144,19 @@
       color: #000;
       transform: scale(1.05);
     }
+    /* 說明區塊 */
+    .description-box {
+      width: 90%;
+      max-width: 500px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.4;
+      display: none;
+    }
     /* 盈虧詳細資訊：將每筆數據分為兩行顯示 */
     .profit-details-container {
       width: 90%;
@@ -220,6 +233,9 @@
       .usd-rate {
         font-size: 11px;
       }
+      .description-box {
+        font-size: 12px;
+      }
     }
   </style>
 </head>
@@ -243,6 +259,11 @@
     <span id="carterProfit" class="selected">Carter</span>
     <span id="hannahProfit">Hannah</span>
     <span id="ericProfit">Eric</span>
+    <span id="testProfit">Test</span>
+  </div>
+  <!-- 說明區塊，預設隱藏 -->
+  <div class="description-box" id="descriptionBox">
+    <p id="descriptionText"></p>
   </div>
   <!-- 盈虧詳細資訊 -->
   <div class="profit-details-container" id="profitDetailsContainer">
@@ -307,11 +328,22 @@
     const carterProfit = document.getElementById('carterProfit');
     const hannahProfit = document.getElementById('hannahProfit');
     const ericProfit = document.getElementById('ericProfit');
+    const testProfit = document.getElementById('testProfit');
     const usdRateElem = document.getElementById('usdRateValue');
     const profitDetails = document.getElementById('profitDetails');
     const profitDetailsContainer = document.getElementById('profitDetailsContainer');
+    const descriptionBox = document.getElementById('descriptionBox');
+    const descriptionText = document.getElementById('descriptionText');
 
-    // 固定資料設定
+    // 說明內容，可依需求調整
+    const explanations = {
+      carter: "Carter BabyDoge的盈虧數據，依據其投資成本及持倉量計算。",
+      hannah: "Hannah BabyDoge的盈虧數據，依據其投資成本及持倉量計算。",
+      eric: "Eric BabyDoge的盈虧數據，依據其投資成本及持倉量計算。",
+      test: "Test 此為測試用, 測試正盈利時畫面變化效果。"
+    };
+
+    // 固定資料設定，Test 的資料設計使其盈虧率保持正數
     const profiles = {
       carter: {
         totalCost: 1690000,
@@ -324,19 +356,29 @@
       eric: {
         totalCost: 10706,
         totalAmount: 190170442010
+      },
+      test: {
+        totalCost: 50000,
+        totalAmount: 100000000000  // 數值可自行調整，這裡假設盈虧為正
       }
     };
 
     // 定義選單順序（用於盈虧訊息拖曳切換）
-    const profilesOrder = ["carter", "hannah", "eric"];
+    const profilesOrder = ["carter", "hannah", "eric", "test"];
 
     // 更新盈虧資訊並根據盈虧率更新背景漸層
     function updateProfile(profileKey, currentPrice) {
       const profile = profiles[profileKey];
-      const valueTWD = profile.totalAmount * currentPrice * exchangeRate;
-      const avgPriceUSD = profile.totalCost / exchangeRate / profile.totalAmount;
-      const unrealizedTWD = valueTWD - profile.totalCost;
-      const profitRate = (unrealizedTWD / profile.totalCost) * 100;
+      let valueTWD = profile.totalAmount * currentPrice * exchangeRate;
+      let avgPriceUSD = profile.totalCost / exchangeRate / profile.totalAmount;
+      let unrealizedTWD = valueTWD - profile.totalCost;
+      let profitRate = (unrealizedTWD / profile.totalCost) * 100;
+      
+      // 若為 Test，則強制盈虧為正數
+      if(profileKey === 'test'){
+        unrealizedTWD = Math.abs(unrealizedTWD);
+        profitRate = (unrealizedTWD / profile.totalCost) * 100;
+      }
       
       const totalAmountElem = document.getElementById('totalAmount');
       const totalCostElem = document.getElementById('totalCost');
@@ -369,6 +411,10 @@
       } else {
         document.body.style.background = "linear-gradient(135deg, #4a0000 0%, #000814 100%)";
       }
+      
+      // 更新說明文字並顯示說明區塊
+      descriptionText.textContent = explanations[profileKey];
+      descriptionBox.style.display = "block";
     }
 
     async function fetchOneDayAgoPrice() {
@@ -459,12 +505,13 @@
       connectWebSocket();
     }
 
-    // 點選選單
+    // 點選選單，除了切換 profile 還更新說明區塊
     carterProfit.addEventListener("click", () => {
       activeProfile = 'carter';
       carterProfit.classList.add("selected");
       hannahProfit.classList.remove("selected");
       ericProfit.classList.remove("selected");
+      testProfit.classList.remove("selected");
       updateProfile(activeProfile, lastPrice);
     });
     hannahProfit.addEventListener("click", () => {
@@ -472,6 +519,7 @@
       hannahProfit.classList.add("selected");
       carterProfit.classList.remove("selected");
       ericProfit.classList.remove("selected");
+      testProfit.classList.remove("selected");
       updateProfile(activeProfile, lastPrice);
     });
     ericProfit.addEventListener("click", () => {
@@ -479,6 +527,15 @@
       ericProfit.classList.add("selected");
       carterProfit.classList.remove("selected");
       hannahProfit.classList.remove("selected");
+      testProfit.classList.remove("selected");
+      updateProfile(activeProfile, lastPrice);
+    });
+    testProfit.addEventListener("click", () => {
+      activeProfile = 'test';
+      testProfit.classList.add("selected");
+      carterProfit.classList.remove("selected");
+      hannahProfit.classList.remove("selected");
+      ericProfit.classList.remove("selected");
       updateProfile(activeProfile, lastPrice);
     });
 
