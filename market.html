@@ -285,6 +285,21 @@
   </div>
   
   <script>
+    // 新增：平滑數字過渡動畫函式
+    function animateValue(element, start, end, duration, formatter) {
+      const startTime = performance.now();
+      function update() {
+        const now = performance.now();
+        const progress = Math.min((now - startTime) / duration, 1);
+        const value = start + (end - start) * progress;
+        element.textContent = formatter(value);
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        }
+      }
+      requestAnimationFrame(update);
+    }
+
     // 全域變數與元素取得
     let lastPrice = null;
     let oneDayAgoPrice = null;
@@ -333,17 +348,35 @@
       const unrealizedTWD = valueTWD - profile.totalCost;
       const profitRate = (unrealizedTWD / profile.totalCost) * 100;
       
-      document.getElementById('totalAmount').textContent = profile.totalAmount.toLocaleString();
-      document.getElementById('totalCost').textContent = profile.totalCost.toLocaleString();
-      document.getElementById('value').textContent = valueTWD.toFixed(2);
-      document.getElementById('avgPrice').textContent = avgPriceUSD.toFixed(13);
-      document.getElementById('unrealized').textContent = unrealizedTWD.toFixed(2);
-      document.getElementById('profitRate').textContent = profitRate.toFixed(2) + "%";
+      const totalAmountElem = document.getElementById('totalAmount');
+      const totalCostElem = document.getElementById('totalCost');
+      const valueElem = document.getElementById('value');
+      const avgPriceElem = document.getElementById('avgPrice');
+      const unrealizedElem = document.getElementById('unrealized');
+      const profitRateElem = document.getElementById('profitRate');
       
-      document.getElementById('unrealized').className = unrealizedTWD >= 0 ? "positive" : "negative";
-      document.getElementById('profitRate').className = profitRate >= 0 ? "positive" : "negative";
+      // 解析原本的數值；若第一次為空則預設為 0
+      const prevTotalAmount = parseFloat(totalAmountElem.textContent.replace(/,/g, '')) || 0;
+      const prevTotalCost = parseFloat(totalCostElem.textContent.replace(/,/g, '')) || 0;
+      const prevValue = parseFloat(valueElem.textContent.replace(/,/g, '')) || 0;
+      const prevAvgPrice = parseFloat(avgPriceElem.textContent.replace(/,/g, '')) || 0;
+      const prevUnrealized = parseFloat(unrealizedElem.textContent.replace(/,/g, '')) || 0;
+      const prevProfitRate = parseFloat(profitRateElem.textContent.replace(/%/g, '')) || 0;
       
-      // 根據盈虧率更新背景漸層：上方 10% 為深色，剩餘以黑色為主
+      const duration = 500; // 動畫時間 500 毫秒
+      
+      animateValue(totalAmountElem, prevTotalAmount, profile.totalAmount, duration, value => value.toLocaleString());
+      animateValue(totalCostElem, prevTotalCost, profile.totalCost, duration, value => value.toLocaleString());
+      animateValue(valueElem, prevValue, valueTWD, duration, value => value.toFixed(2));
+      animateValue(avgPriceElem, prevAvgPrice, avgPriceUSD, duration, value => value.toFixed(13));
+      animateValue(unrealizedElem, prevUnrealized, unrealizedTWD, duration, value => value.toFixed(2));
+      animateValue(profitRateElem, prevProfitRate, profitRate, duration, value => value.toFixed(2) + "%");
+      
+      // 根據盈虧更新正負顏色
+      unrealizedElem.className = unrealizedTWD >= 0 ? "positive" : "negative";
+      profitRateElem.className = profitRate >= 0 ? "positive" : "negative";
+      
+      // 根據盈虧率更新背景漸層
       if (profitRate >= 0) {
         document.body.style.background = "linear-gradient(180deg, #000033 0%, #000000 30%)";
       } else {                                                                
@@ -384,11 +417,12 @@
       progressText.textContent = `${progress}%`;
     }
 
-    // WebSocket 連線並更新行情價格，進度條平滑從 0 遞增到 100
+    // WebSocket 連線並更新行情價格與漲跌幅，採用動畫平滑過渡
     function connectWebSocket() {
       const ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
       let progress = 0;
-      // 每50毫秒遞增1%，直到達到100%
+      const duration = 500; // 價格與漲跌動畫持續時間
+      // 每5 毫秒遞增1%，直到達到100%
       const progressInterval = setInterval(() => {
         progress++;
         updateProgressBar(progress);
@@ -416,19 +450,28 @@
         if (data.c) {
           const rawPrice = parseFloat(data.c);
           const newPrice = rawPrice / 1000000;
-          priceText.textContent = newPrice.toFixed(13);
+          // 價格動畫：若 lastPrice 存在則從上次價格平滑過渡，否則直接設定
+          if (lastPrice !== null) {
+            animateValue(priceText, lastPrice, newPrice, duration, value => value.toFixed(13));
+          } else {
+            priceText.textContent = newPrice.toFixed(13);
+          }
+          // 更新價格顏色：根據漲跌決定
           priceText.style.color = lastPrice !== null ? (newPrice > lastPrice ? "#00bcd4" : "orangered") : "#00bcd4";
 
+          // 漲跌幅動畫
           if (oneDayAgoPrice !== null) {
-            const changePercent = ((newPrice - oneDayAgoPrice) / oneDayAgoPrice) * 100;
-            const sign = changePercent >= 0 ? "+" : "-";
-            changeBox.textContent = `${sign}${Math.abs(changePercent).toFixed(2)}%`;
-            if (changePercent >= 0) {
+            const computedChange = ((newPrice - oneDayAgoPrice) / oneDayAgoPrice) * 100;
+            // 嘗試從 changeBox 取出上一個數字，若無則預設 0
+            const prevChange = parseFloat(changeBox.textContent.replace(/[^\d.-]/g, '')) || 0;
+            animateValue(changeBox, prevChange, computedChange, duration, value => {
+              const sign = value >= 0 ? "+" : "-";
+              return sign + Math.abs(value).toFixed(2) + "%";
+            });
+            if (computedChange >= 0) {
               changeBox.style.backgroundImage = "linear-gradient(90deg, #00bcd4, #00ffcc)";
-              changeBox.style.backgroundColor = "";
             } else {
               changeBox.style.backgroundImage = "linear-gradient(90deg, #ff4500, #ff0000)";
-              changeBox.style.backgroundColor = "";
             }
           }
           lastPrice = newPrice;
