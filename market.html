@@ -268,7 +268,7 @@
     <span id="carterProfit" class="selected">Carter</span>
     <span id="hannahProfit">Hannah</span>
     <span id="ericProfit">Eric</span>
-    <span id="testProfit">Test</span>
+    <span id="simonProfit">Simon</span>
   </div>
   <!-- 說明區塊 -->
   <div class="description-box" id="descriptionBox">
@@ -337,7 +337,7 @@
     const carterProfit = document.getElementById('carterProfit');
     const hannahProfit = document.getElementById('hannahProfit');
     const ericProfit = document.getElementById('ericProfit');
-    const testProfit = document.getElementById('testProfit');
+    const simonProfit = document.getElementById('simonProfit');
     const usdRateElem = document.getElementById('usdRateValue');
     const profitDetails = document.getElementById('profitDetails');
     const profitDetailsContainer = document.getElementById('profitDetailsContainer');
@@ -349,10 +349,10 @@
       carter: "Carter的盈虧數據,依據其成本及持倉量計算。",
       hannah: "Hannah盈虧數據,依據其成本及持倉量計算。",
       eric: "Eric盈虧數據,依據其投資及持倉量計算。",
-      test: "此為測試用,測試正盈利時畫面變化效果。"
+      simon: "Simon盈虧數據,依據其成本及持倉量計算。"
     };
 
-    // 固定資料設定，Test 的資料設計使其盈虧率保持正數
+    // 固定資料設定
     const profiles = {
       carter: {
         totalCost: 1690000,
@@ -366,14 +366,14 @@
         totalCost: 10706,
         totalAmount: 190170442010
       },
-      test: {
-        totalCost: 50000,
-        totalAmount: 100000000000  // 數值可自行調整，這裡假設盈虧為正
+      simon: {
+        totalCost: 160000,
+        totalAmount: 2109963930000
       }
     };
 
     // 定義選單順序（用於盈虧訊息拖曳切換）
-    const profilesOrder = ["carter", "hannah", "eric", "test"];
+    const profilesOrder = ["carter", "hannah", "eric", "simon"];
 
     // 更新盈虧資訊並根據盈虧率更新背景漸層
     function updateProfile(profileKey, currentPrice) {
@@ -382,12 +382,6 @@
       let avgPriceUSD = profile.totalCost / exchangeRate / profile.totalAmount;
       let unrealizedTWD = valueTWD - profile.totalCost;
       let profitRate = (unrealizedTWD / profile.totalCost) * 100;
-      
-      // 若為 Test，則強制盈虧為正數
-      if(profileKey === 'test'){
-        unrealizedTWD = Math.abs(unrealizedTWD);
-        profitRate = (unrealizedTWD / profile.totalCost) * 100;
-      }
       
       const totalAmountElem = document.getElementById('totalAmount');
       const totalCostElem = document.getElementById('totalCost');
@@ -526,7 +520,7 @@
       carterProfit.classList.add("selected");
       hannahProfit.classList.remove("selected");
       ericProfit.classList.remove("selected");
-      testProfit.classList.remove("selected");
+      simonProfit.classList.remove("selected");
       updateProfile(activeProfile, lastPrice);
     });
     hannahProfit.addEventListener("click", () => {
@@ -534,7 +528,7 @@
       hannahProfit.classList.add("selected");
       carterProfit.classList.remove("selected");
       ericProfit.classList.remove("selected");
-      testProfit.classList.remove("selected");
+      simonProfit.classList.remove("selected");
       updateProfile(activeProfile, lastPrice);
     });
     ericProfit.addEventListener("click", () => {
@@ -542,12 +536,12 @@
       ericProfit.classList.add("selected");
       carterProfit.classList.remove("selected");
       hannahProfit.classList.remove("selected");
-      testProfit.classList.remove("selected");
+      simonProfit.classList.remove("selected");
       updateProfile(activeProfile, lastPrice);
     });
-    testProfit.addEventListener("click", () => {
-      activeProfile = 'test';
-      testProfit.classList.add("selected");
+    simonProfit.addEventListener("click", () => {
+      activeProfile = 'simon';
+      simonProfit.classList.add("selected");
       carterProfit.classList.remove("selected");
       hannahProfit.classList.remove("selected");
       ericProfit.classList.remove("selected");
