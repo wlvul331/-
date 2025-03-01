@@ -124,7 +124,7 @@
       color: #00bcd4;
       margin-top: 10px;
     }
-    /* 選單區塊：針對手機瀏覽增加橫向滾動 */
+    /* 選單區塊：增加水平捲動與平滑滾動 */
     .profit-selection {
       display: flex;
       gap: 15px;
@@ -142,6 +142,7 @@
       opacity: 0;
       transform: translateY(20px);
       transition: opacity 0.5s ease, transform 0.5s ease;
+      scroll-behavior: smooth;
     }
     .profit-selection span {
       padding: 8px 16px;
@@ -389,7 +390,7 @@
     const profitDetailsContainer = document.getElementById('profitDetailsContainer');
     const originalContainerHeight = profitDetailsContainer.clientHeight;
     
-    // 新增頭像資料，使用相對路徑讀取同目錄下圖片
+    // 新增頭像資料
     const avatars = {
       carter: "images/carter.PNG",
       hannah: "images/hannah.PNG",
@@ -444,7 +445,6 @@
       kevin: "Kevin的盈虧數據,依據其成本及持倉量計算。"
     };
 
-    // 加入 Kevin 的資料 (此處數值僅供參考，可自行調整)
     const profiles = {
       carter: {
         totalCost: 1690000,
@@ -470,10 +470,17 @@
 
     const profilesOrder = ["carter", "hannah", "eric", "simon", "kevin"];
 
+    // 用於將選單項目置中
+    function centerMenuItem(el) {
+      profitSelection.scrollLeft = el.offsetLeft - profitSelection.clientWidth / 2 + el.clientWidth / 2;
+    }
+
+    // 初始設定選單按鈕
     document.querySelectorAll('.profit-selection span').forEach(span => {
       span.classList.remove("selected");
     });
     overviewProfit.classList.add("selected");
+    centerMenuItem(overviewProfit);
 
     function switchMode(newMode) {
       if ((activeProfile === 'overview' && newMode !== 'overview') ||
@@ -497,6 +504,7 @@
         span.classList.remove("selected");
       });
       document.getElementById(mode + "Profit").classList.add("selected");
+      centerMenuItem(document.getElementById(mode + "Profit"));
     }
 
     function goToProfile(profileKey) {
@@ -505,6 +513,7 @@
         span.classList.remove("selected");
       });
       document.getElementById(profileKey + "Profit").classList.add("selected");
+      centerMenuItem(document.getElementById(profileKey + "Profit"));
     }
 
     function updateProfile(profileKey, currentPrice) {
@@ -721,6 +730,7 @@
         span.classList.remove("selected");
       });
       overviewProfit.classList.add("selected");
+      centerMenuItem(overviewProfit);
     });
     carterProfit.addEventListener("click", () => {
       switchMode('carter');
@@ -728,6 +738,7 @@
         span.classList.remove("selected");
       });
       carterProfit.classList.add("selected");
+      centerMenuItem(carterProfit);
     });
     hannahProfit.addEventListener("click", () => {
       switchMode('hannah');
@@ -735,6 +746,7 @@
         span.classList.remove("selected");
       });
       hannahProfit.classList.add("selected");
+      centerMenuItem(hannahProfit);
     });
     ericProfit.addEventListener("click", () => {
       switchMode('eric');
@@ -742,6 +754,7 @@
         span.classList.remove("selected");
       });
       ericProfit.classList.add("selected");
+      centerMenuItem(ericProfit);
     });
     simonProfit.addEventListener("click", () => {
       switchMode('simon');
@@ -749,6 +762,7 @@
         span.classList.remove("selected");
       });
       simonProfit.classList.add("selected");
+      centerMenuItem(simonProfit);
     });
     kevinProfit.addEventListener("click", () => {
       switchMode('kevin');
@@ -756,10 +770,10 @@
         span.classList.remove("selected");
       });
       kevinProfit.classList.add("selected");
+      centerMenuItem(kevinProfit);
     });
 
-    // 取消原有水平捲動相關事件，但保持觸控滾動功能（瀏覽器會自動支援觸控捲動）
-    
+    // 保留原有搖動切換的滑動事件（觸控滾動功能由瀏覽器自動處理）
     let isSwiping = false;
     let swipeStartX = 0;
     const swipeThreshold = 50;
@@ -790,6 +804,7 @@
             span.classList.remove("selected");
           });
           document.getElementById(activeProfile + "Profit").classList.add("selected");
+          centerMenuItem(document.getElementById(activeProfile + "Profit"));
           updateProfile(activeProfile, lastPrice);
         }
       }
