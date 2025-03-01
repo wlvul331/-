@@ -12,14 +12,22 @@
       padding: 0;
       box-sizing: border-box;
     }
-    /* 基本設定與背景 */
+    /* 背景色系透過 class 控制 */
+    body.normal-bg {
+      background: linear-gradient(135deg, #001f3f, #000814);
+    }
+    body.negative-bg {
+      background: linear-gradient(135deg, #4a0000, #000814);
+    }
+    body.overview-bg {
+      background: linear-gradient(135deg, #1a2525 0%, #000814 70%, #000 100%);
+    }
     body {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      /* 載入時背景設定為總覽模式背景 */
       background: linear-gradient(135deg, #1a2525 0%, #000814 70%, #000 100%);
       transition: background 0.5s ease;
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
@@ -150,6 +158,9 @@
       color: #000;
       transform: scale(1.05);
     }
+    .profit-selection span:not(#overviewProfit) {
+      font-size: 14px;
+    }
     /* 說明區塊 */
     .description-box {
       width: 90%;
@@ -183,7 +194,6 @@
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-      /* 固定高度以個別選單狀態為基準 */
       height: ${originalContainerHeight}px;
     }
     .profit-details {
@@ -233,7 +243,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 8px 0;
-      border: none; /* 移除分隔線 */
+      border: none;
       cursor: pointer;
       transition: background 0.2s ease;
     }
@@ -253,7 +263,6 @@
     .overview-name {
       font-weight: bold;
     }
-    /* 調整未實現盈虧欄：文字右對齊，使用等寬字型，並增加 margin-right 使其與盈虧率間隔較大 */
     .overview-unrealized {
       flex: 1;
       text-align: right;
@@ -268,7 +277,7 @@
       border-radius: 5px;
       font-weight: bold;
       color: #fff;
-      font-size: 14px; /* 調整盈虧率字型較小 */
+      font-size: 14px;
     }
     /* 響應式調整 */
     @media only screen and (max-width: 480px) {
@@ -298,7 +307,7 @@
     }
   </style>
 </head>
-<body>
+<body class="overview-bg">
   <!-- 進度條 -->
   <div class="progress-container" id="progressContainer">
     <div class="progress-bar" id="progressBar"></div>
@@ -360,11 +369,10 @@
     // 儲存原始盈虧內容的 HTML 結構
     const profitDetails = document.getElementById('profitDetails');
     const originalProfitDetailsHTML = profitDetails.innerHTML;
-    // 儲存容器原始高度
     const profitDetailsContainer = document.getElementById('profitDetailsContainer');
     const originalContainerHeight = profitDetailsContainer.clientHeight;
     
-    // 新增頭像資料
+    // 新增頭像資料，使用相對路徑讀取同目錄下圖片
     const avatars = {
       carter: "images/carter.PNG",
       hannah: "images/hannah.PNG",
@@ -372,10 +380,8 @@
       simon: "images/simon.PNG"
     };
 
-    // 全域物件存放總覽各人上次的數值（用於平滑動畫）
     let overviewPreviousValues = {};
 
-    // 平滑數字過渡動畫函式
     function animateValue(element, start, end, duration, formatter) {
       const startTime = performance.now();
       function update() {
@@ -390,11 +396,9 @@
       requestAnimationFrame(update);
     }
 
-    // 全域變數與元素取得
     let lastPrice = null;
     let oneDayAgoPrice = null;
     let exchangeRate = 0;
-    // 預設選單為 overview
     let activeProfile = 'overview';
 
     const priceText = document.getElementById('price');
@@ -413,7 +417,6 @@
     const descriptionBox = document.getElementById('descriptionBox');
     const descriptionText = document.getElementById('descriptionText');
 
-    // 說明內容，可依需求調整
     const explanations = {
       carter: "Carter的盈虧數據,依據其成本及持倉量計算。",
       hannah: "Hannah的盈虧數據,依據其成本及持倉量計算。",
@@ -421,7 +424,6 @@
       simon: "Simon的盈虧數據,依據其成本及持倉量計算。"
     };
 
-    // 固定資料設定
     const profiles = {
       carter: {
         totalCost: 1690000,
@@ -441,17 +443,14 @@
       }
     };
 
-    // 定義選單順序（總覽依此順序排列）
     const profilesOrder = ["carter", "hannah", "eric", "simon"];
 
-    // 預設選單為 overview
     document.querySelectorAll('.profit-selection span').forEach(span => {
       span.classList.remove("selected");
     });
     overviewProfit.classList.add("selected");
 
-    // 切換模式函式：
-    // 如果目前與目標模式其中一個為 overview，則使用過場動畫；否則直接更新
+    // 切換模式：如果新舊模式其中一個為 overview，則使用過場動畫；否則直接更新
     function switchMode(newMode) {
       if ((activeProfile === 'overview' && newMode !== 'overview') ||
           (activeProfile !== 'overview' && newMode === 'overview')) {
@@ -468,7 +467,6 @@
       }
     }
 
-    // 點選選單時觸發
     function menuClick(mode) {
       switchMode(mode);
       document.querySelectorAll('.profit-selection span').forEach(span => {
@@ -477,7 +475,6 @@
       document.getElementById(mode + "Profit").classList.add("selected");
     }
 
-    // 點選總覽資料列時，切換至對應選單
     function goToProfile(profileKey) {
       switchMode(profileKey);
       document.querySelectorAll('.profit-selection span').forEach(span => {
@@ -486,14 +483,22 @@
       document.getElementById(profileKey + "Profit").classList.add("selected");
     }
 
-    // 更新盈虧資訊
     function updateProfile(profileKey, currentPrice) {
       profitDetailsContainer.style.height = originalContainerHeight + "px";
-
       if (profileKey === 'overview') {
-        // 總覽模式背景設定：黑灰漸變，黑色比例較多
-        document.body.style.background = "linear-gradient(135deg, #1a2525 0%, #000814 70%, #000 100%)";
+        document.body.classList.remove('normal-bg', 'negative-bg');
+        document.body.classList.add('overview-bg');
         const rows = document.querySelectorAll('.overview-row');
+        
+        // 計算每個 profile 的盈虧率並排序
+        let sortedProfiles = profilesOrder.map(key => {
+          const profile = profiles[key];
+          let valueTWD = profile.totalAmount * currentPrice * exchangeRate;
+          let unrealizedTWD = valueTWD - profile.totalCost;
+          let profitRate = (unrealizedTWD / profile.totalCost) * 100;
+          return { key, unrealizedTWD, profitRate };
+        }).sort((a, b) => b.profitRate - a.profitRate); // 按盈虧率從高到低排序
+
         if (rows.length > 0) {
           rows.forEach(row => {
             const key = row.getAttribute('data-key');
@@ -504,7 +509,7 @@
             const unrealizedElem = row.querySelector('.overview-unrealized');
             const profitRateElem = row.querySelector('.overview-profitRate');
             const prev = overviewPreviousValues[key] || { unrealized: unrealizedTWD, profitRate: profitRate };
-            animateValue(unrealizedElem, prev.unrealized, unrealizedTWD, 500, value => (value >= 0 ? "+" : "") + value.toFixed(2));
+            animateValue(unrealizedElem, prev.unrealized, unrealizedTWD, 500, value => (value >= 0 ? "+" : "") + value.toFixed(0)); // 取消小數點
             animateValue(profitRateElem, prev.profitRate, profitRate, 500, value => value.toFixed(2) + "%");
             unrealizedElem.style.color = unrealizedTWD >= 0 ? "#00bcd4" : "orangered";
             profitRateElem.style.background = profitRate >= 0 ?
@@ -515,19 +520,19 @@
           });
         } else {
           let overviewHTML = "";
-          profilesOrder.forEach(key => {
+          sortedProfiles.forEach(({ key }) => {
             const profile = profiles[key];
             let valueTWD = profile.totalAmount * currentPrice * exchangeRate;
             let unrealizedTWD = valueTWD - profile.totalCost;
             let profitRate = (unrealizedTWD / profile.totalCost) * 100;
-            let unrealizedFormatted = (unrealizedTWD >= 0 ? "+" : "") + unrealizedTWD.toFixed(2);
+            let unrealizedFormatted = (unrealizedTWD >= 0 ? "+" : "") + unrealizedTWD.toFixed(0); // 取消小數點
             let profitRateFormatted = profitRate.toFixed(2) + "%";
             overviewPreviousValues[key] = { unrealized: unrealizedTWD, profitRate: profitRate };
             let unrealizedColor = unrealizedTWD >= 0 ? "#00bcd4" : "orangered";
             let profitRateBg = profitRate >= 0 ?
               "linear-gradient(90deg, #00bcd4, #00ffcc)" :
               "linear-gradient(90deg, #ff4500, #ff0000)";
-            let avatar = avatars[key] || "https://via.placeholder.com/40?text=" + key.charAt(0).toUpperCase();
+            let avatar = avatars[key] || "images/" + key.charAt(0).toUpperCase() + key.slice(1) + ".PNG";
             overviewHTML += `
               <div class="overview-row" data-key="${key}" onclick="goToProfile('${key}')">
                 <div class="overview-info">
@@ -541,12 +546,13 @@
           });
           profitDetails.innerHTML = overviewHTML;
         }
-        descriptionText.textContent = "顯示所有人員的盈虧狀態";
+        descriptionText.textContent = "顯示所有人員的盈虧狀態（按盈虧率排序）";
         return;
       }
 
-      // 切換至個別選單時，背景恢復藍黑漸變
-      document.body.style.background = "linear-gradient(135deg, #001f3f, #000814)";
+      // 個別模式：切換背景 class
+      document.body.classList.remove('overview-bg', 'negative-bg');
+      document.body.classList.add('normal-bg');
       if (!profitDetails.innerHTML.includes("totalAmount")) {
         profitDetails.innerHTML = originalProfitDetailsHTML;
       }
@@ -578,16 +584,18 @@
       animateValue(totalCostElem, prevTotalCost, profile.totalCost, duration, value => value.toLocaleString());
       animateValue(valueElem, prevValue, valueTWD, duration, value => value.toFixed(2));
       animateValue(avgPriceElem, prevAvgPrice, avgPriceUSD, duration, value => value.toFixed(13));
-      animateValue(unrealizedElem, prevUnrealized, unrealizedTWD, duration, value => (value >= 0 ? "+" : "") + value.toFixed(2));
+      animateValue(unrealizedElem, prevUnrealized, unrealizedTWD, duration, value => (value >= 0 ? "+" : "") + value.toFixed(0)); // 取消小數點
       animateValue(profitRateElem, prevProfitRate, profitRate, duration, value => value.toFixed(2) + "%");
 
       unrealizedElem.className = "value " + (unrealizedTWD >= 0 ? "positive" : "negative");
       profitRateElem.className = "value " + (profitRate >= 0 ? "positive" : "negative");
 
       if (profitRate >= 0) {
-        document.body.style.background = "linear-gradient(135deg, #001f3f, #000814)";
+        document.body.classList.remove('negative-bg');
+        document.body.classList.add('normal-bg');
       } else {
-        document.body.style.background = "linear-gradient(135deg, #4a0000, #000814)";
+        document.body.classList.remove('normal-bg');
+        document.body.classList.add('negative-bg');
       }
     }
 
