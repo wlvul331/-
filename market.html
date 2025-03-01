@@ -773,6 +773,16 @@
       centerMenuItem(kevinProfit);
     });
 
+    // 新增：點擊主資訊區切換回 All 選單
+    mainInfo.addEventListener("click", () => {
+      switchMode('overview');
+      document.querySelectorAll('.profit-selection span').forEach(span => {
+        span.classList.remove("selected");
+      });
+      overviewProfit.classList.add("selected");
+      centerMenuItem(overviewProfit);
+    });
+
     // 保留原有搖動切換的滑動事件（觸控滾動功能由瀏覽器自動處理）
     let isSwiping = false;
     let swipeStartX = 0;
