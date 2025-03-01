@@ -247,6 +247,13 @@
       cursor: pointer;
       transition: background 0.2s ease;
     }
+    .overview-row:hover {
+      background: rgba(255, 255, 255, 0.15); /* 懸停時背景略亮 */
+    }
+    .overview-row:active {
+      background: rgba(255, 255, 255, 0.25); /* 點擊時更明顯 */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* 添加陰影效果 */
+    }
     .overview-row:active {
       background: rgba(255, 255, 255, 0.1);
     }
