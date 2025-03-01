@@ -12,7 +12,7 @@
       padding: 0;
       box-sizing: border-box;
     }
-    /* 背景色系透過 class 控制 */
+    /* 背景色系 */
     body.normal-bg {
       background: linear-gradient(135deg, #001f3f, #000814);
     }
@@ -124,7 +124,7 @@
       color: #00bcd4;
       margin-top: 10px;
     }
-    /* 選單區塊：增加水平捲動與平滑滾動 */
+    /* 選單區塊 */
     .profit-selection {
       display: flex;
       gap: 15px;
@@ -160,7 +160,7 @@
       color: #000;
       transform: scale(1.05);
     }
-    /* 新增按鈕中大頭照的樣式 */
+    /* 大頭照樣式 */
     .menu-avatar {
       width: 24px;
       height: 24px;
@@ -204,7 +204,6 @@
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-      height: ${originalContainerHeight}px;
     }
     .profit-details {
       font-size: 16px;
@@ -296,6 +295,42 @@
       color: #fff;
       font-size: 14px;
     }
+    /* 懸浮按鈕：以 Babydoge 圖片呈現，大小 30×30，位置於畫面左下角 */
+    #floatingButton {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 10000;
+      width: 30px;
+      height: 30px;
+      background-image: url("https://cryptologos.cc/logos/baby-doge-coin-babydoge-logo.png");
+      background-size: cover;
+      background-position: center;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      user-select: none;
+    }
+    /* 黑色覆蓋區：採用 transform scale 過渡效果，填滿整個畫面 */
+    #blackOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 5000;
+      transform: scale(0);
+      transform-origin: var(--originX, 50px) var(--originY, 50px);
+      transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #blackOverlay.active {
+      transform: scale(1);
+      opacity: 1;
+      pointer-events: auto;
+    }
     /* 響應式調整 */
     @media only screen and (max-width: 480px) {
       .header span {
@@ -330,7 +365,7 @@
     <div class="progress-bar" id="progressBar"></div>
     <p id="progressText">0%</p>
   </div>
-  <!-- 主資訊區 -->
+  <!-- 主資訊區 (行情) -->
   <div class="main-info" id="mainInfo">
     <div class="header">
       <img src="https://cryptologos.cc/logos/baby-doge-coin-babydoge-logo.png" id="coinImage" alt="BABYDOGE">
@@ -348,7 +383,7 @@
     <span id="simonProfit"><img src="images/simon.PNG" alt="Simon" class="menu-avatar"> S</span>
     <span id="kevinProfit"><img src="images/kevin.PNG" alt="Kevin" class="menu-avatar"> K</span>
   </div>
-  <!-- 說明區塊 -->
+  <!-- 說明區塊 (訊息) -->
   <div class="description-box" id="descriptionBox">
     <p id="descriptionText"></p>
   </div>
@@ -382,6 +417,11 @@
     </div>
     <div class="usd-rate">美元匯率: 1 USD = <span id="usdRateValue"></span> TWD</div>
   </div>
+  
+  <!-- 懸浮按鈕 -->
+  <button id="floatingButton"></button>
+  <!-- 黑色覆蓋區 -->
+  <div id="blackOverlay"></div>
   
   <script>
     // 儲存原始盈虧內容的 HTML 結構
@@ -470,7 +510,7 @@
 
     const profilesOrder = ["carter", "hannah", "eric", "simon", "kevin"];
 
-    // 用於將選單項目置中
+    // 將選單項目置中
     function centerMenuItem(el) {
       profitSelection.scrollLeft = el.offsetLeft - profitSelection.clientWidth / 2 + el.clientWidth / 2;
     }
@@ -773,7 +813,7 @@
       centerMenuItem(kevinProfit);
     });
 
-    // 保留原有搖動切換的滑動事件（觸控滾動功能由瀏覽器自動處理）
+    // 保留原有滑動切換事件
     let isSwiping = false;
     let swipeStartX = 0;
     const swipeThreshold = 50;
@@ -815,6 +855,59 @@
     coinImage.addEventListener("click", () => {
       rotationAngle += 360;
       coinImage.style.transform = `rotate(${rotationAngle}deg)`;
+    });
+
+    // 懸浮按鈕拖曳與點擊功能
+    const floatingButton = document.getElementById('floatingButton');
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let offsetX = 0;
+    let offsetY = 0;
+    let hasDragged = false; // 判斷是否已拖曳
+
+    floatingButton.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      hasDragged = false;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      offsetX = e.clientX - floatingButton.offsetLeft;
+      offsetY = e.clientY - floatingButton.offsetTop;
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        if (!hasDragged && (Math.abs(e.clientX - dragStartX) > 5 || Math.abs(e.clientY - dragStartY) > 5)) {
+          hasDragged = true;
+        }
+        floatingButton.style.left = (e.clientX - offsetX) + 'px';
+        floatingButton.style.top = (e.clientY - offsetY) + 'px';
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    // 點擊懸浮按鈕（僅未拖曳時觸發）：從按鈕中心以過渡效果展開黑色覆蓋全螢幕
+    floatingButton.addEventListener('click', (e) => {
+      if (!hasDragged) {
+        const btnRect = floatingButton.getBoundingClientRect();
+        const cx = btnRect.left + btnRect.width / 2;
+        const cy = btnRect.top + btnRect.height / 2;
+        const overlay = document.getElementById('blackOverlay');
+        // 設定 transform-origin 為懸浮按鈕中心點
+        overlay.style.setProperty('--originX', cx + "px");
+        overlay.style.setProperty('--originY', cy + "px");
+        overlay.style.transformOrigin = `var(--originX) var(--originY)`;
+        // 觸發展開效果
+        overlay.classList.add('active');
+        // 點擊 overlay 收合
+        overlay.addEventListener('click', () => {
+          overlay.classList.remove('active');
+        }, { once: true });
+      }
     });
 
     window.addEventListener('resize', () => {});
