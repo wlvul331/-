@@ -135,8 +135,9 @@
       border-radius: 25px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       backdrop-filter: blur(10px);
-      overflow-x: auto;
-      white-space: nowrap;
+      /* 移除捲動，取消 overflow-x 與 white-space */
+      overflow: visible;
+      white-space: normal;
       cursor: pointer;
       width: 90%;
       max-width: 500px;
@@ -152,11 +153,21 @@
       font-size: 16px;
       font-weight: bold;
       transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
     }
     .profit-selection span.selected {
       background: linear-gradient(90deg, #00bcd4, #00ffcc);
       color: #000;
       transform: scale(1.05);
+    }
+    /* 新增按鈕中大頭照的樣式 */
+    .menu-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      vertical-align: middle;
+      margin-right: 4px;
     }
     .profit-selection span:not(#overviewProfit) {
       font-size: 14px;
@@ -248,11 +259,11 @@
       transition: background 0.2s ease;
     }
     .overview-row:hover {
-      background: rgba(255, 255, 255, 0.15); /* 懸停時背景略亮 */
+      background: rgba(255, 255, 255, 0.15);
     }
     .overview-row:active {
-      background: rgba(255, 255, 255, 0.25); /* 點擊時更明顯 */
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* 添加陰影效果 */
+      background: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
     .overview-row:active {
       background: rgba(255, 255, 255, 0.1);
@@ -331,11 +342,12 @@
   </div>
   <!-- 盈虧選單 -->
   <div class="profit-selection" id="profitSelection">
-    <span id="overviewProfit">總覽</span>
-    <span id="carterProfit">Carter</span>
-    <span id="hannahProfit">Hannah</span>
-    <span id="ericProfit">Eric</span>
-    <span id="simonProfit">Simon</span>
+    <span id="overviewProfit">All</span>
+    <span id="carterProfit"><img src="images/carter.PNG" alt="Carter" class="menu-avatar"> C</span>
+    <span id="hannahProfit"><img src="images/hannah.PNG" alt="Hannah" class="menu-avatar"> H</span>
+    <span id="ericProfit"><img src="images/eric.PNG" alt="Eric" class="menu-avatar"> E</span>
+    <span id="simonProfit"><img src="images/simon.PNG" alt="Simon" class="menu-avatar"> S</span>
+    <span id="kevinProfit"><img src="images/kevin.PNG" alt="Kevin" class="menu-avatar"> K</span>
   </div>
   <!-- 說明區塊 -->
   <div class="description-box" id="descriptionBox">
@@ -384,7 +396,8 @@
       carter: "images/carter.PNG",
       hannah: "images/hannah.PNG",
       eric: "images/eric.PNG",
-      simon: "images/simon.PNG"
+      simon: "images/simon.PNG",
+      kevin: "images/kevin.PNG"
     };
 
     let overviewPreviousValues = {};
@@ -420,6 +433,7 @@
     const hannahProfit = document.getElementById('hannahProfit');
     const ericProfit = document.getElementById('ericProfit');
     const simonProfit = document.getElementById('simonProfit');
+    const kevinProfit = document.getElementById('kevinProfit');
     const usdRateElem = document.getElementById('usdRateValue');
     const descriptionBox = document.getElementById('descriptionBox');
     const descriptionText = document.getElementById('descriptionText');
@@ -428,9 +442,11 @@
       carter: "Carter的盈虧數據,依據其成本及持倉量計算。",
       hannah: "Hannah的盈虧數據,依據其成本及持倉量計算。",
       eric: "Eric的盈虧數據,依據其投資及持倉量計算。",
-      simon: "Simon的盈虧數據,依據其成本及持倉量計算。"
+      simon: "Simon的盈虧數據,依據其成本及持倉量計算。",
+      kevin: "Kevin的盈虧數據,依據其隨便設定的成本及持倉量計算。"
     };
 
+    // 加入 Kevin 的資料 (此處數值僅供參考，可自行調整)
     const profiles = {
       carter: {
         totalCost: 1690000,
@@ -447,17 +463,20 @@
       simon: {
         totalCost: 160000,
         totalAmount: 2109963930000
+      },
+      kevin: {
+        totalCost: 830000,
+        totalAmount: 19000000000000
       }
     };
 
-    const profilesOrder = ["carter", "hannah", "eric", "simon"];
+    const profilesOrder = ["carter", "hannah", "eric", "simon", "kevin"];
 
     document.querySelectorAll('.profit-selection span').forEach(span => {
       span.classList.remove("selected");
     });
     overviewProfit.classList.add("selected");
 
-    // 切換模式：如果新舊模式其中一個為 overview，則使用過場動畫；否則直接更新
     function switchMode(newMode) {
       if ((activeProfile === 'overview' && newMode !== 'overview') ||
           (activeProfile !== 'overview' && newMode === 'overview')) {
@@ -497,14 +516,13 @@
         document.body.classList.add('overview-bg');
         const rows = document.querySelectorAll('.overview-row');
         
-        // 計算每個 profile 的盈虧率並排序
         let sortedProfiles = profilesOrder.map(key => {
           const profile = profiles[key];
           let valueTWD = profile.totalAmount * currentPrice * exchangeRate;
           let unrealizedTWD = valueTWD - profile.totalCost;
           let profitRate = (unrealizedTWD / profile.totalCost) * 100;
           return { key, unrealizedTWD, profitRate };
-        }).sort((a, b) => b.profitRate - a.profitRate); // 按盈虧率從高到低排序
+        }).sort((a, b) => b.profitRate - a.profitRate);
 
         if (rows.length > 0) {
           rows.forEach(row => {
@@ -516,7 +534,7 @@
             const unrealizedElem = row.querySelector('.overview-unrealized');
             const profitRateElem = row.querySelector('.overview-profitRate');
             const prev = overviewPreviousValues[key] || { unrealized: unrealizedTWD, profitRate: profitRate };
-            animateValue(unrealizedElem, prev.unrealized, unrealizedTWD, 500, value => (value >= 0 ? "+" : "") + value.toFixed(0)); // 取消小數點
+            animateValue(unrealizedElem, prev.unrealized, unrealizedTWD, 500, value => (value >= 0 ? "+" : "") + value.toFixed(0));
             animateValue(profitRateElem, prev.profitRate, profitRate, 500, value => value.toFixed(2) + "%");
             unrealizedElem.style.color = unrealizedTWD >= 0 ? "#00bcd4" : "orangered";
             profitRateElem.style.background = profitRate >= 0 ?
@@ -532,7 +550,7 @@
             let valueTWD = profile.totalAmount * currentPrice * exchangeRate;
             let unrealizedTWD = valueTWD - profile.totalCost;
             let profitRate = (unrealizedTWD / profile.totalCost) * 100;
-            let unrealizedFormatted = (unrealizedTWD >= 0 ? "+" : "") + unrealizedTWD.toFixed(0); // 取消小數點
+            let unrealizedFormatted = (unrealizedTWD >= 0 ? "+" : "") + unrealizedTWD.toFixed(0);
             let profitRateFormatted = profitRate.toFixed(2) + "%";
             overviewPreviousValues[key] = { unrealized: unrealizedTWD, profitRate: profitRate };
             let unrealizedColor = unrealizedTWD >= 0 ? "#00bcd4" : "orangered";
@@ -557,7 +575,6 @@
         return;
       }
 
-      // 個別模式：切換背景 class
       document.body.classList.remove('overview-bg', 'negative-bg');
       document.body.classList.add('normal-bg');
       if (!profitDetails.innerHTML.includes("totalAmount")) {
@@ -591,7 +608,7 @@
       animateValue(totalCostElem, prevTotalCost, profile.totalCost, duration, value => value.toLocaleString());
       animateValue(valueElem, prevValue, valueTWD, duration, value => value.toFixed(2));
       animateValue(avgPriceElem, prevAvgPrice, avgPriceUSD, duration, value => value.toFixed(13));
-      animateValue(unrealizedElem, prevUnrealized, unrealizedTWD, duration, value => (value >= 0 ? "+" : "") + value.toFixed(0)); // 取消小數點
+      animateValue(unrealizedElem, prevUnrealized, unrealizedTWD, duration, value => (value >= 0 ? "+" : "") + value.toFixed(0));
       animateValue(profitRateElem, prevProfitRate, profitRate, duration, value => value.toFixed(2) + "%");
 
       unrealizedElem.className = "value " + (unrealizedTWD >= 0 ? "positive" : "negative");
@@ -735,33 +752,15 @@
       });
       simonProfit.classList.add("selected");
     });
-
-    let isContainerDragging = false;
-    let containerDragStartX = 0;
-    let containerScrollStart = 0;
-    let containerDragMoved = false;
-
-    profitSelection.addEventListener("mousedown", (e) => {
-      isContainerDragging = true;
-      containerDragStartX = e.pageX;
-      containerScrollStart = profitSelection.scrollLeft;
-      containerDragMoved = false;
+    kevinProfit.addEventListener("click", () => {
+      switchMode('kevin');
+      document.querySelectorAll('.profit-selection span').forEach(span => {
+        span.classList.remove("selected");
+      });
+      kevinProfit.classList.add("selected");
     });
 
-    window.addEventListener("mousemove", (e) => {
-      if (!isContainerDragging) return;
-      const dx = e.pageX - containerDragStartX;
-      if (!containerDragMoved && Math.abs(dx) > 5) {
-        containerDragMoved = true;
-      }
-      profitSelection.scrollLeft = containerScrollStart - dx;
-    });
-
-    window.addEventListener("mouseup", () => {
-      if (isContainerDragging) {
-        isContainerDragging = false;
-      }
-    });
+    // 已移除選單水平捲動相關的事件監聽器
 
     let isSwiping = false;
     let swipeStartX = 0;
