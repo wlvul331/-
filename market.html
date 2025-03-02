@@ -346,6 +346,8 @@
     <span id="ericProfit"><img src="images/eric.PNG" alt="Eric" class="menu-avatar"> E</span>
     <span id="simonProfit"><img src="images/simon.PNG" alt="Simon" class="menu-avatar"> S</span>
     <span id="kevinProfit"><img src="images/kevin.PNG" alt="Kevin" class="menu-avatar"> K</span>
+    <!-- 新增 Arthur 按鈕 -->
+    <span id="arthurProfit"><img src="images/arthur.PNG" alt="Arthur" class="menu-avatar"> A</span>
   </div>
   <!-- 說明區塊 -->
   <div class="description-box" id="descriptionBox">
@@ -393,22 +395,26 @@
       hannah: "images/hannah.PNG",
       eric: "images/eric.PNG",
       simon: "images/simon.PNG",
-      kevin: "images/kevin.PNG"
+      kevin: "images/kevin.PNG",
+      arthur: "images/arthur.PNG" // 新增 Arthur 大頭照
     };
     const profiles = {
       carter: { totalCost: 1690000, totalAmount: 21235769401342.17 },
       hannah: { totalCost: 20000, totalAmount: 404682914593.395 },
       eric: { totalCost: 10706, totalAmount: 190170442010 },
       simon: { totalCost: 160000, totalAmount: 2109963930000 },
-      kevin: { totalCost: 830000, totalAmount: 19000000000000 }
+      kevin: { totalCost: 830000, totalAmount: 19000000000000 },
+      arthur: { totalCost: 50000, totalAmount: 1060338590000 } // 新增 Arthur 資料
     };
-    const profilesOrder = ["carter", "hannah", "eric", "simon", "kevin"];
+    // profilesOrder 陣列加入 arthur，順序可依需求調整
+    const profilesOrder = ["carter", "hannah", "eric", "simon", "kevin", "arthur"];
     const explanations = {
       carter: "Carter的盈虧數據,依據其成本及持倉量計算。",
       hannah: "Hannah的盈虧數據,依據其成本及持倉量計算。",
       eric: "Eric的盈虧數據,依據其投資及持倉量計算。",
       simon: "Simon的盈虧數據,依據其成本及持倉量計算。",
-      kevin: "Kevin的盈虧數據,依據其成本及持倉量計算。"
+      kevin: "Kevin的盈虧數據,依據其成本及持倉量計算。",
+      arthur: "Arthur的盈虧數據,依據其成本及持倉量計算。" // 新增說明
     };
 
     let overviewPreviousValues = {};
@@ -432,6 +438,7 @@
       ericProfit: document.getElementById('ericProfit'),
       simonProfit: document.getElementById('simonProfit'),
       kevinProfit: document.getElementById('kevinProfit'),
+      arthurProfit: document.getElementById('arthurProfit'), // 新增
       usdRateValue: document.getElementById('usdRateValue'),
       descriptionBox: document.getElementById('descriptionBox'),
       descriptionText: document.getElementById('descriptionText'),
@@ -630,7 +637,7 @@
     }
 
     // 事件監聽
-    ['overview', 'carter', 'hannah', 'eric', 'simon', 'kevin'].forEach(mode => {
+    ['overview', 'carter', 'hannah', 'eric', 'simon', 'kevin', 'arthur'].forEach(mode => {
       elements[mode + 'Profit'].addEventListener("click", () => switchMode(mode));
     });
 
