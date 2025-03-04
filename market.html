@@ -6,12 +6,16 @@
   <link rel="apple-touch-icon" href="https://cryptologos.cc/logos/baby-doge-coin-babydoge-logo.png">
   <title>BABYDOGE/USDT 即時價格</title>
   <style>
+    /* ---------------------------
+       原始版面配置與動畫效果
+       --------------------------- */
     /* Reset */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
     /* 背景色系透過 class 控制 */
     body.normal-bg {
       background: linear-gradient(135deg, #001f3f, #000814);
@@ -50,6 +54,7 @@
       opacity: 0.08;
       z-index: -1;
     }
+
     /* 進度條 */
     .progress-container {
       position: absolute;
@@ -81,6 +86,7 @@
       margin: 0;
       pointer-events: none;
     }
+
     /* 主資訊區 */
     .main-info {
       width: 90%;
@@ -124,6 +130,7 @@
       color: #00bcd4;
       margin-top: 10px;
     }
+
     /* 選單區塊：增加水平捲動與平滑滾動 */
     .profit-selection {
       display: flex;
@@ -160,7 +167,6 @@
       color: #000;
       transform: scale(1.05);
     }
-    /* 新增按鈕中大頭照的樣式 */
     .menu-avatar {
       width: 24px;
       height: 24px;
@@ -171,6 +177,7 @@
     .profit-selection span:not(#overviewProfit) {
       font-size: 14px;
     }
+
     /* 說明區塊 */
     .description-box {
       width: 90%;
@@ -186,6 +193,7 @@
       transform: translateY(20px);
       transition: opacity 0.5s ease, transform 0.5s ease;
     }
+
     /* 盈虧詳細資訊區塊 */
     .profit-details-container {
       width: 90%;
@@ -246,6 +254,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
     /* 總覽專用樣式 */
     .overview-row {
       display: flex;
@@ -262,9 +271,6 @@
     .overview-row:active {
       background: rgba(255, 255, 255, 0.25);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
-    .overview-row:active {
-      background: rgba(255, 255, 255, 0.1);
     }
     .overview-info {
       display: flex;
@@ -295,6 +301,7 @@
       color: #fff;
       font-size: 14px;
     }
+
     /* 響應式調整 */
     @media only screen and (max-width: 480px) {
       .header span {
@@ -321,6 +328,86 @@
         font-size: 12px;
       }
     }
+
+    /* 可拖曳按鈕樣式 */
+    #draggable-button {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-image: url('https://cryptologos.cc/logos/baby-doge-coin-babydoge-logo.png');
+      background-size: cover;
+      cursor: pointer;
+      z-index: 1000;
+      touch-action: none;
+    }
+
+    /* ---------------------------
+       持倉均價計算機相關樣式
+       --------------------------- */
+    .calculator-container {
+      width: 90%;
+      max-width: 600px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+    .calculator-container h1 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 5px;
+      margin-bottom: 15px;
+    }
+    .input-group input {
+      padding: 8px 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      width: 150px;
+    }
+    .input-group button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      background: linear-gradient(90deg, #00bcd4, #00ffcc);
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .input-group button:hover {
+      background: linear-gradient(90deg, #00ffcc, #00bcd4);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+    table th, table td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+    table th {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    .result {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body class="overview-bg">
@@ -329,6 +416,7 @@
     <div class="progress-bar" id="progressBar"></div>
     <p id="progressText">0%</p>
   </div>
+
   <!-- 主資訊區 -->
   <div class="main-info" id="mainInfo">
     <div class="header">
@@ -338,6 +426,7 @@
     </div>
     <p class="price" id="price">載入中...</p>
   </div>
+
   <!-- 盈虧選單 -->
   <div class="profit-selection" id="profitSelection">
     <span id="overviewProfit">All</span>
@@ -346,13 +435,14 @@
     <span id="ericProfit"><img src="images/eric.PNG" alt="Eric" class="menu-avatar"> E</span>
     <span id="simonProfit"><img src="images/simon.PNG" alt="Simon" class="menu-avatar"> S</span>
     <span id="kevinProfit"><img src="images/kevin.PNG" alt="Kevin" class="menu-avatar"> K</span>
-    <!-- 新增 Arthur 按鈕 -->
     <span id="arthurProfit"><img src="images/arthur.PNG" alt="Arthur" class="menu-avatar"> A</span>
   </div>
+
   <!-- 說明區塊 -->
   <div class="description-box" id="descriptionBox">
     <p id="descriptionText"></p>
   </div>
+
   <!-- 盈虧詳細資訊 -->
   <div class="profit-details-container" id="profitDetailsContainer">
     <div class="profit-details" id="profitDetails">
@@ -383,8 +473,14 @@
     </div>
     <div class="usd-rate">美元匯率: 1 USD = <span id="usdRateValue"></span> TWD</div>
   </div>
-  
+
+  <!-- 可拖曳按鈕 -->
+  <div id="draggable-button"></div>
+
   <script>
+    /* ---------------------------
+       原始即時價格與盈虧計算程式碼
+       --------------------------- */
     // 初始化常數與變數
     const profitDetails = document.getElementById('profitDetails');
     const originalProfitDetailsHTML = profitDetails.innerHTML;
@@ -396,7 +492,7 @@
       eric: "images/eric.PNG",
       simon: "images/simon.PNG",
       kevin: "images/kevin.PNG",
-      arthur: "images/arthur.PNG" // 新增 Arthur 大頭照
+      arthur: "images/arthur.PNG"
     };
     const profiles = {
       carter: { totalCost: 1690000, totalAmount: 21235769401342.17 },
@@ -404,9 +500,8 @@
       eric: { totalCost: 10706, totalAmount: 190170442010 },
       simon: { totalCost: 160000, totalAmount: 2109963930000 },
       kevin: { totalCost: 830000, totalAmount: 19000000000000 },
-      arthur: { totalCost: 50000, totalAmount: 1060338590000 } // 新增 Arthur 資料
+      arthur: { totalCost: 50000, totalAmount: 1060338590000 }
     };
-    // profilesOrder 陣列加入 arthur，順序可依需求調整
     const profilesOrder = ["carter", "hannah", "eric", "simon", "kevin", "arthur"];
     const explanations = {
       carter: "Carter的盈虧數據,依據其成本及持倉量計算。",
@@ -414,7 +509,7 @@
       eric: "Eric的盈虧數據,依據其投資及持倉量計算。",
       simon: "Simon的盈虧數據,依據其成本及持倉量計算。",
       kevin: "Kevin的盈虧數據,依據其成本及持倉量計算。",
-      arthur: "Arthur的盈虧數據,依據其成本及持倉量計算。" // 新增說明
+      arthur: "Arthur的盈虧數據,依據其成本及持倉量計算。"
     };
 
     let overviewPreviousValues = {};
@@ -422,6 +517,8 @@
     let oneDayAgoPrice = null;
     let exchangeRate = 0;
     let activeProfile = 'overview';
+    let isOverlayOpen = false; // 追蹤黑色區塊是否展開
+    let overlay = null; // 儲存黑色區塊元素
 
     // DOM 元素
     const elements = {
@@ -438,11 +535,12 @@
       ericProfit: document.getElementById('ericProfit'),
       simonProfit: document.getElementById('simonProfit'),
       kevinProfit: document.getElementById('kevinProfit'),
-      arthurProfit: document.getElementById('arthurProfit'), // 新增
+      arthurProfit: document.getElementById('arthurProfit'),
       usdRateValue: document.getElementById('usdRateValue'),
       descriptionBox: document.getElementById('descriptionBox'),
       descriptionText: document.getElementById('descriptionText'),
-      coinImage: document.getElementById('coinImage')
+      coinImage: document.getElementById('coinImage'),
+      draggableButton: document.getElementById('draggable-button')
     };
 
     // 數值動畫函數
@@ -661,7 +759,185 @@
       elements.coinImage.style.transform = `rotate(${rotationAngle}deg)`;
     });
 
+    // ---------------------------
+    // 拖曳按鈕與展開計算機功能
+    // ---------------------------
+    let isDragging = false;
+    let dragged = false;
+    let offsetX, offsetY;
+
+    function startDrag(e) {
+      isDragging = true;
+      dragged = false;
+      const touch = e.touches ? e.touches[0] : e;
+      offsetX = touch.clientX - elements.draggableButton.getBoundingClientRect().left;
+      offsetY = touch.clientY - elements.draggableButton.getBoundingClientRect().top;
+    }
+
+    function drag(e) {
+      if (isDragging) {
+        e.preventDefault();
+        dragged = true;
+        const touch = e.touches ? e.touches[0] : e;
+        elements.draggableButton.style.left = `${touch.clientX - offsetX}px`;
+        elements.draggableButton.style.top = `${touch.clientY - offsetY}px`;
+      }
+    }
+
+    function endDrag() {
+      isDragging = false;
+      setTimeout(() => { dragged = false; }, 0);
+    }
+
+    elements.draggableButton.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', endDrag);
+    elements.draggableButton.addEventListener('touchstart', startDrag);
+    document.addEventListener('touchmove', drag);
+    document.addEventListener('touchend', endDrag);
+
+    // 修改 click 事件：若拖曳過則不觸發；否則展開/收起黑色區塊，並在區塊內置入計算機內容
+    elements.draggableButton.addEventListener('click', (e) => {
+      if (dragged) {
+        e.preventDefault();
+        return;
+      }
+      if (!isOverlayOpen) {
+        // 展開黑色區塊並加入計算機內容
+        overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        overlay.style.zIndex = '999';
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 0.5s ease';
+        /* 以下設定 flex 置中內容 */
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.innerHTML = `
+          <div class="calculator-container">
+            <h1>持倉均價計算機</h1>
+            <div class="input-group">
+              <input type="number" id="calcPrice" step="0.01" placeholder="進場價格 (USD)">
+              <input type="number" id="calcCost" step="0.01" placeholder="輸入成本價 (TWD)">
+              <button onclick="addPositionCalc()">加入計算</button>
+              <button onclick="removeLastPositionCalc()">刪除上筆</button>
+            </div>
+            <table id="positionTableCalc">
+              <thead>
+                <tr>
+                  <th>序號</th>
+                  <th>進場價格 (USD)</th>
+                  <th>購買數量</th>
+                  <th>成本 (TWD)</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+            <div class="result" id="resultCalc"></div>
+          </div>
+        `;
+        document.body.appendChild(overlay);
+        // 動畫展開效果：以 draggable-button 為中心
+        const buttonRect = elements.draggableButton.getBoundingClientRect();
+        const centerX = buttonRect.left + buttonRect.width / 2;
+        const centerY = buttonRect.top + buttonRect.height / 2;
+        overlay.style.clipPath = `circle(0% at ${centerX}px ${centerY}px)`;
+        setTimeout(() => {
+          overlay.style.clipPath = `circle(150% at ${centerX}px ${centerY}px)`;
+          overlay.style.opacity = '1';
+        }, 10);
+        isOverlayOpen = true;
+      } else {
+        // 收起黑色區塊
+        if (overlay) {
+          overlay.style.opacity = '0';
+          setTimeout(() => {
+            if (overlay && overlay.parentNode) {
+              overlay.parentNode.removeChild(overlay);
+            }
+            overlay = null;
+            isOverlayOpen = false;
+          }, 500);
+        }
+      }
+    });
+
+    // ---------------------------
+    // 持倉均價計算機的功能
+    // ---------------------------
+    const calcPositions = [];
+    // 因為匯率已由主程式取得，直接使用 exchangeRate 變數
+
+    function addPositionCalc() {
+      if (exchangeRate === 0) {
+        alert('正在獲取匯率，請稍後再試。');
+        return;
+      }
+      const price = parseFloat(document.getElementById('calcPrice').value);
+      const costTWD = parseFloat(document.getElementById('calcCost').value);
+      if (isNaN(price) || isNaN(costTWD) || price <= 0 || costTWD <= 0) {
+        alert("請輸入正確的進場價格與成本價！");
+        return;
+      }
+      const costUSD = costTWD / exchangeRate;
+      const quantity = costUSD / price;
+      calcPositions.push({ price, costTWD, quantity });
+      updateTableCalc();
+      calculateAverageCalc();
+      document.getElementById('calcPrice').value = '';
+      document.getElementById('calcCost').value = '';
+    }
+
+    function updateTableCalc() {
+      const tbody = document.querySelector('#positionTableCalc tbody');
+      tbody.innerHTML = '';
+      calcPositions.forEach((pos, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${pos.price.toFixed(2)}</td>
+          <td>${pos.quantity.toFixed(4)}</td>
+          <td>${pos.costTWD.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function calculateAverageCalc() {
+      if (calcPositions.length === 0) {
+        document.getElementById('resultCalc').innerText = '';
+        return;
+      }
+      let totalCostUSD = 0;
+      let totalQuantity = 0;
+      calcPositions.forEach(pos => {
+        const costUSD = pos.costTWD / exchangeRate;
+        totalCostUSD += costUSD;
+        totalQuantity += pos.quantity;
+      });
+      const averagePrice = (totalCostUSD / totalQuantity).toFixed(4);
+      document.getElementById('resultCalc').innerText = `目前持倉均價：${averagePrice} USD`;
+    }
+
+    function removeLastPositionCalc() {
+      if (calcPositions.length > 0) {
+        calcPositions.pop();
+        updateTableCalc();
+        calculateAverageCalc();
+      } else {
+        alert("沒有持倉數據可刪除！");
+      }
+    }
+
+    // ---------------------------
     // 初始化
+    // ---------------------------
     elements.overviewProfit.classList.add("selected");
     centerMenuItem(elements.overviewProfit);
     (async () => {
