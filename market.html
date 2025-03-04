@@ -15,7 +15,6 @@
       padding: 0;
       box-sizing: border-box;
     }
-
     /* 背景色系透過 class 控制 */
     body.normal-bg {
       background: linear-gradient(135deg, #001f3f, #000814);
@@ -54,7 +53,6 @@
       opacity: 0.08;
       z-index: -1;
     }
-
     /* 進度條 */
     .progress-container {
       position: absolute;
@@ -86,7 +84,6 @@
       margin: 0;
       pointer-events: none;
     }
-
     /* 主資訊區 */
     .main-info {
       width: 90%;
@@ -130,8 +127,7 @@
       color: #00bcd4;
       margin-top: 10px;
     }
-
-    /* 選單區塊：增加水平捲動與平滑滾動 */
+    /* 選單區塊 */
     .profit-selection {
       display: flex;
       gap: 15px;
@@ -177,7 +173,6 @@
     .profit-selection span:not(#overviewProfit) {
       font-size: 14px;
     }
-
     /* 說明區塊 */
     .description-box {
       width: 90%;
@@ -192,10 +187,8 @@
       opacity: 0;
       transform: translateY(20px);
       transition: opacity 0.5s ease, transform 0.5s ease;
-      /* 新增相對定位，讓內部的絕對定位按鈕以此為參照 */
       position: relative;
     }
-
     /* 盈虧詳細資訊區塊 */
     .profit-details-container {
       width: 90%;
@@ -256,7 +249,6 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-
     /* 總覽專用樣式 */
     .overview-row {
       display: flex;
@@ -303,7 +295,6 @@
       color: #fff;
       font-size: 14px;
     }
-
     /* 響應式調整 */
     @media only screen and (max-width: 480px) {
       .header span {
@@ -330,13 +321,11 @@
         font-size: 12px;
       }
     }
-
     /* 可拖曳按鈕樣式
-       修改後移至說明區塊的左側，
-       使用絕對定位相對於 .description-box */
+       移至說明區塊內部，絕對定位於左側 */
     #draggable-button {
       position: absolute;
-      left: -80px; /* 調整此值以控制距離 */
+      left: -80px;
       top: 50%;
       transform: translateY(-50%);
       width: 60px;
@@ -348,7 +337,6 @@
       z-index: 1000;
       touch-action: none;
     }
-
     /* ---------------------------
        持倉均價計算機相關樣式
        --------------------------- */
@@ -421,7 +409,6 @@
     <div class="progress-bar" id="progressBar"></div>
     <p id="progressText">0%</p>
   </div>
-
   <!-- 主資訊區 -->
   <div class="main-info" id="mainInfo">
     <div class="header">
@@ -431,7 +418,6 @@
     </div>
     <p class="price" id="price">載入中...</p>
   </div>
-
   <!-- 盈虧選單 -->
   <div class="profit-selection" id="profitSelection">
     <span id="overviewProfit">All</span>
@@ -442,13 +428,11 @@
     <span id="kevinProfit"><img src="images/kevin.PNG" alt="Kevin" class="menu-avatar"> K</span>
     <span id="arthurProfit"><img src="images/arthur.PNG" alt="Arthur" class="menu-avatar"> A</span>
   </div>
-
-  <!-- 說明區塊（內含可拖曳按鈕） -->
+  <!-- 說明區塊（內含 draggable-button） -->
   <div class="description-box" id="descriptionBox">
     <div id="draggable-button"></div>
     <p id="descriptionText"></p>
   </div>
-
   <!-- 盈虧詳細資訊 -->
   <div class="profit-details-container" id="profitDetailsContainer">
     <div class="profit-details" id="profitDetails">
@@ -479,14 +463,11 @@
     </div>
     <div class="usd-rate">美元匯率: 1 USD = <span id="usdRateValue"></span> TWD</div>
   </div>
-
-  <!-- 以下的 draggable-button 已移入 description-box，不再重複 -->
-
+  <!-- 以下 draggable-button 已移入 description-box -->
   <script>
     /* ---------------------------
        原始即時價格與盈虧計算程式碼
        --------------------------- */
-    // 初始化常數與變數
     const profitDetails = document.getElementById('profitDetails');
     const originalProfitDetailsHTML = profitDetails.innerHTML;
     const profitDetailsContainer = document.getElementById('profitDetailsContainer');
@@ -516,7 +497,6 @@
       kevin: "Kevin的盈虧數據,依據其成本及持倉量計算。",
       arthur: "Arthur的盈虧數據,依據其成本及持倉量計算。"
     };
-
     let overviewPreviousValues = {};
     let lastPrice = null;
     let oneDayAgoPrice = null;
@@ -524,7 +504,6 @@
     let activeProfile = 'overview';
     let isOverlayOpen = false; // 追蹤黑色區塊是否展開
     let overlay = null; // 儲存黑色區塊元素
-
     // DOM 元素
     const elements = {
       price: document.getElementById('price'),
@@ -545,9 +524,7 @@
       descriptionBox: document.getElementById('descriptionBox'),
       descriptionText: document.getElementById('descriptionText'),
       coinImage: document.getElementById('coinImage')
-      // draggableButton 已移至 descriptionBox 中，稍後透過 getElementById 取得
     };
-
     // 數值動畫函數
     function animateValue(element, start, end, duration, formatter) {
       const startTime = performance.now();
@@ -559,12 +536,10 @@
       };
       requestAnimationFrame(update);
     }
-
     // 選單置中
     function centerMenuItem(el) {
       elements.profitSelection.scrollLeft = el.offsetLeft - elements.profitSelection.clientWidth / 2 + el.clientWidth / 2;
     }
-
     // 切換模式
     function switchMode(newMode) {
       const isOverviewSwitch = (activeProfile === 'overview') !== (newMode === 'overview');
@@ -584,21 +559,18 @@
       document.getElementById(newMode + "Profit").classList.add("selected");
       centerMenuItem(document.getElementById(newMode + "Profit"));
     }
-
     // 更新盈虧資料
     function updateProfile(profileKey, currentPrice) {
       profitDetailsContainer.style.height = `${originalContainerHeight}px`;
       if (profileKey === 'overview') {
         document.body.className = 'overview-bg';
         const rows = profitDetails.querySelectorAll('.overview-row');
-        
         const sortedProfiles = profilesOrder.map(key => {
           const profile = profiles[key];
           const valueTWD = profile.totalAmount * currentPrice * exchangeRate;
           const unrealizedTWD = valueTWD - profile.totalCost;
           return { key, unrealizedTWD, profitRate: (unrealizedTWD / profile.totalCost) * 100 };
         }).sort((a, b) => b.profitRate - a.profitRate);
-
         if (rows.length) {
           rows.forEach(row => {
             const key = row.dataset.key;
@@ -635,16 +607,13 @@
         elements.descriptionText.textContent = "顯示所有人員的盈虧狀態（按盈虧率排序）";
         return;
       }
-
       document.body.className = 'normal-bg';
       if (!profitDetails.querySelector('#totalAmount')) profitDetails.innerHTML = originalProfitDetailsHTML;
-
       const profile = profiles[profileKey];
       const valueTWD = profile.totalAmount * currentPrice * exchangeRate;
       const avgPriceUSD = profile.totalCost / exchangeRate / profile.totalAmount;
       const unrealizedTWD = valueTWD - profile.totalCost;
       const profitRate = (unrealizedTWD / profile.totalCost) * 100;
-
       const els = {
         totalAmount: document.getElementById('totalAmount'),
         totalCost: document.getElementById('totalCost'),
@@ -653,21 +622,17 @@
         unrealized: document.getElementById('unrealized'),
         profitRate: document.getElementById('profitRate')
       };
-
       elements.descriptionText.textContent = explanations[profileKey];
       document.body.className = profitRate >= 0 ? 'normal-bg' : 'negative-bg';
-
       animateValue(els.totalAmount, parseFloat(els.totalAmount.textContent.replace(/,/g, '')) || 0, profile.totalAmount, 500, v => v.toLocaleString());
       animateValue(els.totalCost, parseFloat(els.totalCost.textContent.replace(/,/g, '')) || 0, profile.totalCost, 500, v => v.toLocaleString());
       animateValue(els.value, parseFloat(els.value.textContent.replace(/,/g, '')) || 0, valueTWD, 500, v => v.toFixed(2));
       animateValue(els.avgPrice, parseFloat(els.avgPrice.textContent.replace(/,/g, '')) || 0, avgPriceUSD, 500, v => v.toFixed(13));
       animateValue(els.unrealized, parseFloat(els.unrealized.textContent.replace(/[^\d.-]/g, '')) || 0, unrealizedTWD, 500, v => (v >= 0 ? "+" : "") + v.toFixed(0));
       animateValue(els.profitRate, parseFloat(els.profitRate.textContent.replace(/%/g, '')) || 0, profitRate, 500, v => v.toFixed(2) + "%");
-
       els.unrealized.className = `value ${unrealizedTWD >= 0 ? "positive" : "negative"}`;
       els.profitRate.className = `value ${profitRate >= 0 ? "positive" : "negative"}`;
     }
-
     // 獲取歷史價格與匯率
     async function fetchOneDayAgoPrice() {
       try {
@@ -678,7 +643,6 @@
         console.error("獲取歷史價格失敗:", error);
       }
     }
-
     async function fetchExchangeRate() {
       try {
         const response = await fetch('https://open.er-api.com/v6/latest/USD');
@@ -691,13 +655,11 @@
         console.error("取得匯率失敗:", error);
       }
     }
-
     // 更新進度條
     function updateProgressBar(progress) {
       elements.progressBar.style.width = `${progress}%`;
       elements.progressText.textContent = `${progress}%`;
     }
-
     // WebSocket 連線
     function connectWebSocket() {
       const ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
@@ -720,7 +682,6 @@
           }, 500);
         }
       }, 5);
-
       ws.onmessage = event => {
         const data = JSON.parse(event.data);
         if (!data.c) return;
@@ -728,7 +689,6 @@
         if (lastPrice !== null) animateValue(elements.price, lastPrice, newPrice, 500, v => v.toFixed(13));
         else elements.price.textContent = newPrice.toFixed(13);
         elements.price.style.color = lastPrice !== null && newPrice < lastPrice ? "orangered" : "#00bcd4";
-
         if (oneDayAgoPrice !== null) {
           const change = ((newPrice - oneDayAgoPrice) / oneDayAgoPrice) * 100;
           animateValue(elements.change, parseFloat(elements.change.textContent.replace(/[^\d.-]/g, '')) || 0, change, 500, v => (v >= 0 ? "+" : "-") + Math.abs(v).toFixed(2) + "%");
@@ -738,14 +698,11 @@
         updateProfile(activeProfile, newPrice);
       };
     }
-
     // 事件監聽
     ['overview', 'carter', 'hannah', 'eric', 'simon', 'kevin', 'arthur'].forEach(mode => {
       elements[mode + 'Profit'].addEventListener("click", () => switchMode(mode));
     });
-
     elements.mainInfo.addEventListener("click", () => switchMode('overview'));
-
     let swipeStartX = 0, isSwiping = false;
     profitDetailsContainer.addEventListener("mousedown", e => { swipeStartX = e.clientX; isSwiping = false; });
     profitDetailsContainer.addEventListener("mousemove", e => { if (!isSwiping && Math.abs(e.clientX - swipeStartX) > 5) isSwiping = true; });
@@ -757,22 +714,18 @@
       if (deltaX < 0 && currentIndex < profilesOrder.length - 1) switchMode(profilesOrder[currentIndex + 1]);
       else if (deltaX > 0 && currentIndex > 0) switchMode(profilesOrder[currentIndex - 1]);
     });
-
     let rotationAngle = 0;
     elements.coinImage.addEventListener("click", () => {
       rotationAngle += 360;
       elements.coinImage.style.transform = `rotate(${rotationAngle}deg)`;
     });
-
     // ---------------------------
     // 拖曳按鈕與展開計算機功能
     // ---------------------------
-    // 注意：draggable-button 現已放入 description-box，使用 getElementById 取得
     const draggableButton = document.getElementById('draggable-button');
     let isDragging = false;
     let dragged = false;
     let offsetX, offsetY;
-
     function startDrag(e) {
       isDragging = true;
       dragged = false;
@@ -780,7 +733,6 @@
       offsetX = touch.clientX - draggableButton.getBoundingClientRect().left;
       offsetY = touch.clientY - draggableButton.getBoundingClientRect().top;
     }
-
     function drag(e) {
       if (isDragging) {
         e.preventDefault();
@@ -790,27 +742,23 @@
         draggableButton.style.top = `${touch.clientY - offsetY}px`;
       }
     }
-
     function endDrag() {
       isDragging = false;
       setTimeout(() => { dragged = false; }, 0);
     }
-
     draggableButton.addEventListener('mousedown', startDrag);
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', endDrag);
     draggableButton.addEventListener('touchstart', startDrag);
     document.addEventListener('touchmove', drag);
     document.addEventListener('touchend', endDrag);
-
-    // 修改 click 事件：若拖曳過則不觸發；否則展開/收起黑色區塊，並在區塊內置入計算機內容
+    // 點擊 draggableButton 展開/收起 overlay 並載入計算機內容
     draggableButton.addEventListener('click', (e) => {
       if (dragged) {
         e.preventDefault();
         return;
       }
       if (!isOverlayOpen) {
-        // 展開黑色區塊並加入計算機內容
         overlay = document.createElement('div');
         overlay.style.position = 'fixed';
         overlay.style.top = '0';
@@ -821,7 +769,6 @@
         overlay.style.zIndex = '999';
         overlay.style.opacity = '0';
         overlay.style.transition = 'opacity 0.5s ease';
-        /* 以下設定 flex 置中內容 */
         overlay.style.display = 'flex';
         overlay.style.alignItems = 'center';
         overlay.style.justifyContent = 'center';
@@ -843,14 +790,25 @@
                   <th>成本 (TWD)</th>
                 </tr>
               </thead>
-              <tbody>
-              </tbody>
+              <tbody></tbody>
             </table>
             <div class="result" id="resultCalc"></div>
           </div>
         `;
+        // 新增點擊 overlay（非內部計算機容器）時關閉 overlay
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+              if (overlay && overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+              }
+              overlay = null;
+              isOverlayOpen = false;
+            }, 500);
+          }
+        });
         document.body.appendChild(overlay);
-        // 動畫展開效果：以 draggableButton 為中心
         const buttonRect = draggableButton.getBoundingClientRect();
         const centerX = buttonRect.left + buttonRect.width / 2;
         const centerY = buttonRect.top + buttonRect.height / 2;
@@ -861,7 +819,6 @@
         }, 10);
         isOverlayOpen = true;
       } else {
-        // 收起黑色區塊
         if (overlay) {
           overlay.style.opacity = '0';
           setTimeout(() => {
@@ -874,13 +831,10 @@
         }
       }
     });
-
     // ---------------------------
     // 持倉均價計算機的功能
     // ---------------------------
     const calcPositions = [];
-    // 因為匯率已由主程式取得，直接使用 exchangeRate 變數
-
     function addPositionCalc() {
       if (exchangeRate === 0) {
         alert('正在獲取匯率，請稍後再試。');
@@ -900,7 +854,6 @@
       document.getElementById('calcPrice').value = '';
       document.getElementById('calcCost').value = '';
     }
-
     function updateTableCalc() {
       const tbody = document.querySelector('#positionTableCalc tbody');
       tbody.innerHTML = '';
@@ -915,7 +868,6 @@
         tbody.appendChild(tr);
       });
     }
-
     function calculateAverageCalc() {
       if (calcPositions.length === 0) {
         document.getElementById('resultCalc').innerText = '';
@@ -931,7 +883,6 @@
       const averagePrice = (totalCostUSD / totalQuantity).toFixed(4);
       document.getElementById('resultCalc').innerText = `目前持倉均價：${averagePrice} USD`;
     }
-
     function removeLastPositionCalc() {
       if (calcPositions.length > 0) {
         calcPositions.pop();
@@ -941,7 +892,6 @@
         alert("沒有持倉數據可刪除！");
       }
     }
-
     // ---------------------------
     // 初始化
     // ---------------------------
