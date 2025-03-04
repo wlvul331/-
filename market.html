@@ -192,6 +192,8 @@
       opacity: 0;
       transform: translateY(20px);
       transition: opacity 0.5s ease, transform 0.5s ease;
+      /* 新增相對定位，讓內部的絕對定位按鈕以此為參照 */
+      position: relative;
     }
 
     /* 盈虧詳細資訊區塊 */
@@ -329,11 +331,14 @@
       }
     }
 
-    /* 可拖曳按鈕樣式 */
+    /* 可拖曳按鈕樣式
+       修改後移至說明區塊的左側，
+       使用絕對定位相對於 .description-box */
     #draggable-button {
       position: absolute;
-      bottom: 20px;
-      left: 20px;
+      left: -80px; /* 調整此值以控制距離 */
+      top: 50%;
+      transform: translateY(-50%);
       width: 60px;
       height: 60px;
       border-radius: 50%;
@@ -438,8 +443,9 @@
     <span id="arthurProfit"><img src="images/arthur.PNG" alt="Arthur" class="menu-avatar"> A</span>
   </div>
 
-  <!-- 說明區塊 -->
+  <!-- 說明區塊（內含可拖曳按鈕） -->
   <div class="description-box" id="descriptionBox">
+    <div id="draggable-button"></div>
     <p id="descriptionText"></p>
   </div>
 
@@ -474,8 +480,7 @@
     <div class="usd-rate">美元匯率: 1 USD = <span id="usdRateValue"></span> TWD</div>
   </div>
 
-  <!-- 可拖曳按鈕 -->
-  <div id="draggable-button"></div>
+  <!-- 以下的 draggable-button 已移入 description-box，不再重複 -->
 
   <script>
     /* ---------------------------
@@ -539,8 +544,8 @@
       usdRateValue: document.getElementById('usdRateValue'),
       descriptionBox: document.getElementById('descriptionBox'),
       descriptionText: document.getElementById('descriptionText'),
-      coinImage: document.getElementById('coinImage'),
-      draggableButton: document.getElementById('draggable-button')
+      coinImage: document.getElementById('coinImage')
+      // draggableButton 已移至 descriptionBox 中，稍後透過 getElementById 取得
     };
 
     // 數值動畫函數
@@ -762,6 +767,8 @@
     // ---------------------------
     // 拖曳按鈕與展開計算機功能
     // ---------------------------
+    // 注意：draggable-button 現已放入 description-box，使用 getElementById 取得
+    const draggableButton = document.getElementById('draggable-button');
     let isDragging = false;
     let dragged = false;
     let offsetX, offsetY;
@@ -770,8 +777,8 @@
       isDragging = true;
       dragged = false;
       const touch = e.touches ? e.touches[0] : e;
-      offsetX = touch.clientX - elements.draggableButton.getBoundingClientRect().left;
-      offsetY = touch.clientY - elements.draggableButton.getBoundingClientRect().top;
+      offsetX = touch.clientX - draggableButton.getBoundingClientRect().left;
+      offsetY = touch.clientY - draggableButton.getBoundingClientRect().top;
     }
 
     function drag(e) {
@@ -779,8 +786,8 @@
         e.preventDefault();
         dragged = true;
         const touch = e.touches ? e.touches[0] : e;
-        elements.draggableButton.style.left = `${touch.clientX - offsetX}px`;
-        elements.draggableButton.style.top = `${touch.clientY - offsetY}px`;
+        draggableButton.style.left = `${touch.clientX - offsetX}px`;
+        draggableButton.style.top = `${touch.clientY - offsetY}px`;
       }
     }
 
@@ -789,15 +796,15 @@
       setTimeout(() => { dragged = false; }, 0);
     }
 
-    elements.draggableButton.addEventListener('mousedown', startDrag);
+    draggableButton.addEventListener('mousedown', startDrag);
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', endDrag);
-    elements.draggableButton.addEventListener('touchstart', startDrag);
+    draggableButton.addEventListener('touchstart', startDrag);
     document.addEventListener('touchmove', drag);
     document.addEventListener('touchend', endDrag);
 
     // 修改 click 事件：若拖曳過則不觸發；否則展開/收起黑色區塊，並在區塊內置入計算機內容
-    elements.draggableButton.addEventListener('click', (e) => {
+    draggableButton.addEventListener('click', (e) => {
       if (dragged) {
         e.preventDefault();
         return;
@@ -843,8 +850,8 @@
           </div>
         `;
         document.body.appendChild(overlay);
-        // 動畫展開效果：以 draggable-button 為中心
-        const buttonRect = elements.draggableButton.getBoundingClientRect();
+        // 動畫展開效果：以 draggableButton 為中心
+        const buttonRect = draggableButton.getBoundingClientRect();
         const centerX = buttonRect.left + buttonRect.width / 2;
         const centerY = buttonRect.top + buttonRect.height / 2;
         overlay.style.clipPath = `circle(0% at ${centerX}px ${centerY}px)`;
