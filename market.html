@@ -321,11 +321,12 @@
         font-size: 12px;
       }
     }
-    /* 可拖曳按鈕樣式
-       移至說明區塊內部，絕對定位於左側 */
+    /* 可點擊按鈕樣式
+       取消拖曳功能後，僅保留點擊展開/收起功能
+       將其定位到說明區塊右側 */
     #draggable-button {
       position: absolute;
-      left: -30px;
+      right: 470px;
       top: 50%;
       transform: translateY(-50%);
       width: 60px;
@@ -335,7 +336,6 @@
       background-size: cover;
       cursor: pointer;
       z-index: 1000;
-      touch-action: none;
     }
     /* ---------------------------
        持倉均價計算機相關樣式
@@ -720,44 +720,10 @@
       elements.coinImage.style.transform = `rotate(${rotationAngle}deg)`;
     });
     // ---------------------------
-    // 拖曳按鈕與展開計算機功能
+    // 點擊按鈕展開/收起計算機功能（取消拖曳功能）
     // ---------------------------
     const draggableButton = document.getElementById('draggable-button');
-    let isDragging = false;
-    let dragged = false;
-    let offsetX, offsetY;
-    function startDrag(e) {
-      isDragging = true;
-      dragged = false;
-      const touch = e.touches ? e.touches[0] : e;
-      offsetX = touch.clientX - draggableButton.getBoundingClientRect().left;
-      offsetY = touch.clientY - draggableButton.getBoundingClientRect().top;
-    }
-    function drag(e) {
-      if (isDragging) {
-        e.preventDefault();
-        dragged = true;
-        const touch = e.touches ? e.touches[0] : e;
-        draggableButton.style.left = `${touch.clientX - offsetX}px`;
-        draggableButton.style.top = `${touch.clientY - offsetY}px`;
-      }
-    }
-    function endDrag() {
-      isDragging = false;
-      setTimeout(() => { dragged = false; }, 0);
-    }
-    draggableButton.addEventListener('mousedown', startDrag);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', endDrag);
-    draggableButton.addEventListener('touchstart', startDrag);
-    document.addEventListener('touchmove', drag);
-    document.addEventListener('touchend', endDrag);
-    // 點擊 draggableButton 展開/收起 overlay 並載入計算機內容
     draggableButton.addEventListener('click', (e) => {
-      if (dragged) {
-        e.preventDefault();
-        return;
-      }
       if (!isOverlayOpen) {
         overlay = document.createElement('div');
         overlay.style.position = 'fixed';
@@ -795,7 +761,7 @@
             <div class="result" id="resultCalc"></div>
           </div>
         `;
-        // 新增點擊 overlay（非內部計算機容器）時關閉 overlay
+        // 點擊 overlay（但非內部計算機容器）時關閉 overlay
         overlay.addEventListener('click', (e) => {
           if (e.target === overlay) {
             overlay.style.opacity = '0';
