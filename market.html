@@ -320,10 +320,14 @@
       .description-box {
         font-size: 12px;
       }
+      /* 手機版將說明區塊內的按鈕固定在左側 */
+      #draggable-button {
+        right: auto;
+        left: 10px;
+      }
     }
-    /* 可點擊按鈕樣式
-       取消拖曳功能後，僅保留點擊展開/收起功能
-       將其定位到說明區塊右側 */
+    /* 可點擊按鈕樣式（取消拖曳功能後，僅保留點擊展開/收起功能）
+       目前預設定位在說明區塊右側，此處可依需求調整 */
     #draggable-button {
       position: absolute;
       right: 470px;
