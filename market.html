@@ -539,7 +539,7 @@
       };
       requestAnimationFrame(update);
     }
-    // 新增：數字壓縮格式函數，若數值小於1且小數點後連續0超過1個，則以 0.0{N}後續數字 格式顯示
+    // 新增：數字壓縮格式函式，若數值小於1且小數點後連續0超過1個，則以 0.0{N}後續數字 格式顯示
     function compressNumber(num, precision) {
       let s = num.toFixed(precision);
       if(num < 1) {
@@ -554,6 +554,24 @@
         }
       }
       return s;
+    }
+    // 新增：數字轉換成短縮格式
+    // 當數值達到 1e3, 1e6, 1e9, 1e12 時，分別以 K、M、B、T 簡寫顯示
+    function formatQuantity(num) {
+      if (num >= 1e12) {
+        let val = num / 1e12;
+        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)).replace(/\.?0+$/, '') + 'T';
+      } else if (num >= 1e9) {
+        let val = num / 1e9;
+        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)).replace(/\.?0+$/, '') + 'B';
+      } else if (num >= 1e6) {
+        let val = num / 1e6;
+        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)).replace(/\.?0+$/, '') + 'M';
+      } else if (num >= 1e3) {
+        let val = num / 1e3;
+        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)).replace(/\.?0+$/, '') + 'K';
+      }
+      return num.toFixed(4);
     }
     // 選單置中
     function centerMenuItem(el) {
@@ -646,7 +664,7 @@
       animateValue(els.totalAmount, parseFloat(els.totalAmount.textContent.replace(/,/g, '')) || 0, profile.totalAmount, 500, v => v.toLocaleString());
       animateValue(els.totalCost, parseFloat(els.totalCost.textContent.replace(/,/g, '')) || 0, profile.totalCost, 500, v => v.toLocaleString());
       animateValue(els.value, parseFloat(els.value.textContent.replace(/,/g, '')) || 0, valueTWD, 500, v => v.toFixed(2));
-      // 注意：此處若有需求也可壓縮顯示，但原需求僅要求計算機部分的進場價格與持倉均價
+      // 若需要壓縮顯示，也可利用 compressNumber，此處以原始 toFixed(13) 顯示
       animateValue(els.avgPrice, parseFloat(els.avgPrice.textContent.replace(/,/g, '')) || 0, avgPriceUSD, 500, v => v.toFixed(13));
       animateValue(els.unrealized, parseFloat(els.unrealized.textContent.replace(/[^\d.-]/g, '')) || 0, unrealizedTWD, 500, v => (v >= 0 ? "+" : "") + v.toFixed(0));
       animateValue(els.profitRate, parseFloat(els.profitRate.textContent.replace(/%/g, '')) || 0, profitRate, 500, v => v.toFixed(2) + "%");
@@ -849,8 +867,8 @@
         tr.innerHTML = `
           <td>${index + 1}</td>
           <td>${compressNumber(pos.price, 12)}</td>
-          <td>${pos.quantity.toFixed(4)}</td>
-          <td>${pos.costTWD}</td>
+          <td>${formatQuantity(pos.quantity)}</td>
+          <td>${formatQuantity(pos.costTWD)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -867,8 +885,8 @@
         totalCostUSD += costUSD;
         totalQuantity += pos.quantity;
       });
-      // 將持倉均價以 12 位小數取得，並利用 compressNumber 格式化顯示
       const averagePrice = totalCostUSD / totalQuantity;
+      // 利用 compressNumber 將持倉均價格式化顯示
       document.getElementById('resultCalc').innerText = `持倉均價：${compressNumber(averagePrice, 12)} USD`;
     }
     function removeLastPositionCalc() {
