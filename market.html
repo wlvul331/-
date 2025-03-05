@@ -540,38 +540,57 @@
       requestAnimationFrame(update);
     }
     // 新增：數字壓縮格式函式，若數值小於1且小數點後連續0超過1個，則以 0.0{N}後續數字 格式顯示
-    function compressNumber(num, precision) {
-      let s = num.toFixed(precision);
-      if(num < 1) {
-        let parts = s.split('.');
-        let intPart = parts[0]; // "0"
-        let fracPart = parts[1];
-        let match = fracPart.match(/^(0+)/);
-        if(match && match[0].length > 1) {
-          let zeroCount = match[0].length;
-          let remainder = fracPart.slice(zeroCount);
-          return intPart + ".0{" + zeroCount + "}" + remainder;
-        }
-      }
-      return s;
+function compressNumber(num, precision) {
+  let s = num.toFixed(precision);
+
+  // 輔助函數：若有小數點則移除尾端多餘的 0，並在小數點成為末字元時移除它
+  function removeTrailingZeros(str) {
+    if (str.indexOf('.') !== -1) {
+      str = str.replace(/0+$/, ''); // 移除小數點後尾端的 0
+      str = str.replace(/\.$/, ''); // 若小數點成為最後一個字元則移除
     }
+    return str;
+  }
+
+  if (num < 1) {
+    let parts = s.split('.');
+    let intPart = parts[0]; // 例如 "0"
+    let fracPart = parts[1];
+
+    // 如果小數部分開頭有超過一個 0 的話
+    let match = fracPart.match(/^(0+)/);
+    if (match && match[0].length > 3) {
+      let zeroCount = match[0].length;
+      let remainder = fracPart.slice(zeroCount);
+      remainder = removeTrailingZeros(remainder); // 移除 remainder 末尾多餘的 0
+      if (remainder === '') {
+        // 如果 remainder 處理後為空，則只保留前導 0 的特殊格式
+        return intPart + ".0{" + zeroCount + "}";
+      }
+      return removeTrailingZeros(intPart + ".0{" + zeroCount + "}" + remainder);
+    }
+  }
+  // 對其他數字直接移除尾端多餘的 0
+  return removeTrailingZeros(s);
+}
+
     // 新增：數字轉換成短縮格式
     // 當數值達到 1e3, 1e6, 1e9, 1e12 時，分別以 K、M、B、T 簡寫顯示
     function formatQuantity(num) {
       if (num >= 1e12) {
         let val = num / 1e12;
-        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)).replace(/\.?0+$/, '') + 'T';
+        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)) + 'T';
       } else if (num >= 1e9) {
         let val = num / 1e9;
-        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)).replace(/\.?0+$/, '') + 'B';
+        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)) + 'B';
       } else if (num >= 1e6) {
         let val = num / 1e6;
-        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)).replace(/\.?0+$/, '') + 'M';
+        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)) + 'M';
       } else if (num >= 1e3) {
         let val = num / 1e3;
-        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)).replace(/\.?0+$/, '') + 'K';
+        return (val % 1 === 0 ? val.toFixed(0) : val.toFixed(2)) + 'K';
       }
-      return num.toFixed(4);
+      return num.toFixed(2);
     }
     // 選單置中
     function centerMenuItem(el) {
@@ -866,7 +885,7 @@
         // 使用 compressNumber 將進場價格做壓縮顯示（若有連續 0 的情況）
         tr.innerHTML = `
           <td>${index + 1}</td>
-          <td>${compressNumber(pos.price, 12)}</td>
+          <td>${compressNumber(pos.price, 15)}</td>
           <td>${formatQuantity(pos.quantity)}</td>
           <td>${formatQuantity(pos.costTWD)}</td>
         `;
@@ -887,7 +906,7 @@
       });
       const averagePrice = totalCostUSD / totalQuantity;
       // 利用 compressNumber 將持倉均價格式化顯示
-      document.getElementById('resultCalc').innerText = `持倉均價：${compressNumber(averagePrice, 12)} USD`;
+      document.getElementById('resultCalc').innerText = `持倉均價：${compressNumber(averagePrice, 15)} USD`;
     }
     function removeLastPositionCalc() {
       if (calcPositions.length > 0) {
