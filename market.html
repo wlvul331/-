@@ -6,9 +6,6 @@
   <link rel="apple-touch-icon" href="https://cryptologos.cc/logos/baby-doge-coin-babydoge-logo.png">
   <title>BABYDOGE/USDT 即時價格</title>
   <style>
-    /* ---------------------------
-       原始版面配置與動畫效果
-       --------------------------- */
     /* Reset */
     * {
       margin: 0;
@@ -320,13 +317,12 @@
       .description-box {
         font-size: 12px;
       }
-      /* 手機版將說明區塊內的按鈕固定在左側 */
       #draggable-button {
         right: auto;
         left: -20px;
       }
     }
-    /* 可點擊按鈕樣式（取消拖曳功能後，僅保留點擊展開/收起功能） */
+    /* 可點擊按鈕樣式 */
     #draggable-button {
       position: absolute;
       right: 470px;
@@ -340,9 +336,7 @@
       cursor: pointer;
       z-index: 1000;
     }
-    /* ---------------------------
-       持倉均價計算機相關樣式
-       --------------------------- */
+    /* 持倉均價計算機相關樣式 */
     .calculator-container {
       width: 90%;
       max-width: 600px;
@@ -431,7 +425,7 @@
     <span id="kevinProfit"><img src="images/kevin.PNG" alt="Kevin" class="menu-avatar"> K</span>
     <span id="arthurProfit"><img src="images/arthur.PNG" alt="Arthur" class="menu-avatar"> A</span>
   </div>
-  <!-- 說明區塊（內含 draggable-button） -->
+  <!-- 說明區塊（內含按鈕） -->
   <div class="description-box" id="descriptionBox">
     <div id="draggable-button"></div>
     <p id="descriptionText"></p>
@@ -466,11 +460,7 @@
     </div>
     <div class="usd-rate">美元匯率: 1 USD = <span id="usdRateValue"></span> TWD</div>
   </div>
-  <!-- 以下 draggable-button 已移入 description-box -->
   <script>
-    /* ---------------------------
-       原始即時價格與盈虧計算程式碼
-       --------------------------- */
     const profitDetails = document.getElementById('profitDetails');
     const originalProfitDetailsHTML = profitDetails.innerHTML;
     const profitDetailsContainer = document.getElementById('profitDetailsContainer');
@@ -505,9 +495,10 @@
     let oneDayAgoPrice = null;
     let exchangeRate = 0;
     let activeProfile = 'overview';
-    let isOverlayOpen = false; // 追蹤黑色區塊是否展開
-    let overlay = null; // 儲存黑色區塊元素
-    // DOM 元素
+    let isOverlayOpen = false;
+    let overlay = null;
+    let ws;
+
     const elements = {
       price: document.getElementById('price'),
       change: document.getElementById('change'),
@@ -528,7 +519,7 @@
       descriptionText: document.getElementById('descriptionText'),
       coinImage: document.getElementById('coinImage')
     };
-    // 數值動畫函數
+
     function animateValue(element, start, end, duration, formatter) {
       const startTime = performance.now();
       const update = () => {
@@ -539,43 +530,34 @@
       };
       requestAnimationFrame(update);
     }
-    // 新增：數字壓縮格式函式，若數值小於1且小數點後連續0超過1個，則以 0.0{N}後續數字 格式顯示
-function compressNumber(num, precision) {
-  let s = num.toFixed(precision);
 
-  // 輔助函數：若有小數點則移除尾端多餘的 0，並在小數點成為末字元時移除它
-  function removeTrailingZeros(str) {
-    if (str.indexOf('.') !== -1) {
-      str = str.replace(/0+$/, ''); // 移除小數點後尾端的 0
-      str = str.replace(/\.$/, ''); // 若小數點成為最後一個字元則移除
-    }
-    return str;
-  }
-
-  if (num < 1) {
-    let parts = s.split('.');
-    let intPart = parts[0]; // 例如 "0"
-    let fracPart = parts[1];
-
-    // 如果小數部分開頭有超過一個 0 的話
-    let match = fracPart.match(/^(0+)/);
-    if (match && match[0].length > 3) {
-      let zeroCount = match[0].length;
-      let remainder = fracPart.slice(zeroCount);
-      remainder = removeTrailingZeros(remainder); // 移除 remainder 末尾多餘的 0
-      if (remainder === '') {
-        // 如果 remainder 處理後為空，則只保留前導 0 的特殊格式
-        return intPart + ".0{" + zeroCount + "}";
+    function compressNumber(num, precision) {
+      let s = num.toFixed(precision);
+      function removeTrailingZeros(str) {
+        if (str.indexOf('.') !== -1) {
+          str = str.replace(/0+$/, '');
+          str = str.replace(/\.$/, '');
+        }
+        return str;
       }
-      return removeTrailingZeros(intPart + ".0{" + zeroCount + "}" + remainder);
+      if (num < 1) {
+        let parts = s.split('.');
+        let intPart = parts[0];
+        let fracPart = parts[1];
+        let match = fracPart.match(/^(0+)/);
+        if (match && match[0].length > 3) {
+          let zeroCount = match[0].length;
+          let remainder = fracPart.slice(zeroCount);
+          remainder = removeTrailingZeros(remainder);
+          if (remainder === '') {
+            return intPart + ".0{" + zeroCount + "}";
+          }
+          return removeTrailingZeros(intPart + ".0{" + zeroCount + "}" + remainder);
+        }
+      }
+      return removeTrailingZeros(s);
     }
-  }
-  // 對其他數字直接移除尾端多餘的 0
-  return removeTrailingZeros(s);
-}
 
-    // 新增：數字轉換成短縮格式
-    // 當數值達到 1e3, 1e6, 1e9, 1e12 時，分別以 K、M、B、T 簡寫顯示
     function formatQuantity(num) {
       if (num >= 1e12) {
         let val = num / 1e12;
@@ -592,11 +574,11 @@ function compressNumber(num, precision) {
       }
       return num.toFixed(2);
     }
-    // 選單置中
+
     function centerMenuItem(el) {
       elements.profitSelection.scrollLeft = el.offsetLeft - elements.profitSelection.clientWidth / 2 + el.clientWidth / 2;
     }
-    // 切換模式
+
     function switchMode(newMode) {
       const isOverviewSwitch = (activeProfile === 'overview') !== (newMode === 'overview');
       if (isOverviewSwitch) {
@@ -615,7 +597,7 @@ function compressNumber(num, precision) {
       document.getElementById(newMode + "Profit").classList.add("selected");
       centerMenuItem(document.getElementById(newMode + "Profit"));
     }
-    // 更新盈虧資料
+
     function updateProfile(profileKey, currentPrice) {
       profitDetailsContainer.style.height = `${originalContainerHeight}px`;
       if (profileKey === 'overview') {
@@ -683,14 +665,13 @@ function compressNumber(num, precision) {
       animateValue(els.totalAmount, parseFloat(els.totalAmount.textContent.replace(/,/g, '')) || 0, profile.totalAmount, 500, v => v.toLocaleString());
       animateValue(els.totalCost, parseFloat(els.totalCost.textContent.replace(/,/g, '')) || 0, profile.totalCost, 500, v => v.toLocaleString());
       animateValue(els.value, parseFloat(els.value.textContent.replace(/,/g, '')) || 0, valueTWD, 500, v => v.toFixed(2));
-      // 若需要壓縮顯示，也可利用 compressNumber，此處以原始 toFixed(13) 顯示
       animateValue(els.avgPrice, parseFloat(els.avgPrice.textContent.replace(/,/g, '')) || 0, avgPriceUSD, 500, v => v.toFixed(13));
       animateValue(els.unrealized, parseFloat(els.unrealized.textContent.replace(/[^\d.-]/g, '')) || 0, unrealizedTWD, 500, v => (v >= 0 ? "+" : "") + v.toFixed(0));
       animateValue(els.profitRate, parseFloat(els.profitRate.textContent.replace(/%/g, '')) || 0, profitRate, 500, v => v.toFixed(2) + "%");
       els.unrealized.className = `value ${unrealizedTWD >= 0 ? "positive" : "negative"}`;
       els.profitRate.className = `value ${profitRate >= 0 ? "positive" : "negative"}`;
     }
-    // 獲取歷史價格與匯率
+
     async function fetchOneDayAgoPrice() {
       try {
         const response = await fetch('https://api.binance.com/api/v3/klines?symbol=1MBABYDOGEUSDT&interval=1d&limit=2');
@@ -700,6 +681,7 @@ function compressNumber(num, precision) {
         console.error("獲取歷史價格失敗:", error);
       }
     }
+
     async function fetchExchangeRate() {
       try {
         const response = await fetch('https://open.er-api.com/v6/latest/USD');
@@ -712,33 +694,15 @@ function compressNumber(num, precision) {
         console.error("取得匯率失敗:", error);
       }
     }
-    // 更新進度條
+
     function updateProgressBar(progress) {
       elements.progressBar.style.width = `${progress}%`;
       elements.progressText.textContent = `${progress}%`;
     }
-    // WebSocket 連線
+
     function connectWebSocket() {
-      const ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
-      let progress = 0;
-      const interval = setInterval(() => {
-        updateProgressBar(++progress);
-        if (progress >= 100) {
-          clearInterval(interval);
-          setTimeout(() => {
-            elements.progressContainer.style.display = "none";
-            elements.mainInfo.style.opacity = "1";
-            elements.mainInfo.style.transform = "translateY(0)";
-            elements.profitSelection.style.opacity = "1";
-            elements.profitSelection.style.transform = "translateY(0)";
-            elements.descriptionBox.style.opacity = "1";
-            elements.descriptionBox.style.transform = "translateY(0)";
-            profitDetailsContainer.style.opacity = "1";
-            profitDetailsContainer.style.transform = "translateY(0)";
-            setTimeout(() => profitDetails.classList.add("active"), 300);
-          }, 500);
-        }
-      }, 5);
+      ws = new WebSocket('wss://stream.binance.com:9443/ws/1mbabydogeusdt@ticker');
+      ws.onopen = () => console.log('WebSocket 連線已建立');
       ws.onmessage = event => {
         const data = JSON.parse(event.data);
         if (!data.c) return;
@@ -754,8 +718,21 @@ function compressNumber(num, precision) {
         lastPrice = newPrice;
         updateProfile(activeProfile, newPrice);
       };
+      ws.onclose = () => {
+        console.log('WebSocket 連線已關閉');
+        setTimeout(connectWebSocket, 1000);
+      };
+      ws.onerror = error => console.error('WebSocket 錯誤:', error);
     }
-    // 事件監聽
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        if (ws.readyState !== WebSocket.OPEN) connectWebSocket();
+      } else {
+        if (ws.readyState === WebSocket.OPEN) ws.close();
+      }
+    });
+
     ['overview', 'carter', 'hannah', 'eric', 'simon', 'kevin', 'arthur'].forEach(mode => {
       elements[mode + 'Profit'].addEventListener("click", () => switchMode(mode));
     });
@@ -776,25 +753,17 @@ function compressNumber(num, precision) {
       rotationAngle += 360;
       elements.coinImage.style.transform = `rotate(${rotationAngle}deg)`;
     });
-    // ---------------------------
-    // 點擊按鈕展開/收起計算機功能（取消拖曳功能）
-    // ---------------------------
+
     const draggableButton = document.getElementById('draggable-button');
     draggableButton.addEventListener('click', (e) => {
       if (!isOverlayOpen) {
         overlay = document.createElement('div');
-        overlay.style.position = 'fixed';
-        overlay.style.top = '0';
-        overlay.style.left = '0';
-        overlay.style.width = '100%';
-        overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-        overlay.style.zIndex = '999';
-        overlay.style.opacity = '0';
-        overlay.style.transition = 'opacity 0.5s ease';
-        overlay.style.display = 'flex';
-        overlay.style.alignItems = 'center';
-        overlay.style.justifyContent = 'center';
+        overlay.style.cssText = `
+          position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+          background-color: rgba(0, 0, 0, 0.8); z-index: 999; opacity: 0;
+          transition: opacity 0.5s ease; display: flex; align-items: center;
+          justify-content: center;
+        `;
         overlay.innerHTML = `
           <div class="calculator-container">
             <h1>持倉均價計算</h1>
@@ -818,17 +787,10 @@ function compressNumber(num, precision) {
             <div class="result" id="resultCalc"></div>
           </div>
         `;
-        // 點擊 overlay（但非內部計算機容器）時關閉 overlay
         overlay.addEventListener('click', (e) => {
           if (e.target === overlay) {
             overlay.style.opacity = '0';
-            setTimeout(() => {
-              if (overlay && overlay.parentNode) {
-                overlay.parentNode.removeChild(overlay);
-              }
-              overlay = null;
-              isOverlayOpen = false;
-            }, 500);
+            setTimeout(() => { if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); overlay = null; isOverlayOpen = false; }, 500);
           }
         });
         document.body.appendChild(overlay);
@@ -844,31 +806,17 @@ function compressNumber(num, precision) {
       } else {
         if (overlay) {
           overlay.style.opacity = '0';
-          setTimeout(() => {
-            if (overlay && overlay.parentNode) {
-              overlay.parentNode.removeChild(overlay);
-            }
-            overlay = null;
-            isOverlayOpen = false;
-          }, 500);
+          setTimeout(() => { if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); overlay = null; isOverlayOpen = false; }, 500);
         }
       }
     });
-    // ---------------------------
-    // 持倉均價計算機的功能
-    // ---------------------------
+
     const calcPositions = [];
     function addPositionCalc() {
-      if (exchangeRate === 0) {
-        alert('正在獲取匯率，請稍後再試。');
-        return;
-      }
+      if (exchangeRate === 0) { alert('正在獲取匯率，請稍後再試。'); return; }
       const price = parseFloat(document.getElementById('calcPrice').value);
       const costTWD = parseFloat(document.getElementById('calcCost').value);
-      if (isNaN(price) || isNaN(costTWD) || price <= 0 || costTWD <= 0) {
-        alert("請輸入正確的進場價格與成本價！");
-        return;
-      }
+      if (isNaN(price) || isNaN(costTWD) || price <= 0 || costTWD <= 0) { alert("請輸入正確的進場價格與成本價！"); return; }
       const costUSD = costTWD / exchangeRate;
       const quantity = costUSD / price;
       calcPositions.push({ price, costTWD, quantity });
@@ -882,7 +830,6 @@ function compressNumber(num, precision) {
       tbody.innerHTML = '';
       calcPositions.forEach((pos, index) => {
         const tr = document.createElement('tr');
-        // 使用 compressNumber 將進場價格做壓縮顯示（若有連續 0 的情況）
         tr.innerHTML = `
           <td>${index + 1}</td>
           <td>${compressNumber(pos.price, 15)}</td>
@@ -893,19 +840,14 @@ function compressNumber(num, precision) {
       });
     }
     function calculateAverageCalc() {
-      if (calcPositions.length === 0) {
-        document.getElementById('resultCalc').innerText = '';
-        return;
-      }
-      let totalCostUSD = 0;
-      let totalQuantity = 0;
+      if (calcPositions.length === 0) { document.getElementById('resultCalc').innerText = ''; return; }
+      let totalCostUSD = 0, totalQuantity = 0;
       calcPositions.forEach(pos => {
         const costUSD = pos.costTWD / exchangeRate;
         totalCostUSD += costUSD;
         totalQuantity += pos.quantity;
       });
       const averagePrice = totalCostUSD / totalQuantity;
-      // 利用 compressNumber 將持倉均價格式化顯示
       document.getElementById('resultCalc').innerText = `持倉均價：${compressNumber(averagePrice, 15)} USD`;
     }
     function removeLastPositionCalc() {
@@ -917,15 +859,32 @@ function compressNumber(num, precision) {
         alert("沒有持倉數據可刪除！");
       }
     }
-    // ---------------------------
-    // 初始化
-    // ---------------------------
+
     elements.overviewProfit.classList.add("selected");
     centerMenuItem(elements.overviewProfit);
     (async () => {
       await fetchExchangeRate();
       await fetchOneDayAgoPrice();
       connectWebSocket();
+      let progress = 0;
+      const interval = setInterval(() => {
+        updateProgressBar(++progress);
+        if (progress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            elements.progressContainer.style.display = "none";
+            elements.mainInfo.style.opacity = "1";
+            elements.mainInfo.style.transform = "translateY(0)";
+            elements.profitSelection.style.opacity = "1";
+            elements.profitSelection.style.transform = "translateY(0)";
+            elements.descriptionBox.style.opacity = "1";
+            elements.descriptionBox.style.transform = "translateY(0)";
+            profitDetailsContainer.style.opacity = "1";
+            profitDetailsContainer.style.transform = "translateY(0)";
+            setTimeout(() => profitDetails.classList.add("active"), 300);
+          }, 500);
+        }
+      }, 5);
     })();
   </script>
 </body>
